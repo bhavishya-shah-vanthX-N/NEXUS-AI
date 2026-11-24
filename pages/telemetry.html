@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NexusAI Live Telemetry — real-time host/device connectors, simulated streams, historical readings, and threshold alerts.">
+    <meta name="theme-color" content="#070b14">
+    <title>Live Telemetry | NexusAI</title>
+
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/telemetry.css">
+</head>
+
+<body>
+
+<div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="brand">
+            <div class="brand-logo">N</div>
+
+            <div class="brand-info">
+                <h2>NexusAI</h2>
+                <span>EDGE INTELLIGENCE</span>
+            </div>
+        </div>
+
+        <div class="sidebar-label">MAIN MENU</div>
+
+        <nav class="sidebar-nav" aria-label="Main navigation">
+
+            <a href="../index.html" class="nav-link">
+                <span class="nav-icon">▦</span>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="workspace.html" class="nav-link">
+                <span class="nav-icon">▣</span>
+                <span>Monitoring Workspace</span>
+            </a>
+
+            <a href="telemetry.html" class="nav-link active" aria-current="page">
+                <span class="nav-icon">⌁</span>
+                <span>Live Telemetry</span>
+            </a>
+
+            <a href="ai-analytics.html" class="nav-link">
+                <span class="nav-icon">◈</span>
+                <span>AI Analytics</span>
+            </a>
+
+            <div class="sidebar-label">PLATFORM</div>
+
+            <a href="hardware.html" class="nav-link">
+                <span class="nav-icon">▤</span>
+                <span>Hardware Gallery</span>
+            </a>
+
+            <a href="roadmap.html" class="nav-link">
+                <span class="nav-icon">⌖</span>
+                <span>Development Roadmap</span>
+            </a>
+
+            <a href="user-guide.html" class="nav-link">
+                <span class="nav-icon">ⓘ</span>
+                <span>User Guide</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <div class="system-status">
+                <span class="status-dot" id="telemetry-sidebar-dot"></span>
+
+                <div>
+                    <strong id="telemetry-sidebar-status">Telemetry Ready</strong>
+                    <small>Local IndexedDB stream</small>
+                </div>
+            </div>
+
+            <div class="sidebar-version">
+                NEXUSAI · DEMONSTRATION BUILD
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content" id="main-content">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+
+            <div class="topbar-left">
+                <div>
+                    <span class="breadcrumb">Platform /</span>
+                    <strong>Live Telemetry</strong>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <span class="environment-label">
+                    <span class="status-dot"></span>
+                    DEMO ENVIRONMENT
+                </span>
+
+                <div class="user-avatar" title="NexusAI User">N</div>
+            </div>
+
+        </header>
+
+
+        <!-- PAGE CONTENT -->
+        <div class="page-container">
+
+            <!-- PAGE HEADER -->
+            <section class="page-header telemetry-page-header">
+
+                <div>
+                    <div class="eyebrow">MONITORING &amp; VISUALIZATION</div>
+
+                    <h1>Live Telemetry</h1>
+
+                    <p>
+                        Connect real-time laptop host metrics or compatible hardware interfaces,
+                        run controlled telemetry simulations, and inspect threshold alerts.
+                    </p>
+                </div>
+
+                <div class="page-header-actions">
+                    <button type="button" class="btn btn-secondary" id="telemetry-export-csv-btn">
+                        Export Filtered CSV
+                    </button>
+
+                    <button type="button" class="btn btn-primary" id="sim-toggle-btn">
+                        ▶ Start Live Simulation
+                    </button>
+                </div>
+
+            </section>
+
+
+            <!-- SUMMARY KPI CARDS -->
+            <section class="telemetry-summary-grid">
+
+                <article class="telemetry-summary-card">
+                    <div class="summary-card-top">
+                        <span class="summary-label">ACTIVE SOURCES</span>
+                        <span class="summary-icon">▣</span>
+                    </div>
+                    <div class="summary-value" id="tel-active-sources">0</div>
+                    <div class="summary-description">Ready for telemetry</div>
+                </article>
+
+                <article class="telemetry-summary-card">
+                    <div class="summary-card-top">
+                        <span class="summary-label">FILTERED READINGS</span>
+                        <span class="summary-icon">⌁</span>
+                    </div>
+                    <div class="summary-value" id="tel-total-readings">0</div>
+                    <div class="summary-description">Matching current filters</div>
+                </article>
+
+                <article class="telemetry-summary-card">
+                    <div class="summary-card-top">
+                        <span class="summary-label">LATEST VALUE</span>
+                        <span class="summary-icon">◉</span>
+                    </div>
+                    <div class="summary-value" id="tel-latest-value">--</div>
+                    <div class="summary-description" id="tel-latest-meta">Select a source &amp; metric</div>
+                </article>
+
+                <article class="telemetry-summary-card">
+                    <div class="summary-card-top">
+                        <span class="summary-label">THRESHOLD ALERTS</span>
+                        <span class="summary-icon warning">!</span>
+                    </div>
+                    <div class="summary-value" id="tel-alert-count">0</div>
+                    <div class="summary-description">Warning or critical events</div>
+                </article>
+
+            </section>
+
+
+            <!-- FILTER & SIMULATION CONTROLS -->
+            <section class="content-card telemetry-controls-card">
+
+                <div class="telemetry-filters-grid">
+
+                    <div class="form-group">
+                        <label for="telemetry-source-select">Monitoring Source</label>
+                        <select id="telemetry-source-select">
+                            <option value="">No sources available</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telemetry-metric-select">Metric</label>
+                        <select id="telemetry-metric-select">
+                            <option value="">Select a metric</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telemetry-time-filter">Time Window</label>
+                        <select id="telemetry-time-filter">
+                            <option value="all">All Recorded Time</option>
+                            <option value="15m">Last 15 Minutes</option>
+                            <option value="1h">Last 1 Hour</option>
+                            <option value="24h">Last 24 Hours</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telemetry-mode-filter">Input Mode</label>
+                        <select id="telemetry-mode-filter">
+                            <option value="all">All Input Modes</option>
+                            <option value="device">Real Device / Host</option>
+                            <option value="simulated">Simulated</option>
+                            <option value="manual">Manual</option>
+                            <option value="import">Imported</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="simulation-bar">
+
+                    <div class="simulation-status-group">
+                        <span class="sim-pill" id="sim-status-pill">
+                            <span class="status-dot"></span>
+                            SIMULATION IDLE
+                        </span>
+                        <span class="sim-interval-label" id="sim-interval-label">
+                            Interval: --
+                        </span>
+                    </div>
+
+                    <div class="simulation-actions">
+                        <button type="button" class="btn btn-secondary btn-small" id="sim-spike-btn" disabled>
+                            ⚡ Inject Spike
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-small" id="sim-single-tick-btn" disabled>
+                            + Generate 1 Sample
+                        </button>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- REAL-TIME SYSTEM & HARDWARE CONNECTORS -->
+            <section class="content-card connectors-card" aria-label="Real-Time System Connectors">
+
+                <div class="section-heading-row">
+                    <div>
+                        <div class="eyebrow">UNIVERSAL DEVICE ADAPTER</div>
+                        <h2>Real-Time System &amp; Laptop Connectors</h2>
+                        <p>
+                            Inspect what this browser can genuinely detect from your laptop and stream live
+                            <code>DEVICE</code> readings via Browser APIs, Web Serial, Web Bluetooth, or WebSocket.
+                        </p>
+                    </div>
+
+                    <button type="button" class="btn btn-secondary btn-small" id="refresh-probe-btn">
+                        ↻ Re-Probe Laptop
+                    </button>
+                </div>
+
+                <!-- Live Laptop Capability Matrix -->
+                <div class="probe-grid">
+                    <div class="probe-item">
+                        <span>CPU Logical Cores</span>
+                        <strong id="probe-cores">--</strong>
+                    </div>
+                    <div class="probe-item">
+                        <span>GPU Renderer (WebGL)</span>
+                        <strong id="probe-gpu">--</strong>
+                    </div>
+                    <div class="probe-item">
+                        <span>WebGPU / NPU (WebNN)</span>
+                        <strong id="probe-npu-gpu">--</strong>
+                    </div>
+                    <div class="probe-item">
+                        <span>Battery (Live API)</span>
+                        <strong id="probe-battery">--</strong>
+                    </div>
+                    <div class="probe-item">
+                        <span>Network (RTT / Downlink)</span>
+                        <strong id="probe-network">--</strong>
+                    </div>
+                    <div class="probe-item">
+                        <span>JS Heap / Context</span>
+                        <strong id="probe-memory">--</strong>
+                    </div>
+                </div>
+
+                <!-- 4 Real-Time Connectors -->
+                <div class="connectors-grid">
+
+                    <!-- 1. Local Laptop Host Stream -->
+                    <article class="connector-box">
+                        <div class="connector-top">
+                            <strong>1. This Laptop (Browser Telemetry)</strong>
+                            <span class="badge" id="host-badge">IDLE</span>
+                        </div>
+                        <p class="connector-desc">
+                            Streams real battery %, network RTT/Mbps, JS heap %, render FPS &amp; thread jitter.
+                            <em>(CPU/GPU/NPU % &amp; °C temps are blocked by browser OS sandbox.)</em>
+                        </p>
+                        <div class="connector-controls">
+                            <button type="button" class="btn btn-secondary btn-small" id="register-host-source-btn">
+                                + Register This Laptop
+                            </button>
+                            <button type="button" class="btn btn-primary btn-small" id="host-stream-btn">
+                                ▶ Stream Real Host
+                            </button>
+                        </div>
+                        <small class="connector-status" id="host-status-text">Ready to register or stream.</small>
+                    </article>
+
+                    <!-- 2. Web Serial -->
+                    <article class="connector-box">
+                        <div class="connector-top">
+                            <strong>2. Web Serial (USB / ESP32 / Arduino)</strong>
+                            <span class="badge" id="serial-badge">READY</span>
+                        </div>
+                        <p class="connector-desc">
+                            Streams real external sensors/controllers sending JSON or <code>metric:value</code> lines over USB.
+                        </p>
+                        <div class="connector-controls">
+                            <select id="serial-baud-select" class="connector-input" aria-label="Serial baud rate">
+                                <option value="115200">115200 baud</option>
+                                <option value="9600">9600 baud</option>
+                                <option value="57600">57600 baud</option>
+                            </select>
+                            <button type="button" class="btn btn-secondary btn-small" id="serial-connect-btn">
+                                Connect Serial
+                            </button>
+                        </div>
+                        <small class="connector-status" id="serial-status-text">Requires localhost or HTTPS.</small>
+                    </article>
+
+                    <!-- 3. Web Bluetooth -->
+                    <article class="connector-box">
+                        <div class="connector-top">
+                            <strong>3. Web Bluetooth (BLE Peripherals)</strong>
+                            <span class="badge" id="ble-badge">READY</span>
+                        </div>
+                        <p class="connector-desc">
+                            Pairs with Bluetooth LE devices and reads GATT services (e.g., Battery Service 0x180F).
+                        </p>
+                        <div class="connector-controls">
+                            <button type="button" class="btn btn-secondary btn-small" id="ble-connect-btn">
+                                Pair BLE Device
+                            </button>
+                        </div>
+                        <small class="connector-status" id="ble-status-text">Requires localhost or HTTPS.</small>
+                    </article>
+
+                    <!-- 4. WebSocket Adapter -->
+                    <article class="connector-box">
+                        <div class="connector-top">
+                            <strong>4. WebSocket Stream (Local Agent)</strong>
+                            <span class="badge" id="ws-badge">IDLE</span>
+                        </div>
+                        <p class="connector-desc">
+                            Optional client adapter for any local hardware agent pushing JSON telemetry over <code>ws://</code>.
+                        </p>
+                        <div class="connector-controls">
+                            <input
+                                type="url"
+                                id="ws-url-input"
+                                class="connector-input"
+                                value="ws://localhost:8765"
+                                placeholder="ws://localhost:8765"
+                                aria-label="WebSocket URL"
+                            >
+                            <button type="button" class="btn btn-secondary btn-small" id="ws-connect-btn">
+                                Connect WS
+                            </button>
+                        </div>
+                        <small class="connector-status" id="ws-status-text">Not connected.</small>
+                    </article>
+
+                </div>
+
+            </section>
+
+
+            <!-- CHART + ALERTS GRID -->
+            <section class="telemetry-main-grid">
+
+                <!-- LIVE & HISTORICAL CHART -->
+                <article class="content-card chart-card">
+
+                    <div class="section-heading-row">
+                        <div>
+                            <h2 id="chart-title">Metric History Chart</h2>
+                            <p id="chart-subtitle">
+                                Time-series telemetry with configured warning &amp; critical thresholds.
+                            </p>
+                        </div>
+
+                        <div class="chart-legend">
+                            <span class="legend-item">
+                                <i class="legend-dot legend-primary"></i> Reading
+                            </span>
+                            <span class="legend-item">
+                                <i class="legend-dot legend-warning"></i> Warning
+                            </span>
+                            <span class="legend-item">
+                                <i class="legend-dot legend-critical"></i> Critical
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="chart-canvas-wrap">
+                        <canvas id="telemetry-chart" aria-label="Telemetry time-series chart"></canvas>
+                        <div id="telemetry-chart-empty" class="chart-empty-overlay">
+                            <p>No readings recorded for this selection yet.</p>
+                            <span>Click <strong>▶ Stream Real Host</strong>, <strong>Start Live Simulation</strong>, or add manual readings in Workspace.</span>
+                        </div>
+                        <div id="telemetry-chart-tooltip" class="chart-tooltip hidden" role="status"></div>
+                    </div>
+
+                </article>
+
+
+                <!-- THRESHOLD ALERTS PANEL -->
+                <aside class="content-card alerts-card" aria-label="Recent Threshold Alerts">
+
+                    <div class="section-heading-row">
+                        <div>
+                            <h2>Alert Feed</h2>
+                            <p>Detected threshold violations</p>
+                        </div>
+                        <span class="badge" id="alert-feed-badge">0 Alerts</span>
+                    </div>
+
+                    <ul id="telemetry-alerts-list" class="alerts-list" aria-live="polite">
+                        <li class="alerts-empty">
+                            No warning or critical alerts recorded for the selected source.
+                        </li>
+                    </ul>
+
+                </aside>
+
+            </section>
+
+
+            <!-- CURRENT METRIC SNAPSHOTS -->
+            <section class="content-card snapshots-card">
+
+                <div class="section-heading-row">
+                    <div>
+                        <h2>Current Source Metrics</h2>
+                        <p id="snapshots-subtitle">
+                            Latest recorded value for each enabled metric on the selected source.
+                        </p>
+                    </div>
+                </div>
+
+                <div id="metric-snapshot-grid" class="metric-snapshot-grid">
+                    <div class="empty-state">
+                        Select a monitoring source to view its latest metric readings.
+                    </div>
+                </div>
+
+            </section>
+
+
+            <!-- HISTORICAL READINGS TABLE -->
+            <section class="content-card telemetry-history-card">
+
+                <div class="section-heading-row">
+                    <div>
+                        <h2>Reading History</h2>
+                        <p>
+                            Detailed telemetry log clearly distinguishing simulated, manual, imported, and real device inputs.
+                        </p>
+                    </div>
+                    <span class="badge" id="history-count-badge">0 Records</span>
+                </div>
+
+                <div class="data-table-wrapper">
+                    <table class="data-table telemetry-table">
+                        <thead>
+                            <tr>
+                                <th>TIMESTAMP</th>
+                                <th>SOURCE</th>
+                                <th>METRIC</th>
+                                <th>VALUE</th>
+                                <th>STATUS</th>
+                                <th>INPUT MODE</th>
+                            </tr>
+                        </thead>
+                        <tbody id="telemetry-table-body">
+                            <tr>
+                                <td colspan="6">
+                                    <div class="empty-state">
+                                        No telemetry readings available yet.
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </section>
+
+
+            <!-- TRANSPARENCY NOTICE -->
+            <section class="telemetry-notice">
+                <div class="notice-icon">ⓘ</div>
+                <div>
+                    <strong>Hardware &amp; Data Source Transparency</strong>
+                    <p>
+                        Readings from your laptop&rsquo;s Browser APIs, Web Serial, Web Bluetooth, or WebSocket are labeled
+                        <strong>DEVICE</strong>. Synthetic test streams are labeled <strong>SIMULATED</strong>.
+                        Per browser security rules, OS-level CPU/GPU/NPU load percentages and thermal sensors cannot be read
+                        directly by a web page without an external hardware sensor or local OS agent.
+                    </p>
+                </div>
+            </section>
+
+
+            <!-- FOOTER -->
+            <footer class="main-footer">
+                <div>
+                    <strong>NexusAI</strong>
+                    <span>High-Throughput Edge AI &amp; Telemetry Platform</span>
+                </div>
+                <p>Demonstration Build · Live Telemetry &amp; Device Connectors</p>
+            </footer>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script src="../js/storage.js" defer></script>
+<script src="../js/data-manager.js" defer></script>
+<script src="../js/device-connectors.js" defer></script>
+<script src="../js/telemetry.js" defer></script>
+
+</body>
+</html>
