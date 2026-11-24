@@ -1,4 +1,3 @@
-
 /* =========================================================
    NEXUSAI — DATA MANAGER
    File: js/data-manager.js
@@ -193,6 +192,33 @@
             }
         ],
 
+        "GPU Node": [
+            {
+                name: "GPU Utilization",
+                unit: "%",
+                warningThreshold: 80,
+                criticalThreshold: 95
+            },
+            {
+                name: "VRAM Utilization",
+                unit: "%",
+                warningThreshold: 80,
+                criticalThreshold: 95
+            },
+            {
+                name: "GPU Temperature",
+                unit: "°C",
+                warningThreshold: 78,
+                criticalThreshold: 88
+            },
+            {
+                name: "Power Draw",
+                unit: "W",
+                warningThreshold: 220,
+                criticalThreshold: 280
+            }
+        ],
+
         "Robotic Arm": [
             {
                 name: "Motor Temperature",
@@ -287,6 +313,24 @@
        METRIC MANAGEMENT
     ===================================================== */
 
+    function parseOptionalNumber(rawValue, label) {
+        if (
+            rawValue === "" ||
+            rawValue === undefined ||
+            rawValue === null
+        ) {
+            return null;
+        }
+
+        const numericValue = Number(rawValue);
+
+        if (!Number.isFinite(numericValue)) {
+            throw new Error(`${label} must be a valid number.`);
+        }
+
+        return numericValue;
+    }
+
     function createMetric(metric = {}) {
         const name = String(metric.name || "").trim();
         const unit = String(metric.unit || "").trim();
@@ -295,28 +339,18 @@
             throw new Error("Metric name is required.");
         }
 
-        const warning = Number(metric.warningThreshold);
-        const critical = Number(metric.criticalThreshold);
+        const warning = parseOptionalNumber(
+            metric.warningThreshold,
+            "Warning threshold"
+        );
+        const critical = parseOptionalNumber(
+            metric.criticalThreshold,
+            "Critical threshold"
+        );
 
         if (
-            metric.warningThreshold !== "" &&
-            metric.warningThreshold !== undefined &&
-            !Number.isFinite(warning)
-        ) {
-            throw new Error("Warning threshold must be a valid number.");
-        }
-
-        if (
-            metric.criticalThreshold !== "" &&
-            metric.criticalThreshold !== undefined &&
-            !Number.isFinite(critical)
-        ) {
-            throw new Error("Critical threshold must be a valid number.");
-        }
-
-        if (
-            Number.isFinite(warning) &&
-            Number.isFinite(critical) &&
+            warning !== null &&
+            critical !== null &&
             warning === critical
         ) {
             throw new Error(
@@ -328,8 +362,8 @@
             id: metric.id || createId("metric"),
             name,
             unit,
-            warningThreshold: Number.isFinite(warning) ? warning : null,
-            criticalThreshold: Number.isFinite(critical) ? critical : null,
+            warningThreshold: warning,
+            criticalThreshold: critical,
             enabled: metric.enabled !== false
         };
     }
@@ -585,7 +619,13 @@
 
         await Storage.add("readings", reading);
 
-        source.lastReadingAt = reading.timestamp;
+        const existingLast = source.lastReadingAt
+            ? new Date(source.lastReadingAt).getTime()
+            : 0;
+
+        if (!source.lastReadingAt || timestamp.getTime() >= existingLast) {
+            source.lastReadingAt = reading.timestamp;
+        }
 
         await Storage.put("sources", source);
 
