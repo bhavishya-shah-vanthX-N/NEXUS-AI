@@ -1,577 +1,662 @@
+
 # NEXUSAI — MASTER PROJECT STATUS & ARCHITECTURE
 
 **Project:** NexusAI — High-Throughput Edge AI & Telemetry Platform  
-**Project Category:** Edge Computing / AI / Hardware Telemetry  
-**Development Deadline:** 27 November 2026  
-**Current Status:** Website Foundation and Architecture  
-**Last Updated:** 24 November 2026
+**Current Status Date:** 25 November 2026  
+**Target Deadline:** 27 November 2026  
+**Development Stage:** Core Foundation & Workspace Implementation  
+**Status:** Active Development
 
 ---
 
 # 1. PROJECT OVERVIEW
 
-NexusAI is a browser-based edge intelligence and telemetry
-monitoring platform designed to manage multiple computing
-devices and hardware systems.
+NexusAI is a browser-based Edge AI and telemetry monitoring platform designed to manage, monitor, analyze, and visualize performance data from different computing systems and hardware devices.
 
-The platform collects telemetry data, organizes measurements,
-monitors system performance, detects abnormal behaviour,
-analyzes trends, and presents diagnostic insights.
+The platform aims to provide a unified interface for:
 
-Its architecture is intended to support different device types
-and processor architectures through a unified monitoring system.
+- Monitoring multiple hardware and computing sources.
+- Collecting telemetry readings.
+- Managing configurable monitoring metrics.
+- Importing and exporting monitoring datasets.
+- Visualizing live and historical telemetry.
+- Detecting anomalies through statistical analysis.
+- Forecasting performance trends.
+- Providing optimization recommendations.
+- Exploring hardware specifications and capabilities.
+- Demonstrating browser-supported device connectivity.
 
-The website must demonstrate a professional monitoring platform
-rather than a collection of disconnected static pages.
+The project is being developed as a multi-page desktop-first website.
+
+The interface should resemble a professional enterprise monitoring platform rather than a single long scrolling page or a sliding presentation.
 
 ---
 
 # 2. NON-NEGOTIABLE TECHNOLOGY REQUIREMENTS
 
-The entire project must use:
+The following technology restrictions must be maintained throughout development.
+
+## Allowed Technologies
 
 - HTML5
 - CSS3
 - Vanilla JavaScript
+- IndexedDB
+- LocalStorage
+- Browser-native File API
+- Canvas API
+- Supported Web Serial API
+- Supported Web Bluetooth API
+- Supported WebUSB API
 
-STRICTLY PROHIBITED:
+## Not Allowed
 
 - React
 - Angular
 - Vue
 - Bootstrap
-- Tailwind CSS
-- External JavaScript libraries
+- Tailwind
+- jQuery
 - Node.js
 - npm
 - Backend services
 - Server-side programming
-- External APIs
 - External databases
+- External APIs
+- Framework-dependent libraries
 
-Browser-native technologies are permitted:
+All functionality must be implemented using HTML, CSS, and native JavaScript.
 
-- IndexedDB
-- LocalStorage
-- File API
-- Canvas API
-- Web Serial API
-- Web Bluetooth API
-- WebUSB API
-- Other supported native browser capabilities
-
-These restrictions must never be relaxed unless explicitly
-authorized by the project owner.
+Browser-native capabilities may be used when supported by the browser and hardware.
 
 ---
 
-# 3. CORE PROJECT OBJECTIVES
+# 3. WEBSITE STRUCTURE
 
-1. Create a unified monitoring environment for different devices.
-2. Support multiple independent monitoring sources.
-3. Collect and organize hardware telemetry.
-4. Display live and historical measurements.
-5. Detect unusual readings using statistical analysis.
-6. Forecast possible performance trends.
-7. Generate health assessments and recommendations.
-8. Support manual readings and dataset imports.
-9. Provide local data persistence.
-10. Demonstrate hardware compatibility across ARM64, x64 and x86.
-11. Build a professional, responsive and accessible interface.
+The project follows a separate-page architecture.
 
----
+## Planned Website Pages
 
-# 4. WEBSITE ARCHITECTURE
+| Page | File | Purpose |
+|---|---|---|
+| Dashboard | index.html | Overall platform overview |
+| Workspace | pages/workspace.html | Monitoring source management |
+| Telemetry | pages/telemetry.html | Live telemetry and history |
+| AI Analytics | pages/ai-analytics.html | Anomaly detection and forecasting |
+| Hardware | pages/hardware.html | Hardware gallery and specifications |
+| Roadmap | pages/roadmap.html | Four-phase development roadmap |
+| User Guide | pages/user-guide.html | Platform documentation |
 
-The website must be a MULTI-PAGE WEBSITE.
-
-Navigation must open separate HTML documents.
-
-Do not turn the website into a single long scrolling page,
-horizontal slider, or slide-based navigation system.
-
-Natural vertical scrolling is allowed within individual pages.
-
-The intended design is a hybrid of:
-
-- Professional enterprise monitoring dashboard
-- Compact application-style navigation
-- Desktop-first interface
-- Fixed sidebar and compact topbar
-- Page-specific layouts
-- Balanced content density
-- Responsive mobile fallback
-- Subtle transitions and clear visual hierarchy
-
-## Main Pages
-
-### 4.1 Dashboard — index.html
-
-Purpose:
-- Overall platform overview
-- System statistics
-- Monitoring source count
-- Reading count
-- Alert count
-- Quick navigation to modules
-- Architecture overview
-
-### 4.2 Monitoring Workspace — pages/workspace.html
-
-Purpose:
-- Create monitoring sources
-- Edit and delete sources
-- Activate and deactivate sources
-- Configure device architecture
-- Configure input methods
-- Add custom measurement fields
-- Set warning and critical thresholds
-- Configure sampling intervals
-- Configure history retention
-- Enter manual readings
-- Import CSV and JSON datasets
-- Export workspace information
-
-### 4.3 Live Telemetry — pages/telemetry.html
-
-Purpose:
-- Display live readings
-- Show telemetry charts
-- Monitor individual sources
-- Display current measurements
-- Show historical trends
-- Provide source-specific monitoring views
-
-### 4.4 AI Analytics — pages/ai-analytics.html
-
-Purpose:
-- Detect anomalies
-- Calculate health scores
-- Perform statistical analysis
-- Apply rolling Z-score detection
-- Forecast trends using linear regression
-- Generate diagnostic recommendations
-- Maintain a severity-based event log
-- Demonstrate simulated optimization
-
-AI claims must remain technically accurate.
-Statistical algorithms must not be falsely presented as trained
-machine-learning models.
-
-### 4.5 Hardware Gallery — pages/hardware.html
-
-Purpose:
-- Display supported hardware categories
-- Show hardware specifications
-- Filter hardware information
-- Open detailed hardware views
-- Demonstrate simulated benchmarks
-- Explain hardware compatibility
-
-### 4.6 Development Roadmap — pages/roadmap.html
-
-Purpose:
-- Display the four development phases
-- Show implementation progress
-- Explain platform evolution
-- Present future development milestones
-
-### 4.7 User Guide — pages/user-guide.html
-
-Purpose:
-- Explain platform operation
-- Explain source configuration
-- Explain data imports and exports
-- Explain device connections
-- Document browser requirements
-- Explain supported and unsupported hardware access
+Each page should have its own relevant stylesheet and JavaScript module while sharing common design variables and base styling.
 
 ---
 
-# 5. MONITORING SOURCE ARCHITECTURE
-
-The platform must support multiple independent sources.
-
-Examples:
-
-- Laptop
-- Desktop computer
-- Server
-- NPU node
-- GPU node
-- Robotic arm
-- Cooling system
-- Temperature sensor
-- Custom monitoring device
-
-Each source should have:
-
-- Unique ID
-- Source name
-- Device type
-- Architecture
-- Description
-- Input method
-- Connection status
-- Configured metrics
-- Measurement units
-- Warning thresholds
-- Critical thresholds
-- Sampling interval
-- History retention settings
-- Creation timestamp
-- Last reading timestamp
-
-Source configuration changes must not automatically erase
-historical readings.
-
-Deleting a source must have a clear and deliberate effect on
-its associated historical records.
-
----
-
-# 6. DATA INPUT METHODS
-
-The platform should support:
-
-1. Simulated live readings
-2. Manual measurement entry
-3. CSV imports
-4. JSON imports
-5. Compatible Web Serial connections
-6. Compatible Web Bluetooth connections
-7. Compatible WebUSB connections
-
-Actual physical-device connections depend on:
-
-- Browser support
-- Operating system support
-- Secure browser context
-- User permissions
-- Device protocols
-- Hardware compatibility
-
-Simulated data must always be distinguishable from actual
-hardware readings.
-
-Do not claim that the browser can universally access CPU
-temperature, GPU temperature, SSD health or total system RAM.
-
----
-
-# 7. DATA STORAGE ARCHITECTURE
-
-The application must operate locally without a backend.
-
-## IndexedDB
-
-Use for:
-- Monitoring sources
-- Telemetry history
-- Imported datasets
-- Anomaly records
-- Historical measurements
-
-## LocalStorage
-
-Use for:
-- Small application settings
-- User preferences
-- Interface configuration
-- Lightweight state
-
-The storage architecture must support reading, writing,
-updating and deleting records.
-
-The application should handle missing data, invalid records,
-storage errors and unavailable browser capabilities gracefully.
-
----
-
-# 8. AI AND ANALYTICS ENGINE
-
-The analytics system should include:
-
-## Anomaly Detection
-- Rolling statistical analysis
-- Z-score calculation
-- Configurable thresholds
-- Severity classification
-- Anomaly history
-
-## Health Assessment
-- Source health scores
-- Metric-based health evaluation
-- Warning and critical states
-
-## Trend Forecasting
-- Linear regression
-- Historical trend analysis
-- Short-term estimated forecasts
-
-## Recommendations
-- Identify unusual behaviour
-- Explain possible causes
-- Recommend monitoring actions
-- Demonstrate simulated optimization
-
-The platform must distinguish statistical diagnostics from
-actual trained AI models.
-
----
-
-# 9. UNIVERSAL DEVICE MONITORING ADAPTER
-
-The long-term architecture includes a Universal Device
-Monitoring Adapter.
-
-Its purpose is to:
-
-1. Detect available browser capabilities.
-2. Identify supported input methods.
-3. Receive device or dataset measurements.
-4. Normalize incoming readings.
-5. Convert measurements into a common data structure.
-6. Make normalized data available to platform modules.
-
-The monitoring interface should not need separate architecture-
-specific implementations for every device.
-
-ARM64, x64 and x86 compatibility should be approached through
-browser capabilities and normalized data rather than assuming
-that all hardware exposes identical measurements.
-
----
-
-# 10. SAMPLE TEST ENVIRONMENT
-
-The demonstration environment includes:
-
-Device: ASUS Zenbook A14 UX3407QA
-
-Processor: Snapdragon X1-26-100  
-Architecture: ARM64  
-Memory: 16GB LPDDR5  
-Graphics: Adreno X1-45  
-Storage: Approximately 477GB
-
-This laptop is a sample test environment, not the exclusive
-hardware target of NexusAI.
-
-Any unavailable physical measurements must be simulated or
-provided through an explicitly supported data source.
-
----
-
-# 11. PROJECT FOLDER STRUCTURE
-
-Intended architecture:
+# 4. TARGET PROJECT DIRECTORY
 
 NexusAI/
-|
-|-- index.html
-|
-|-- css/
-|   |-- variables.css
-|   |-- base.css
-|   |-- workspace.css
-|   |-- telemetry.css
-|   |-- analytics.css
-|   |-- hardware.css
-|   |-- roadmap.css
-|   |-- guide.css
-|
-|-- js/
-|   |-- storage.js
-|   |-- data-manager.js
-|   |-- main.js
-|   |-- workspace.js
-|   |-- telemetry.js
-|   |-- ai-engine.js
-|   |-- data-import.js
-|   |-- device-connectors.js
-|   |-- gallery.js
-|
-|-- pages/
-|   |-- workspace.html
-|   |-- telemetry.html
-|   |-- ai-analytics.html
-|   |-- hardware.html
-|   |-- roadmap.html
-|   |-- user-guide.html
-|
-|-- docs/
-|   |-- PROJECT_STATUS.md
+│
+├── index.html
+│
+├── css/
+│   ├── variables.css
+│   ├── base.css
+│   ├── workspace.css
+│   ├── telemetry.css
+│   ├── analytics.css
+│   ├── hardware.css
+│   ├── roadmap.css
+│   └── guide.css
+│
+├── js/
+│   ├── storage.js
+│   ├── data-manager.js
+│   ├── main.js
+│   ├── workspace.js
+│   ├── telemetry.js
+│   ├── ai-engine.js
+│   ├── data-import.js
+│   ├── device-connectors.js
+│   └── gallery.js
+│
+├── pages/
+│   ├── workspace.html
+│   ├── telemetry.html
+│   ├── ai-analytics.html
+│   ├── hardware.html
+│   ├── roadmap.html
+│   └── user-guide.html
+│
+└── docs/
+    └── PROJECT_STATUS.md
 
-This is the target architecture. Files must be marked complete
-only after their creation and appropriate testing.
-
----
-
-# 12. SHARED APPLICATION ARCHITECTURE
-
-All pages must use the same design system and shared data model.
-
-JavaScript must use browser-native scripts without modules,
-external dependencies or build tools.
-
-A shared namespace may be used:
-
-window.NexusAI = window.NexusAI || {};
-
-The storage layer should be independent of page-specific
-interface logic.
-
-The data manager should provide consistent source and reading
-operations.
-
-The analytics engine should consume normalized readings.
-
-The telemetry page should display data from the shared data
-layer rather than generating unrelated independent datasets.
-
-The dashboard should display statistics derived from the
-same stored monitoring records.
+This represents the target architecture. Not every listed file has been created or verified yet.
 
 ---
 
-# 13. IMPLEMENTATION TRACKER
+# 5. CORE SYSTEM ARCHITECTURE
 
-Status definitions:
+The project is organized into several interconnected layers.
 
-[ ] Not started
-[~] Code delivered / implementation in progress
-[+] Created and saved
-[X] Tested and verified
+## A. User Interface Layer
 
-## Project foundation
+Responsible for:
 
-[~] Main project folder structure
-[~] Dashboard index.html
-[~] CSS variables
-[~] Base stylesheet
+- Dashboard presentation.
+- Workspace controls.
+- Telemetry visualization.
+- Analytics presentation.
+- Hardware gallery.
+- Navigation between pages.
 
-## Monitoring Workspace
+## B. Data Storage Layer
 
-[~] workspace.html
-[ ] workspace.css
-[ ] workspace.js
-[ ] Source creation and editing
-[ ] Metric configuration
-[ ] Source filtering and searching
-[ ] Manual reading entry
-[ ] Import and export functionality
+Responsible for:
 
-## Remaining pages
+- Persistent source storage.
+- Telemetry reading storage.
+- Anomaly records.
+- Application settings.
+- Imported datasets.
 
-[ ] telemetry.html
-[ ] ai-analytics.html
-[ ] hardware.html
-[ ] roadmap.html
-[ ] user-guide.html
+IndexedDB is the primary storage mechanism.
 
-## JavaScript systems
+LocalStorage is intended for smaller settings and fallback functionality.
 
-[ ] storage.js
-[ ] data-manager.js
-[ ] main.js
-[ ] telemetry.js
-[ ] ai-engine.js
-[ ] data-import.js
-[ ] device-connectors.js
-[ ] gallery.js
+## C. Data Management Layer
 
-## Final integration
+Responsible for:
 
-[ ] Shared navigation
-[ ] Shared data persistence
-[ ] Cross-page data consistency
-[ ] Responsive testing
-[ ] Browser compatibility testing
-[ ] Data import/export testing
-[ ] Analytics testing
-[ ] Final project demonstration
+- Creating monitoring sources.
+- Updating configurations.
+- Deleting sources.
+- Managing metric definitions.
+- Adding telemetry readings.
+- Retrieving historical data.
+- Providing common data structures to other modules.
 
-IMPORTANT:
-The status tracker must be updated as files are actually
-created, saved and tested. Code delivery alone does not mean
-a feature is complete.
+## D. Telemetry Layer
 
----
+Responsible for:
 
-# 14. DEVELOPMENT PRIORITIES
+- Reading collection.
+- Live simulation.
+- Historical records.
+- Sampling intervals.
+- Data visualization.
+- Threshold monitoring.
 
-The development order is:
+## E. Analytics Layer
 
-PHASE 1 — WEBSITE FOUNDATION
-- Global design system
-- Dashboard
-- Shared navigation
-- Page layouts
+Responsible for:
 
-PHASE 2 — MONITORING FUNCTIONALITY
-- Source management
-- Metric configuration
-- Local storage
-- Manual readings
-- Dataset imports
+- Statistical anomaly detection.
+- Z-score analysis.
+- Health scoring.
+- Trend analysis.
+- Linear forecasting.
+- Optimization recommendations.
 
-PHASE 3 — TELEMETRY AND ANALYTICS
-- Simulated live data
-- Telemetry charts
-- Anomaly detection
-- Health scores
-- Trend forecasting
+## F. Device Integration Layer
 
-PHASE 4 — HARDWARE AND FINAL INTEGRATION
-- Hardware gallery
-- Browser capability detection
-- Device connection demonstrations
-- User guide
-- Roadmap
-- Final testing and presentation
+Responsible for:
+
+- Browser capability detection.
+- Supported hardware interfaces.
+- Device connection demonstrations.
+- Normalization of incoming device readings.
 
 ---
 
-# 15. DEVELOPMENT RULES FOR FUTURE WORK
+# 6. MONITORING SOURCE ARCHITECTURE
 
-1. Preserve all previously agreed project requirements.
-2. Never introduce prohibited technologies.
-3. Maintain the multi-page website architecture.
-4. Use consistent naming conventions.
-5. Avoid duplicate or disconnected data systems.
-6. Keep shared styling centralized.
-7. Keep page-specific styling in separate stylesheets.
-8. Use shared JavaScript services wherever possible.
-9. Provide complete replacement code when replacing a file.
-10. Clearly state the exact file path for every code delivery.
-11. Explain each file's overall purpose briefly.
-12. Do not mark files complete until confirmed.
-13. Test integration between pages.
-14. Label simulated data honestly.
-15. Prioritize a working demonstration before unnecessary complexity.
-16. Preserve the complete project vision while implementing it
-    incrementally.
+The Workspace module must support different monitoring source categories.
 
----
+Planned source types:
 
-# 16. CURRENT DEVELOPMENT POSITION
+1. Laptop
+2. Server
+3. NPU/GPU Node
+4. Robotic Arm
+5. Cooling Unit
+6. Sensor
+7. Custom Device
 
-We are currently building the website foundation.
+Each source should support:
 
-The dashboard and shared CSS architecture have been drafted.
-The Monitoring Workspace HTML structure has just been delivered.
+- Source name.
+- Source type.
+- Architecture.
+- Input mode.
+- Description.
+- Monitoring status.
+- Sampling interval.
+- History retention.
+- Configurable metrics.
 
-The next immediate task is:
+Each metric should support:
 
-CREATE css/workspace.css
+- Metric ID.
+- Metric name.
+- Unit.
+- Warning threshold.
+- Critical threshold.
+- Enabled/disabled state.
 
-Then implement the shared storage and data-management
-architecture before connecting the Workspace interface.
-
-The priority is to build a complete, coherent and working
-NexusAI platform within the project deadline.
+Configuration updates must preserve previously collected telemetry history.
 
 ---
 
-END OF MASTER PROJECT STATUS
+# 7. UNIVERSAL DEVICE MONITORING ADAPTER
+
+A common monitoring-data structure is required so that all monitoring sources can communicate with the same system.
+
+The Universal Device Monitoring Adapter should normalize readings regardless of their original source.
+
+Planned normalized reading structure:
+
+{
+  id: "reading-id",
+  sourceId: "source-id",
+  metricId: "metric-id",
+  metric: "CPU Usage",
+  value: 65.5,
+  unit: "%",
+  timestamp: "ISO-date",
+  inputMode: "manual"
+}
+
+Supported input modes should include:
+
+- Manual
+- Import
+- Simulation
+- Device connection
+
+The same normalized data structure should be used by Workspace, Telemetry and AI Analytics.
+
+---
+
+# 8. STORAGE ARCHITECTURE
+
+IndexedDB is the primary persistent storage system.
+
+Planned object stores:
+
+- sources
+- readings
+- anomalies
+- settings
+- datasets
+
+LocalStorage may be used for smaller application settings and fallback behavior.
+
+Storage requirements:
+
+- Data should survive browser refreshes.
+- Source configuration changes must not erase historical readings.
+- Deleting a source should also remove its associated readings and anomalies.
+- Reading records should remain available to the Telemetry and Analytics modules.
+- Export functionality should allow users to retrieve their data.
+
+Large telemetry histories should use IndexedDB rather than relying on LocalStorage.
+
+---
+
+# 9. AI ANALYTICS REQUIREMENTS
+
+The AI Analytics module will initially use statistical methods implemented in JavaScript.
+
+Planned functionality:
+
+## Anomaly Detection
+
+- Rolling Z-score analysis.
+- Detection of unusual metric values.
+- Warning and critical severity levels.
+- Anomaly history.
+
+## Health Scoring
+
+- Source-level health score.
+- Metric-level status.
+- Overall monitoring health.
+
+## Trend Forecasting
+
+- Historical trend analysis.
+- Linear regression.
+- Short-term performance forecasting.
+
+## Optimization Recommendations
+
+- Identify unusual resource consumption.
+- Highlight performance bottlenecks.
+- Suggest possible improvements.
+- Demonstrate simulated optimization scenarios.
+
+Important technical distinction:
+
+The initial analytics implementation is statistical and rule-based. It must not be presented as a trained machine-learning model.
+
+---
+
+# 10. HARDWARE AND DEVICE INTEGRATION
+
+The Hardware module will provide a structured gallery of hardware categories and specifications.
+
+Planned functionality:
+
+- Hardware cards.
+- Hardware specifications.
+- Search and filtering.
+- Detailed information dialogs.
+- Simulated benchmark demonstrations.
+
+Device connectivity will use supported browser-native interfaces where possible.
+
+Important limitations:
+
+A browser cannot universally access CPU temperature, GPU temperature, SSD health, total RAM utilization or all hardware telemetry.
+
+Actual device readings must be distinguished from simulated values.
+
+Web Serial, Web Bluetooth and WebUSB require browser support, suitable hardware, permissions and compatible device protocols.
+
+---
+
+# 11. FOUR-PHASE DEVELOPMENT ROADMAP
+
+## Phase 1 — Foundation
+
+- Project structure.
+- Dashboard.
+- Shared styles.
+- IndexedDB storage.
+- Data management.
+- Workspace foundation.
+
+## Phase 2 — Monitoring Functionality
+
+- Monitoring source management.
+- Metric configuration.
+- Manual telemetry.
+- CSV/JSON import.
+- CSV/JSON export.
+- Source-specific history.
+
+## Phase 3 — Telemetry and Analytics
+
+- Live telemetry simulation.
+- Historical visualization.
+- Alerts.
+- Statistical anomaly detection.
+- Health scoring.
+- Trend forecasting.
+- Recommendations.
+
+## Phase 4 — Hardware and Integration
+
+- Hardware gallery.
+- Browser capability detection.
+- Device connectivity demonstrations.
+- Cross-page integration.
+- Testing and final refinement.
+
+The implementation order may be adjusted to prioritize a working MVP before the deadline.
+
+---
+
+# 12. CURRENT IMPLEMENTATION STATUS
+
+Status key:
+
+- [ ] Not started
+- [~] Code delivered / implementation in progress
+- [+] Created and saved
+- [X] Tested and verified
+
+## A. Project Foundation
+
+| Task | Status |
+|---|---|
+| Project folder created | [X] |
+| Target folder structure planned | [X] |
+| Dashboard HTML | [X] |
+| Shared variables CSS | [+] |
+| Shared base CSS | [+] |
+| Multi-page navigation foundation | [X] |
+| Project status document | [X] |
+
+Note: CSS files have been created/delivered, but their latest saved contents have not all been independently verified.
+
+## B. Storage and Data Management
+
+| Task | Status |
+|---|---|
+| storage.js | [+] |
+| IndexedDB architecture | [~] |
+| LocalStorage fallback | [~] |
+| data-manager.js | [~] |
+| Source CRUD operations | [X] |
+| Persistent source storage | [X] |
+| Metric configuration | [X] |
+| Reading persistence | [~] |
+| Historical reading preservation | [~] |
+| Anomaly storage | [~] |
+
+The storage and data-management code has been delivered. The source persistence workflow has been tested, but the complete storage architecture still requires broader verification.
+
+## C. Dashboard
+
+| Task | Status |
+|---|---|
+| index.html | [X] |
+| Dashboard JavaScript | [X] |
+| Application initialization | [X] |
+| Data Manager connection | [X] |
+| Dashboard statistics integration | [~] |
+| Full cross-module integration | [ ] |
+
+Dashboard initialization was confirmed after correcting a JavaScript file naming issue.
+
+## D. Workspace
+
+| Task | Status |
+|---|---|
+| pages/workspace.html | [X] |
+| workspace.css | [+] |
+| workspace.js | [X] |
+| Source creation | [X] |
+| Source persistence after refresh | [X] |
+| Source listing | [X] |
+| Metric presets | [X] |
+| Custom metric builder | [X] |
+| Manual reading submission | [X] |
+| Manual form reset | [X] |
+| Automatic timestamp reset | [X] |
+| Source and metric dropdowns | [X] |
+| Source editing | [~] |
+| Source deletion | [~] |
+| Source action dialog | [~] |
+| CSV import | [~] |
+| JSON import | [~] |
+| CSV export | [~] |
+| JSON export | [~] |
+| Search and filtering | [~] |
+
+The latest complete workspace.js replacement has been saved and confirmed working.
+
+Manual reading submission, form resetting, automatic timestamp resetting, and source/metric dropdowns have been verified.
+
+Other Workspace features are implemented in code but still need individual testing.
+
+## E. Telemetry
+
+| Task | Status |
+|---|---|
+| Telemetry HTML | [ ] |
+| Telemetry CSS | [ ] |
+| Telemetry JavaScript | [ ] |
+| Live simulation | [ ] |
+| Historical readings | [ ] |
+| Charts | [ ] |
+| Alerts | [ ] |
+| CSV/JSON data integration | [ ] |
+
+## F. AI Analytics
+
+| Task | Status |
+|---|---|
+| Analytics HTML | [ ] |
+| Analytics CSS | [ ] |
+| ai-engine.js | [ ] |
+| Z-score anomaly detection | [ ] |
+| Health scoring | [ ] |
+| Trend forecasting | [ ] |
+| Optimization recommendations | [ ] |
+
+## G. Hardware and Integration
+
+| Task | Status |
+|---|---|
+| Hardware HTML | [ ] |
+| Hardware CSS | [ ] |
+| gallery.js | [ ] |
+| Hardware gallery | [ ] |
+| Hardware filtering | [ ] |
+| Specifications | [ ] |
+| Benchmark simulation | [ ] |
+| device-connectors.js | [ ] |
+| Browser capability detection | [ ] |
+| Device connectivity demonstrations | [ ] |
+
+## H. Documentation
+
+| Task | Status |
+|---|---|
+| PROJECT_STATUS.md | [X] |
+| Roadmap page | [ ] |
+| User Guide page | [ ] |
+| Final project documentation | [ ] |
+
+---
+
+# 13. CURRENT TEST DEVICE
+
+The initial development and demonstration device is:
+
+**ASUS Zenbook A14 UX3407QA**
+
+Known specifications:
+
+- Processor platform: Qualcomm Snapdragon X1-26-100
+- Architecture: ARM64
+- RAM: 16 GB LPDDR5
+- Graphics: Qualcomm Adreno X1-45
+- Storage: Approximately 477 GB
+
+This device can be used as a reference for hardware specifications and monitoring demonstrations.
+
+Actual live hardware metrics must only be reported when they are genuinely available.
+
+---
+
+# 14. DEVELOPMENT HISTORY AND CONFIRMED FIXES
+
+The following issues have been encountered and resolved:
+
+1. Dashboard file loading issue caused by an incorrect JavaScript filename.
+2. Data Manager initialization failure caused by the same file-path mismatch.
+3. Workspace page loading and initialization.
+4. Test monitoring source creation and persistence after refresh.
+5. Workspace JavaScript and HTML ID mismatches.
+6. Manual telemetry form reset behavior.
+7. Automatic timestamp restoration after manual reading submission.
+
+The latest workspace.js replacement includes corrected element ID handling and a complete manual-reading workflow.
+
+---
+
+# 15. CURRENT DEVELOPMENT POSITION
+
+As of 25 November 2026:
+
+The project has moved from initial architecture planning into a functioning website foundation.
+
+Confirmed working components:
+
+- Dashboard page.
+- Shared application initialization.
+- Workspace page.
+- Monitoring source creation.
+- Persistent source storage.
+- Metric configuration.
+- Manual telemetry entry.
+- Manual form reset.
+- Source and metric selection.
+
+The next immediate tasks are:
+
+1. Test Workspace source editing and deletion.
+2. Test CSV and JSON import/export.
+3. Verify the storage and data-management workflows.
+4. Build the Telemetry page.
+5. Connect telemetry visualization to stored readings.
+6. Build the AI Analytics module.
+7. Build the Hardware module.
+8. Complete the Roadmap and User Guide.
+9. Perform cross-page integration testing.
+
+The project deadline is close. Prioritize a functional, demonstrable MVP rather than attempting to implement every advanced feature before the deadline.
+
+---
+
+# 16. RULES FOR FUTURE DEVELOPMENT AND CONTINUITY
+
+These rules must be maintained across future development sessions and ChatGPT conversations.
+
+## Code Delivery
+
+1. Always provide complete, replaceable source files.
+2. Do not provide partial snippets when a file replacement is requested.
+3. State the exact file path before providing code.
+4. Preserve existing functionality when updating files.
+5. Maintain consistency between HTML IDs, CSS selectors and JavaScript references.
+6. Respect the HTML/CSS/Vanilla JavaScript-only requirement.
+7. Avoid unnecessary changes to working modules.
+
+## Development Workflow
+
+1. Work on one file or tightly related module at a time.
+2. Explain where the code belongs.
+3. Let the user save the replacement locally.
+4. Test the updated functionality in the browser.
+5. Record the actual test result.
+6. Update this document when project status changes.
+
+## Status Tracking
+
+- [ ] means not started.
+- [~] means code delivered or implementation in progress.
+- [+] means created and saved.
+- [X] means tested and verified.
+
+Never mark code as saved or tested without confirmation.
+
+## Project Continuity
+
+This document is the master project reference.
+
+At the beginning of a new development conversation:
+
+1. Review this document.
+2. Identify the current development position.
+3. Respect all established technical and design decisions.
+4. Continue from the next unfinished task.
+5. Do not unnecessarily recreate working modules.
+
+When a new feature is completed, update the relevant section and status tracker.
+
+---
+
+# END OF MASTER PROJECT STATUS

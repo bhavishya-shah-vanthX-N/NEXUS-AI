@@ -1,4 +1,3 @@
-
 /* =========================================================
    NEXUSAI — WORKSPACE CONTROLLER
    File: js/workspace.js
@@ -28,9 +27,15 @@
        DOM HELPERS
     ===================================================== */
 
-    const $ = selector => document.querySelector(selector);
-
     const getElement = id => document.getElementById(id);
+
+    const getFirstElement = ids => {
+        for (const id of ids) {
+            const element = getElement(id);
+            if (element) return element;
+        }
+        return null;
+    };
 
     const getValue = id => {
         const element = getElement(id);
@@ -60,6 +65,7 @@
             container.id = "workspace-notification";
             container.className = "workspace-notification";
             container.setAttribute("role", "status");
+            container.setAttribute("aria-live", "polite");
             document.body.appendChild(container);
         }
 
@@ -71,23 +77,26 @@
 
         container._hideTimer = window.setTimeout(() => {
             container.classList.remove("visible");
-        }, 3500);
+        }, 3800);
+    }
+
+    function setCurrentTimestamp() {
+        const timestampField = getElement("reading-timestamp");
+
+        if (!timestampField) return;
+
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        timestampField.value = now.toISOString().slice(0, 16);
     }
 
     function formatDate(dateValue) {
         if (!dateValue) return "No readings yet";
 
         const date = new Date(dateValue);
-
         if (Number.isNaN(date.getTime())) return "Unknown";
 
         return date.toLocaleString();
-    }
-
-    function formatNumber(value) {
-        return Number(value).toLocaleString(undefined, {
-            maximumFractionDigits: 2
-        });
     }
 
     /* =====================================================
@@ -95,6 +104,7 @@
     ===================================================== */
 
     let sources = [];
+    let alertSourceIds = new Set();
     let editingSourceId = null;
     let selectedSourceId = null;
     let metricDraft = [];
@@ -108,16 +118,15 @@
             await DataManager.init();
 
             bindEvents();
+            setCurrentTimestamp();
 
             await refreshWorkspace();
 
-            populateSourceOptions();
+            loadMetricPresets(getValue("source-type"));
 
             console.info("NexusAI Workspace initialized.");
-
         } catch (error) {
             console.error("Workspace initialization failed:", error);
-
             showMessage(
                 "Workspace could not initialize. Check the browser console.",
                 "error"
@@ -131,31 +140,26 @@
 
     function bindEvents() {
         const sourceForm = getElement("source-configuration-form");
-
         if (sourceForm) {
             sourceForm.addEventListener("submit", handleSourceSave);
         }
 
         const readingForm = getElement("manual-reading-form");
-
         if (readingForm) {
             readingForm.addEventListener("submit", handleManualReading);
         }
 
         const searchInput = getElement("source-search");
-
         if (searchInput) {
             searchInput.addEventListener("input", renderSourceTable);
         }
 
         const filterSelect = getElement("source-filter");
-
         if (filterSelect) {
             filterSelect.addEventListener("change", renderSourceTable);
         }
 
         const sourceType = getElement("source-type");
-
         if (sourceType) {
             sourceType.addEventListener("change", () => {
                 if (!editingSourceId) {
@@ -164,71 +168,115 @@
             });
         }
 
-        const resetButton = getElement("reset-source-form");
+        const addSourceBtn = getElement("add-source-button");
+        if (addSourceBtn) {
+            addSourceBtn.addEventListener("click", openNewSourceConfiguration);
+        }
 
+        const closeConfigBtn = getElement("close-configuration-button");
+        if (closeConfigBtn) {
+            closeConfigBtn.addEventListener("click", resetSourceForm);
+        }
+
+        const resetButton = getElement("reset-source-form");
         if (resetButton) {
             resetButton.addEventListener("click", resetSourceForm);
         }
 
-        const metricAddButton = getElement("add-metric");
-
+        const metricAddButton = getFirstElement([
+            "add-metric-button",
+            "add-metric"
+        ]);
         if (metricAddButton) {
             metricAddButton.addEventListener("click", addMetricRow);
         }
 
-        const importButton = getElement("import-data");
+        const headerImportBtn = getElement("import-source-data");
+        const importButton = getFirstElement([
+            "open-import-button",
+            "import-data"
+        ]);
+        const importFile = getFirstElement([
+            "dataset-file-input",
+            "import-file"
+        ]);
 
-        if (importButton) {
-            importButton.addEventListener("click", () => {
-                getElement("import-file")?.click();
+        if (headerImportBtn && importFile) {
+            headerImportBtn.addEventListener("click", () => {
+                importFile.click();
             });
         }
 
-        const importFile = getElement("import-file");
+        if (importButton && importFile) {
+            importButton.addEventListener("click", () => {
+                importFile.click();
+            });
+        }
 
         if (importFile) {
             importFile.addEventListener("change", handleImport);
         }
 
-        const exportCSV = getElement("export-csv");
-
+        const exportCSV = getFirstElement([
+            "export-csv-button",
+            "export-csv"
+        ]);
         if (exportCSV) {
-            exportCSV.addEventListener("click", () => exportReadings("csv"));
+            exportCSV.addEventListener("click", () => {
+                exportReadings("csv");
+            });
         }
 
-        const exportJSON = getElement("export-json");
-
+        const exportJSON = getFirstElement([
+            "export-json-button",
+            "export-json"
+        ]);
         if (exportJSON) {
-            exportJSON.addEventListener("click", () => exportReadings("json"));
+            exportJSON.addEventListener("click", () => {
+                exportReadings("json");
+            });
         }
 
         const sourceTable = getElement("source-table-body");
-
         if (sourceTable) {
             sourceTable.addEventListener("click", handleSourceTableAction);
         }
 
         document.addEventListener("click", handleGeneralActions);
 
-        DataManager.subscribe(
-            DataManager.events.SOURCE_CREATED,
-            refreshWorkspace
-        );
+        bindSourceDialogEvents();
 
-        DataManager.subscribe(
-            DataManager.events.SOURCE_UPDATED,
-            refreshWorkspace
-        );
+        if (DataManager.events) {
+            const eventMap = [
+                DataManager.events.SOURCE_CREATED,
+                DataManager.events.SOURCE_UPDATED,
+                DataManager.events.SOURCE_DELETED,
+                DataManager.events.READING_ADDED
+            ];
 
-        DataManager.subscribe(
-            DataManager.events.SOURCE_DELETED,
-            refreshWorkspace
-        );
+            eventMap.forEach(eventName => {
+                if (eventName) {
+                    DataManager.subscribe(eventName, refreshWorkspace);
+                }
+            });
+        }
+    }
 
-        DataManager.subscribe(
-            DataManager.events.READING_ADDED,
-            refreshWorkspace
-        );
+    function openNewSourceConfiguration() {
+        resetSourceForm();
+
+        const configSection = getElement("source-configuration");
+        if (configSection) {
+            configSection.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
+
+        const nameInput = getElement("source-name");
+        if (nameInput) {
+            window.setTimeout(() => nameInput.focus(), 200);
+        }
     }
 
     /* =====================================================
@@ -236,7 +284,21 @@
     ===================================================== */
 
     async function refreshWorkspace() {
-        sources = await DataManager.getSources();
+        const [loadedSources, anomalies] = await Promise.all([
+            DataManager.getSources(),
+            DataManager.getAnomalies()
+        ]);
+
+        sources = loadedSources;
+        alertSourceIds = new Set(
+            anomalies
+                .filter(
+                    item =>
+                        item.severity === "warning" ||
+                        item.severity === "critical"
+                )
+                .map(item => item.sourceId)
+        );
 
         await renderSummary();
         renderSourceTable();
@@ -250,25 +312,21 @@
     async function renderSummary() {
         const summary = await DataManager.getSummary();
 
-        setText("total-sources", summary.totalSources);
-        setText("active-sources", summary.activeSources);
-        setText("configured-metrics", summary.configuredMetrics);
-        setText("source-alerts", summary.alertCount);
+        setText("total-sources", summary.totalSources ?? 0);
+        setText("active-sources", summary.activeSources ?? 0);
+        setText("configured-metrics", summary.configuredMetrics ?? 0);
+        setText("source-alerts", summary.alertCount ?? 0);
     }
 
     /* =====================================================
-       SOURCE TABLE
+       SOURCE TABLE (7 COLUMNS)
     ===================================================== */
 
     function renderSourceTable() {
         const tableBody = getElement("source-table-body");
-
         if (!tableBody) return;
 
-        const search = (
-            getValue("source-search")
-        ).toLowerCase();
-
+        const search = getValue("source-search").toLowerCase();
         const filter = getValue("source-filter");
 
         const filteredSources = sources.filter(source => {
@@ -277,24 +335,60 @@
                 source.type,
                 source.architecture,
                 source.description
-            ].join(" ").toLowerCase().includes(search);
+            ]
+                .join(" ")
+                .toLowerCase()
+                .includes(search);
 
-            const matchesFilter =
-                !filter ||
-                filter === "all" ||
-                source.status === filter;
+            let matchesFilter = true;
+            if (filter && filter !== "all") {
+                if (filter === "warning") {
+                    matchesFilter =
+                        source.status === "warning" ||
+                        alertSourceIds.has(source.id);
+                } else {
+                    matchesFilter = source.status === filter;
+                }
+            }
 
             return matchesSearch && matchesFilter;
         });
 
+        updateTableCount(filteredSources.length, sources.length);
+
+        if (!sources.length) {
+            tableBody.innerHTML = `
+                <tr class="initial-empty-row">
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">▦</div>
+                            <h3>No monitoring sources yet</h3>
+                            <p>
+                                Add a source to begin building your
+                                monitoring environment.
+                            </p>
+                            <button
+                                type="button"
+                                class="btn btn-primary"
+                                id="empty-add-source-button">
+                                ＋ Add Your First Source
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
         if (!filteredSources.length) {
             tableBody.innerHTML = `
                 <tr>
-                    <td colspan="6">
+                    <td colspan="7">
                         <div class="empty-state">
-                            <h3>No monitoring sources found</h3>
+                            <div class="empty-state-icon">⌕</div>
+                            <h3>No matching monitoring sources</h3>
                             <p>
-                                Add a new source or change your search filters.
+                                No sources match your current search or status filter.
                             </p>
                         </div>
                     </td>
@@ -303,72 +397,114 @@
             return;
         }
 
-        tableBody.innerHTML = filteredSources.map(source => {
-            const metricCount = (source.metrics || []).filter(
-                metric => metric.enabled !== false
-            ).length;
+        tableBody.innerHTML = filteredSources
+            .map(source => {
+                const metricCount = (source.metrics || []).filter(
+                    metric => metric.enabled !== false
+                ).length;
 
-            const statusClass =
-                source.status === "active"
-                    ? "success"
-                    : source.status === "offline"
-                        ? "danger"
-                        : "warning";
+                const hasAlert = alertSourceIds.has(source.id);
+                const statusClass =
+                    source.status === "offline"
+                        ? "offline"
+                        : hasAlert || source.status === "warning"
+                            ? "warning"
+                            : "active";
 
-            return `
-                <tr>
-                    <td>
-                        <strong>${escapeHTML(source.name)}</strong>
-                        <small>${escapeHTML(source.description || "")}</small>
-                    </td>
+                const statusLabel =
+                    hasAlert && source.status === "active"
+                        ? "Warning"
+                        : source.status;
 
-                    <td>${escapeHTML(source.type)}</td>
+                const initial = (source.name || "N").charAt(0).toUpperCase();
 
-                    <td>${escapeHTML(source.architecture)}</td>
+                return `
+                    <tr>
+                        <td>
+                            <div class="source-name-cell">
+                                <span class="source-avatar" aria-hidden="true">${escapeHTML(initial)}</span>
+                                <div class="source-name-details">
+                                    <strong>${escapeHTML(source.name)}</strong>
+                                    <span>${escapeHTML(source.description || "No description")}</span>
+                                </div>
+                            </div>
+                        </td>
 
-                    <td>${metricCount}</td>
+                        <td>
+                            <span class="source-type-text">${escapeHTML(source.type)}</span>
+                        </td>
 
-                    <td>
-                        <span class="status-badge ${statusClass}">
-                            ${escapeHTML(source.status)}
-                        </span>
-                    </td>
+                        <td>
+                            <span class="source-architecture-text">${escapeHTML(source.architecture || "—")}</span>
+                        </td>
 
-                    <td>
-                        <div class="table-actions">
-                            <button
-                                type="button"
-                                class="btn btn-small"
-                                data-action="edit"
-                                data-id="${escapeHTML(source.id)}">
-                                Edit
-                            </button>
+                        <td>
+                            <span class="source-metric-count">${metricCount}</span>
+                        </td>
 
-                            <button
-                                type="button"
-                                class="btn btn-small"
-                                data-action="delete"
-                                data-id="${escapeHTML(source.id)}">
-                                Delete
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `;
-        }).join("");
+                        <td>
+                            <span class="source-status ${statusClass}">
+                                ${escapeHTML(statusLabel)}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="source-last-reading">${escapeHTML(formatDate(source.lastReadingAt))}</span>
+                        </td>
+
+                        <td>
+                            <div class="table-actions">
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary btn-small"
+                                    data-action="edit"
+                                    data-id="${escapeHTML(source.id)}">
+                                    Edit
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="source-action-button"
+                                    data-action="open-source-actions"
+                                    data-id="${escapeHTML(source.id)}"
+                                    aria-label="More actions for ${escapeHTML(source.name)}"
+                                    title="More actions">
+                                    ⋯
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            })
+            .join("");
+    }
+
+    function updateTableCount(visibleCount, totalCount) {
+        const label =
+            visibleCount === totalCount
+                ? `Showing ${totalCount} monitoring source${totalCount === 1 ? "" : "s"}`
+                : `Showing ${visibleCount} of ${totalCount} monitoring sources`;
+
+        setText("source-table-count", label);
     }
 
     /* =====================================================
-       SOURCE FORM — METRIC BUILDER
+       SOURCE FORM — METRIC BUILDER (6 COLUMNS)
     ===================================================== */
 
     function loadMetricPresets(sourceType) {
-        metricDraft = DataManager.getMetricPresets(sourceType);
+        if (!sourceType) {
+            metricDraft = [];
+        } else {
+            metricDraft = DataManager.getMetricPresets(sourceType) || [];
+        }
 
         renderMetricBuilder();
     }
 
     function addMetricRow() {
+        syncMetricDraftFromDOM();
+
         metricDraft.push({
             id: DataManager.createId("metric"),
             name: "",
@@ -381,25 +517,37 @@
         renderMetricBuilder();
     }
 
+    function syncMetricDraftFromDOM() {
+        const container = getElement("metric-list");
+        if (!container) return;
+
+        const rows = container.querySelectorAll(".metric-row");
+        if (!rows.length) return;
+
+        metricDraft = readMetricBuilder();
+    }
+
     function renderMetricBuilder() {
         const container = getElement("metric-list");
-
         if (!container) return;
 
         if (!metricDraft.length) {
             container.innerHTML = `
-                <p class="empty-state">
-                    No metrics configured. Add a metric to begin.
-                </p>
+                <div class="metric-empty-state">
+                    Select a device type or click &ldquo;Add Custom Metric&rdquo; to configure measurements.
+                </div>
             `;
             return;
         }
 
-        container.innerHTML = metricDraft.map((metric, index) => `
+        container.innerHTML = metricDraft
+            .map(
+                (metric, index) => `
             <div class="metric-row" data-index="${index}">
 
                 <input
                     type="text"
+                    class="metric-name-input"
                     data-field="name"
                     value="${escapeHTML(metric.name)}"
                     placeholder="Metric name"
@@ -414,6 +562,7 @@
 
                 <input
                     type="number"
+                    step="any"
                     data-field="warningThreshold"
                     value="${metric.warningThreshold ?? ""}"
                     placeholder="Warning"
@@ -421,42 +570,44 @@
 
                 <input
                     type="number"
+                    step="any"
                     data-field="criticalThreshold"
                     value="${metric.criticalThreshold ?? ""}"
                     placeholder="Critical"
                     aria-label="Critical threshold">
 
-                <label>
+                <label class="metric-enable-toggle">
                     <input
                         type="checkbox"
                         data-field="enabled"
                         ${metric.enabled !== false ? "checked" : ""}>
-                    Enabled
+                    <span>On</span>
                 </label>
 
                 <button
                     type="button"
-                    class="btn btn-small"
+                    class="metric-remove-button"
                     data-action="remove-metric"
-                    data-index="${index}">
-                    Remove
+                    data-index="${index}"
+                    aria-label="Remove metric">
+                    ×
                 </button>
 
             </div>
-        `).join("");
+        `
+            )
+            .join("");
     }
 
     function readMetricBuilder() {
         const container = getElement("metric-list");
-
         if (!container) return metricDraft;
 
         const rows = container.querySelectorAll(".metric-row");
+        if (!rows.length) return [];
 
-        return Array.from(rows).map(row => {
-            const read = field => row.querySelector(
-                `[data-field="${field}"]`
-            );
+        return Array.from(rows).map((row, index) => {
+            const read = field => row.querySelector(`[data-field="${field}"]`);
 
             const name = read("name")?.value.trim() || "";
             const unit = read("unit")?.value.trim() || "";
@@ -464,27 +615,20 @@
             const warningInput = read("warningThreshold");
             const criticalInput = read("criticalThreshold");
 
-            const existing = metricDraft.find(
-                metric => metric.name === name
-            );
+            const existing = metricDraft[index];
 
             return {
                 id: existing?.id || DataManager.createId("metric"),
-
                 name,
-
                 unit,
-
                 warningThreshold:
-                    warningInput?.value === ""
-                        ? null
-                        : Number(warningInput.value),
-
+                    warningInput && warningInput.value !== ""
+                        ? Number(warningInput.value)
+                        : null,
                 criticalThreshold:
-                    criticalInput?.value === ""
-                        ? null
-                        : Number(criticalInput.value),
-
+                    criticalInput && criticalInput.value !== ""
+                        ? Number(criticalInput.value)
+                        : null,
                 enabled: read("enabled")?.checked ?? true
             };
         });
@@ -500,43 +644,34 @@
         try {
             const sourceData = {
                 id: editingSourceId || undefined,
-
                 name: getValue("source-name"),
-
                 type: getValue("source-type"),
-
                 architecture: getValue("source-architecture"),
-
                 inputMode: getValue("source-input-mode"),
-
                 description: getValue("source-description"),
-
                 samplingInterval: Number(
                     getValue("sampling-interval") || 5000
                 ),
-
                 historyRetention: Number(
                     getValue("history-retention") || 7
                 ),
-
                 status: getValue("source-status") || "active",
-
                 metrics: readMetricBuilder()
             };
+
+            const wasEditing = Boolean(editingSourceId);
 
             await DataManager.saveSource(sourceData);
 
             showMessage(
-                editingSourceId
+                wasEditing
                     ? "Monitoring source updated."
                     : "Monitoring source created.",
                 "success"
             );
 
             resetSourceForm();
-
             await refreshWorkspace();
-
         } catch (error) {
             console.error(error);
             showMessage(error.message || "Could not save source.", "error");
@@ -557,6 +692,7 @@
 
         editingSourceId = source.id;
 
+        setFormValue("source-id", source.id);
         setFormValue("source-name", source.name);
         setFormValue("source-type", source.type);
         setFormValue("source-architecture", source.architecture);
@@ -566,25 +702,27 @@
         setFormValue("history-retention", source.historyRetention);
         setFormValue("source-status", source.status);
 
-        metricDraft = (source.metrics || []).map(metric => ({
-            ...metric
-        }));
-
+        metricDraft = (source.metrics || []).map(metric => ({ ...metric }));
         renderMetricBuilder();
 
-        const submitButton = getElement("save-source");
-
+        const submitButton = getFirstElement([
+            "save-source-button",
+            "save-source"
+        ]);
         if (submitButton) {
-            submitButton.textContent = "Update Source";
+            submitButton.textContent = "Update Monitoring Source";
         }
 
-        const heading = getElement("source-form-heading");
-
+        const heading = getFirstElement([
+            "configuration-heading",
+            "source-form-heading"
+        ]);
         if (heading) {
             heading.textContent = "Edit Monitoring Source";
         }
 
-        getElement("source-configuration-form")?.scrollIntoView({
+        const configCard = getElement("source-configuration");
+        (configCard || getElement("source-configuration-form"))?.scrollIntoView({
             behavior: "smooth",
             block: "start"
         });
@@ -592,8 +730,9 @@
 
     function setFormValue(id, value) {
         const element = getElement(id);
-
-        if (element) element.value = value ?? "";
+        if (element) {
+            element.value = value ?? "";
+        }
     }
 
     /* =====================================================
@@ -602,27 +741,27 @@
 
     function resetSourceForm() {
         const form = getElement("source-configuration-form");
-
         if (form) form.reset();
 
+        setFormValue("source-id", "");
         editingSourceId = null;
 
-        metricDraft = DataManager.getMetricPresets(
-            getValue("source-type") || "Laptop"
-        );
+        loadMetricPresets(getValue("source-type"));
 
-        renderMetricBuilder();
-
-        const submitButton = getElement("save-source");
-
+        const submitButton = getFirstElement([
+            "save-source-button",
+            "save-source"
+        ]);
         if (submitButton) {
-            submitButton.textContent = "Save Source";
+            submitButton.textContent = "Save Monitoring Source";
         }
 
-        const heading = getElement("source-form-heading");
-
+        const heading = getFirstElement([
+            "configuration-heading",
+            "source-form-heading"
+        ]);
         if (heading) {
-            heading.textContent = "Configure Monitoring Source";
+            heading.textContent = "Add Monitoring Source";
         }
     }
 
@@ -631,8 +770,13 @@
     ===================================================== */
 
     async function handleSourceTableAction(event) {
-        const button = event.target.closest("[data-action]");
+        const emptyAddBtn = event.target.closest("#empty-add-source-button");
+        if (emptyAddBtn) {
+            openNewSourceConfiguration();
+            return;
+        }
 
+        const button = event.target.closest("[data-action]");
         if (!button) return;
 
         const action = button.dataset.action;
@@ -640,16 +784,15 @@
 
         if (action === "edit") {
             await editSource(sourceId);
-        }
-
-        if (action === "delete") {
+        } else if (action === "delete") {
             await confirmDeleteSource(sourceId);
+        } else if (action === "open-source-actions") {
+            await openSourceDialog(sourceId);
         }
     }
 
     async function confirmDeleteSource(sourceId) {
         const source = await DataManager.getSource(sourceId);
-
         if (!source) return;
 
         const confirmed = window.confirm(
@@ -661,13 +804,121 @@
         try {
             await DataManager.deleteSource(sourceId);
 
-            showMessage("Source and associated history deleted.", "success");
+            if (editingSourceId === sourceId) {
+                resetSourceForm();
+            }
+
+            showMessage(
+                "Source and associated history deleted.",
+                "success"
+            );
 
             await refreshWorkspace();
-
         } catch (error) {
             console.error(error);
             showMessage(error.message || "Could not delete source.", "error");
+        }
+    }
+
+    /* =====================================================
+       SOURCE ACTION DIALOG
+    ===================================================== */
+
+    function bindSourceDialogEvents() {
+        const dialog = getElement("source-action-dialog");
+        const closeButton = getElement("close-source-dialog");
+
+        if (closeButton) {
+            closeButton.addEventListener("click", closeSourceDialog);
+        }
+
+        if (dialog) {
+            dialog.addEventListener("click", event => {
+                if (event.target === dialog) {
+                    closeSourceDialog();
+                }
+            });
+        }
+
+        const editButton = getElement("edit-source-action");
+        if (editButton) {
+            editButton.addEventListener("click", async () => {
+                if (!selectedSourceId) return;
+                const sourceId = selectedSourceId;
+                closeSourceDialog();
+                await editSource(sourceId);
+            });
+        }
+
+        const toggleButton = getElement("toggle-source-action");
+        if (toggleButton) {
+            toggleButton.addEventListener("click", async () => {
+                if (!selectedSourceId) return;
+                await toggleSelectedSource();
+            });
+        }
+
+        const deleteButton = getElement("delete-source-action");
+        if (deleteButton) {
+            deleteButton.addEventListener("click", async () => {
+                if (!selectedSourceId) return;
+                const sourceId = selectedSourceId;
+                closeSourceDialog();
+                await confirmDeleteSource(sourceId);
+            });
+        }
+    }
+
+    async function openSourceDialog(sourceId) {
+        const source = await DataManager.getSource(sourceId);
+        if (!source) return;
+
+        selectedSourceId = source.id;
+
+        setText("dialog-source-name", source.name);
+
+        const isActive = source.status === "active";
+        setText(
+            "toggle-source-title",
+            isActive ? "Set Source Offline" : "Set Source Active"
+        );
+        setText(
+            "toggle-source-subtitle",
+            isActive
+                ? "Pause monitoring for this source without deleting data"
+                : "Resume monitoring activity for this source"
+        );
+
+        const dialog = getElement("source-action-dialog");
+        if (dialog && typeof dialog.showModal === "function") {
+            if (!dialog.open) dialog.showModal();
+        }
+    }
+
+    function closeSourceDialog() {
+        const dialog = getElement("source-action-dialog");
+        if (dialog && dialog.open) {
+            dialog.close();
+        }
+    }
+
+    async function toggleSelectedSource() {
+        const source = await DataManager.getSource(selectedSourceId);
+        if (!source) return;
+
+        const newStatus = source.status === "active" ? "offline" : "active";
+
+        try {
+            await DataManager.setSourceStatus(source.id, newStatus);
+            showMessage(`Source status changed to ${newStatus}.`, "success");
+            closeSourceDialog();
+            await refreshWorkspace();
+        } catch (error) {
+            console.error(error);
+            showMessage(
+                error.message || "Could not change source status.",
+                "error"
+            );
         }
     }
 
@@ -677,6 +928,8 @@
 
     async function handleManualReading(event) {
         event.preventDefault();
+
+        const form = event.currentTarget;
 
         try {
             const sourceId = getValue("reading-source");
@@ -688,6 +941,10 @@
                 throw new Error("Complete all reading fields.");
             }
 
+            if (!Number.isFinite(Number(value))) {
+                throw new Error("Enter a valid numeric reading.");
+            }
+
             await DataManager.addReading({
                 sourceId,
                 metricId,
@@ -696,14 +953,15 @@
                 inputMode: "manual"
             });
 
-            event.target.reset();
-
-            populateSourceOptions();
-
-            showMessage("Telemetry reading saved.", "success");
+            form.reset();
+            setCurrentTimestamp();
 
             await refreshWorkspace();
 
+            showMessage(
+                "Telemetry reading saved and form refreshed.",
+                "success"
+            );
         } catch (error) {
             console.error(error);
             showMessage(error.message || "Could not save reading.", "error");
@@ -716,18 +974,21 @@
 
     function populateSourceOptions() {
         const sourceSelect = getElement("reading-source");
-
         if (!sourceSelect) return;
 
         const previousValue = sourceSelect.value;
 
         sourceSelect.innerHTML = `
             <option value="">Select a source</option>
-            ${sources.map(source => `
+            ${sources
+                .map(
+                    source => `
                 <option value="${escapeHTML(source.id)}">
                     ${escapeHTML(source.name)}
                 </option>
-            `).join("")}
+            `
+                )
+                .join("")}
         `;
 
         if (sources.some(source => source.id === previousValue)) {
@@ -743,9 +1004,9 @@
 
     function populateMetricOptions(sourceId) {
         const metricSelect = getElement("reading-metric");
-
         if (!metricSelect) return;
 
+        const previousValue = metricSelect.value;
         const source = sources.find(item => item.id === sourceId);
 
         const metrics = (source?.metrics || []).filter(
@@ -754,13 +1015,21 @@
 
         metricSelect.innerHTML = `
             <option value="">Select a metric</option>
-            ${metrics.map(metric => `
+            ${metrics
+                .map(
+                    metric => `
                 <option value="${escapeHTML(metric.id)}">
                     ${escapeHTML(metric.name)}
                     ${metric.unit ? `(${escapeHTML(metric.unit)})` : ""}
                 </option>
-            `).join("")}
+            `
+                )
+                .join("")}
         `;
+
+        if (metrics.some(metric => metric.id === previousValue)) {
+            metricSelect.value = previousValue;
+        }
     }
 
     /* =====================================================
@@ -769,13 +1038,18 @@
 
     function handleGeneralActions(event) {
         const button = event.target.closest("[data-action]");
-
         if (!button) return;
 
         if (button.dataset.action === "remove-metric") {
+            syncMetricDraftFromDOM();
+
             const index = Number(button.dataset.index);
 
-            if (Number.isInteger(index)) {
+            if (
+                Number.isInteger(index) &&
+                index >= 0 &&
+                index < metricDraft.length
+            ) {
                 metricDraft.splice(index, 1);
                 renderMetricBuilder();
             }
@@ -783,8 +1057,7 @@
 
         if (button.dataset.action === "close-dialog") {
             const dialog = button.closest("dialog");
-
-            if (dialog) dialog.close();
+            if (dialog && dialog.open) dialog.close();
         }
     }
 
@@ -792,7 +1065,8 @@
        CSV PARSER
     ===================================================== */
 
-    function parseCSV(text) {
+    function parseCSV(rawText) {
+        const text = String(rawText || "").replace(/^\uFEFF/, "");
         const rows = [];
 
         let row = [];
@@ -803,7 +1077,11 @@
             const character = text[i];
             const nextCharacter = text[i + 1];
 
-            if (character === '"' && insideQuotes && nextCharacter === '"') {
+            if (
+                character === '"' &&
+                insideQuotes &&
+                nextCharacter === '"'
+            ) {
                 value += '"';
                 i++;
             } else if (character === '"') {
@@ -815,7 +1093,9 @@
                 (character === "\n" || character === "\r") &&
                 !insideQuotes
             ) {
-                if (character === "\r" && nextCharacter === "\n") i++;
+                if (character === "\r" && nextCharacter === "\n") {
+                    i++;
+                }
 
                 row.push(value.trim());
 
@@ -836,19 +1116,25 @@
             rows.push(row);
         }
 
+        if (insideQuotes) {
+            throw new Error("CSV contains an unclosed quotation mark.");
+        }
+
         if (rows.length < 2) {
-            throw new Error("CSV must contain a header and at least one row.");
+            throw new Error(
+                "CSV must contain a header and at least one row."
+            );
         }
 
         const headers = rows.shift().map(header =>
             header.trim().toLowerCase()
         );
 
-        return rows.map(row => {
+        return rows.map(cells => {
             const record = {};
 
             headers.forEach((header, index) => {
-                record[header] = row[index] ?? "";
+                record[header] = cells[index] ?? "";
             });
 
             return record;
@@ -861,32 +1147,38 @@
 
     async function handleImport(event) {
         const file = event.target.files?.[0];
-
         if (!file) return;
 
         try {
             const content = await file.text();
-
             const extension = file.name.split(".").pop().toLowerCase();
 
-            let records;
+            let records = [];
+            let restoredSources = 0;
 
             if (extension === "json") {
                 const parsed = JSON.parse(content);
 
-                records = Array.isArray(parsed)
-                    ? parsed
-                    : parsed.readings;
-
-                if (!Array.isArray(records)) {
-                    throw new Error(
-                        "JSON must contain an array of reading records."
+                if (
+                    !Array.isArray(parsed) &&
+                    Array.isArray(parsed.sources)
+                ) {
+                    restoredSources = await restoreMissingSources(
+                        parsed.sources
                     );
                 }
 
+                records = Array.isArray(parsed)
+                    ? parsed
+                    : parsed.readings || [];
+
+                if (!Array.isArray(records)) {
+                    throw new Error(
+                        "JSON must contain an array of reading records or a NexusAI backup object."
+                    );
+                }
             } else if (extension === "csv") {
                 records = parseCSV(content);
-
             } else {
                 throw new Error("Only CSV and JSON files are supported.");
             }
@@ -894,23 +1186,44 @@
             const result = await importRecords(records);
 
             showMessage(
-                `Import complete: ${result.imported} readings imported, ${result.skipped} skipped.`,
-                "success"
+                `Import complete: ${restoredSources ? `${restoredSources} sources restored, ` : ""}${result.imported} readings imported, ${result.skipped} skipped.`,
+                result.imported > 0 || restoredSources > 0
+                    ? "success"
+                    : "warning"
             );
 
             await refreshWorkspace();
-
         } catch (error) {
             console.error(error);
-
             showMessage(
                 error.message || "Could not import this file.",
                 "error"
             );
-
         } finally {
             event.target.value = "";
         }
+    }
+
+    async function restoreMissingSources(sourceList) {
+        const existing = await DataManager.getSources();
+        const existingIds = new Set(existing.map(item => item.id));
+        let restored = 0;
+
+        for (const src of sourceList) {
+            if (!src || !src.name || existingIds.has(src.id)) {
+                continue;
+            }
+
+            try {
+                await DataManager.saveSource(src);
+                existingIds.add(src.id);
+                restored++;
+            } catch (error) {
+                console.warn("Skipped restoring source:", error);
+            }
+        }
+
+        return restored;
     }
 
     async function importRecords(records) {
@@ -921,16 +1234,28 @@
 
         for (const record of records) {
             try {
+                const rawValue = record.value;
+
+                if (
+                    rawValue === "" ||
+                    rawValue === null ||
+                    rawValue === undefined ||
+                    !Number.isFinite(Number(rawValue))
+                ) {
+                    skipped++;
+                    continue;
+                }
+
                 const sourceId = record.sourceid || record.sourceId;
                 const sourceName = record.sourcename || record.sourceName;
 
                 const source = currentSources.find(item => {
-                    return item.id === sourceId ||
-                        (
-                            sourceName &&
+                    return (
+                        item.id === sourceId ||
+                        (sourceName &&
                             item.name.toLowerCase() ===
-                                String(sourceName).toLowerCase()
-                        );
+                                String(sourceName).trim().toLowerCase())
+                    );
                 });
 
                 if (!source) {
@@ -942,15 +1267,15 @@
                 const metricName = record.metric;
 
                 const metric = (source.metrics || []).find(item => {
-                    return item.id === metricId ||
-                        (
-                            metricName &&
+                    return (
+                        item.id === metricId ||
+                        (metricName &&
                             item.name.toLowerCase() ===
-                                String(metricName).toLowerCase()
-                        );
+                                String(metricName).trim().toLowerCase())
+                    );
                 });
 
-                if (!metric) {
+                if (!metric || metric.enabled === false) {
                     skipped++;
                     continue;
                 }
@@ -958,13 +1283,12 @@
                 await DataManager.addReading({
                     sourceId: source.id,
                     metricId: metric.id,
-                    value: record.value,
+                    value: Number(rawValue),
                     timestamp: record.timestamp || record.date,
                     inputMode: "import"
                 });
 
                 imported++;
-
             } catch (error) {
                 console.warn("Skipped imported record:", error);
                 skipped++;
@@ -980,11 +1304,28 @@
 
     async function exportReadings(format) {
         try {
-            const readings = await DataManager.getReadings();
-            const currentSources = await DataManager.getSources();
+            const [readings, currentSources] = await Promise.all([
+                DataManager.getReadings(),
+                DataManager.getSources()
+            ]);
 
-            if (!readings.length) {
-                showMessage("There are no readings to export.", "warning");
+            if (format === "csv" && !readings.length) {
+                showMessage(
+                    "No telemetry readings to export as CSV. Add readings first or use Export JSON to back up sources.",
+                    "warning"
+                );
+                return;
+            }
+
+            if (
+                format === "json" &&
+                !readings.length &&
+                !currentSources.length
+            ) {
+                showMessage(
+                    "There are no sources or readings to export.",
+                    "warning"
+                );
                 return;
             }
 
@@ -1006,42 +1347,55 @@
             let content;
             let mimeType;
             let extension;
+            let filenamePrefix;
 
             if (format === "json") {
-                content = JSON.stringify(records, null, 2);
-                mimeType = "application/json";
-                extension = "json";
+                const backupPayload = {
+                    platform: "NexusAI",
+                    exportedAt: new Date().toISOString(),
+                    sourceCount: currentSources.length,
+                    readingCount: records.length,
+                    sources: currentSources,
+                    readings: records
+                };
 
+                content = JSON.stringify(backupPayload, null, 2);
+                mimeType = "application/json;charset=utf-8;";
+                extension = "json";
+                filenamePrefix = "nexusai-workspace-backup";
             } else {
                 const headers = Object.keys(records[0]);
 
                 const escapeCSV = value => {
                     const text = String(value ?? "");
-
                     return `"${text.replace(/"/g, '""')}"`;
                 };
 
-                content = [
+                const csvBody = [
                     headers.join(","),
                     ...records.map(record =>
-                        headers.map(header =>
-                            escapeCSV(record[header])
-                        ).join(",")
+                        headers
+                            .map(header => escapeCSV(record[header]))
+                            .join(",")
                     )
-                ].join("\n");
+                ].join("\r\n");
 
+                content = "\uFEFF" + csvBody;
                 mimeType = "text/csv;charset=utf-8;";
                 extension = "csv";
+                filenamePrefix = "nexusai-readings";
             }
 
             downloadFile(
                 content,
-                `nexusai-readings-${Date.now()}.${extension}`,
+                `${filenamePrefix}-${Date.now()}.${extension}`,
                 mimeType
             );
 
-            showMessage("Reading data exported successfully.", "success");
-
+            showMessage(
+                `${format.toUpperCase()} export downloaded successfully.`,
+                "success"
+            );
         } catch (error) {
             console.error(error);
             showMessage("Export failed.", "error");
@@ -1053,15 +1407,17 @@
         const url = URL.createObjectURL(blob);
 
         const link = document.createElement("a");
-
         link.href = url;
         link.download = filename;
+        link.style.display = "none";
 
         document.body.appendChild(link);
         link.click();
-        link.remove();
 
-        URL.revokeObjectURL(url);
+        window.setTimeout(() => {
+            link.remove();
+            URL.revokeObjectURL(url);
+        }, 1500);
     }
 
     /* =====================================================

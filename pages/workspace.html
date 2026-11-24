@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="NexusAI Monitoring Workspace — manage monitoring sources and configure telemetry inputs.">
+    <meta name="theme-color" content="#070b14">
     <title>Monitoring Workspace | NexusAI</title>
 
     <link rel="stylesheet" href="../css/variables.css">
@@ -16,27 +17,28 @@
 <div class="app-layout">
 
     <!-- SIDEBAR -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
 
-        <div class="sidebar-brand">
-            <div class="brand-icon">N</div>
-            <div class="brand-text">
-                <strong>NexusAI</strong>
+        <div class="brand">
+            <div class="brand-logo">N</div>
+
+            <div class="brand-info">
+                <h2>NexusAI</h2>
                 <span>EDGE INTELLIGENCE</span>
             </div>
         </div>
 
-        <div class="sidebar-section-label">PLATFORM</div>
+        <div class="sidebar-label">MAIN MENU</div>
 
         <nav class="sidebar-nav" aria-label="Main navigation">
 
             <a href="../index.html" class="nav-link">
-                <span class="nav-icon">◈</span>
+                <span class="nav-icon">▦</span>
                 <span>Dashboard</span>
             </a>
 
             <a href="workspace.html" class="nav-link active" aria-current="page">
-                <span class="nav-icon">▦</span>
+                <span class="nav-icon">▣</span>
                 <span>Monitoring Workspace</span>
             </a>
 
@@ -46,19 +48,19 @@
             </a>
 
             <a href="ai-analytics.html" class="nav-link">
-                <span class="nav-icon">✧</span>
+                <span class="nav-icon">◈</span>
                 <span>AI Analytics</span>
             </a>
 
-            <div class="sidebar-section-label">RESOURCES</div>
+            <div class="sidebar-label">PLATFORM</div>
 
             <a href="hardware.html" class="nav-link">
-                <span class="nav-icon">▣</span>
+                <span class="nav-icon">▤</span>
                 <span>Hardware Gallery</span>
             </a>
 
             <a href="roadmap.html" class="nav-link">
-                <span class="nav-icon">⌘</span>
+                <span class="nav-icon">⌖</span>
                 <span>Development Roadmap</span>
             </a>
 
@@ -69,38 +71,46 @@
 
         </nav>
 
-        <div class="sidebar-footer">
-            <div class="connection-indicator"></div>
-            <div>
-                <strong>Local Environment</strong>
-                <span>Browser-based operation</span>
+        <div class="sidebar-bottom">
+
+            <div class="system-status">
+                <span class="status-dot"></span>
+
+                <div>
+                    <strong>Local Environment</strong>
+                    <small>Browser-based operation</small>
+                </div>
             </div>
+
+            <div class="sidebar-version">
+                NEXUSAI · DEMONSTRATION BUILD
+            </div>
+
         </div>
 
     </aside>
 
 
     <!-- MAIN CONTENT -->
-    <main class="main-content">
+    <main class="main-content" id="main-content">
 
         <!-- TOPBAR -->
         <header class="topbar">
 
             <div class="topbar-left">
-                <div class="breadcrumb">
-                    <span>Platform</span>
-                    <span>/</span>
+                <div>
+                    <span class="breadcrumb">Platform /</span>
                     <strong>Monitoring Workspace</strong>
                 </div>
             </div>
 
             <div class="topbar-right">
-                <span class="environment-badge">
+                <span class="environment-label">
                     <span class="status-dot"></span>
                     DEMO ENVIRONMENT
                 </span>
 
-                <div class="user-avatar">N</div>
+                <div class="user-avatar" title="NexusAI User">N</div>
             </div>
 
         </header>
@@ -124,11 +134,11 @@
                 </div>
 
                 <div class="page-header-actions">
-                    <button class="btn btn-secondary" id="import-source-data">
+                    <button type="button" class="btn btn-secondary" id="import-source-data">
                         Import Data
                     </button>
 
-                    <button class="btn btn-primary" id="add-source-button">
+                    <button type="button" class="btn btn-primary" id="add-source-button">
                         <span>＋</span>
                         Add Monitoring Source
                     </button>
@@ -266,6 +276,7 @@
                                         </p>
 
                                         <button
+                                            type="button"
                                             class="btn btn-primary"
                                             id="empty-add-source-button"
                                         >
@@ -314,7 +325,7 @@
                         id="close-configuration-button"
                         type="button"
                     >
-                        Close
+                        Reset / Clear
                     </button>
 
                 </div>
@@ -357,7 +368,7 @@
                                     <option value="NPU Node">NPU / AI Accelerator</option>
                                     <option value="GPU Node">GPU System</option>
                                     <option value="Robotic Arm">Robotic System</option>
-                                    <option value="Cooling System">Cooling System</option>
+                                    <option value="Cooling Unit">Cooling System</option>
                                     <option value="Sensor">Sensor Unit</option>
                                     <option value="Custom">Custom Device</option>
                                 </select>
@@ -438,6 +449,7 @@
                                 <span>WARNING THRESHOLD</span>
                                 <span>CRITICAL THRESHOLD</span>
                                 <span>ENABLE</span>
+                                <span>ACTION</span>
                             </div>
 
 
@@ -638,7 +650,7 @@
                 <div class="section-heading-row">
 
                     <div>
-                        <h2>Data Import & Export</h2>
+                        <h2>Data Import &amp; Export</h2>
 
                         <p>
                             Move telemetry datasets into and out of your
@@ -786,8 +798,8 @@
         </button>
 
         <button type="button" id="toggle-source-action" class="dialog-action">
-            <strong>Change Source Status</strong>
-            <span>Activate or deactivate this monitoring source</span>
+            <strong id="toggle-source-title">Change Source Status</strong>
+            <span id="toggle-source-subtitle">Activate or deactivate this monitoring source</span>
         </button>
 
         <button type="button" id="delete-source-action" class="dialog-action danger">

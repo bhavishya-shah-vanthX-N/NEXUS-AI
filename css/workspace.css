@@ -1,4 +1,3 @@
-
 /* ============================================================
    NEXUSAI — MONITORING WORKSPACE
    File: css/workspace.css
@@ -11,7 +10,8 @@
    5. Manual reading form
    6. Import / export interface
    7. Source action dialog
-   8. Responsive layouts
+   8. Notification toast
+   9. Responsive layouts
 
    Depends on: variables.css and base.css
    ============================================================ */
@@ -76,8 +76,20 @@
 }
 
 .btn-small {
-    padding: 8px 12px;
-    font-size: var(--font-size-sm);
+    min-height: 32px;
+    padding: 6px 11px;
+    font-size: var(--font-size-xs);
+}
+
+.btn-danger-outline {
+    background: rgba(239, 68, 68, 0.09);
+    color: var(--status-critical);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.btn-danger-outline:hover {
+    background: rgba(239, 68, 68, 0.18);
+    border-color: rgba(239, 68, 68, 0.45);
 }
 
 
@@ -284,7 +296,7 @@
     display: flex;
     align-items: center;
     gap: 11px;
-    min-width: 160px;
+    min-width: 180px;
 }
 
 .source-avatar {
@@ -298,12 +310,14 @@
     border: 1px solid rgba(34, 211, 238, 0.15);
     border-radius: 9px;
     font-size: 15px;
+    font-weight: var(--font-weight-bold);
 }
 
 .source-name-details {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
+    min-width: 0;
 }
 
 .source-name-details strong {
@@ -313,6 +327,10 @@
 }
 
 .source-name-details span {
+    max-width: 240px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     color: var(--text-muted);
     font-size: var(--font-size-xs);
 }
@@ -328,21 +346,25 @@
     color: var(--text-primary);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
+    font-variant-numeric: tabular-nums;
 }
 
-.source-status {
+.source-status,
+.status-badge {
     display: inline-flex;
     align-items: center;
     gap: 7px;
-    padding: 6px 9px;
+    padding: 5px 10px;
     border: 1px solid transparent;
     border-radius: var(--radius-full);
     font-size: 11px;
     font-weight: var(--font-weight-medium);
+    text-transform: capitalize;
     white-space: nowrap;
 }
 
-.source-status::before {
+.source-status::before,
+.status-badge::before {
     content: "";
     width: 6px;
     height: 6px;
@@ -350,34 +372,46 @@
     background: currentColor;
 }
 
-.source-status.active {
+.source-status.active,
+.status-badge.success {
     color: var(--status-nominal);
     background: rgba(34, 197, 94, 0.09);
-    border-color: rgba(34, 197, 94, 0.16);
+    border-color: rgba(34, 197, 94, 0.18);
 }
 
-.source-status.warning {
+.source-status.warning,
+.status-badge.warning {
     color: var(--status-warning);
     background: rgba(245, 158, 11, 0.09);
-    border-color: rgba(245, 158, 11, 0.16);
+    border-color: rgba(245, 158, 11, 0.18);
 }
 
-.source-status.offline {
+.source-status.offline,
+.status-badge.danger,
+.status-badge.offline {
     color: var(--status-offline);
     background: rgba(100, 116, 139, 0.10);
-    border-color: rgba(100, 116, 139, 0.18);
+    border-color: rgba(100, 116, 139, 0.2);
 }
 
-.source-status.critical {
+.source-status.critical,
+.status-badge.critical {
     color: var(--status-critical);
     background: rgba(239, 68, 68, 0.09);
-    border-color: rgba(239, 68, 68, 0.16);
+    border-color: rgba(239, 68, 68, 0.2);
 }
 
 .source-last-reading {
     color: var(--text-muted);
     font-size: var(--font-size-xs);
     white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.table-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .source-action-button {
@@ -554,7 +588,7 @@
 
 
 /* ============================================================
-   09. METRIC BUILDER
+   09. METRIC BUILDER (6 COLUMNS)
    ============================================================ */
 
 .metric-builder {
@@ -568,14 +602,15 @@
 .metric-row {
     display: grid;
     grid-template-columns:
-        minmax(135px, 1.3fr)
+        minmax(150px, 1.4fr)
         minmax(75px, 0.7fr)
-        minmax(120px, 1fr)
-        minmax(120px, 1fr)
-        65px;
+        minmax(115px, 1fr)
+        minmax(115px, 1fr)
+        minmax(88px, 0.8fr)
+        78px;
     align-items: center;
     gap: 12px;
-    min-width: 670px;
+    min-width: 740px;
     padding: 13px 15px;
 }
 
@@ -589,7 +624,7 @@
 }
 
 .metric-row {
-    min-height: 66px;
+    min-height: 64px;
     background: rgba(17, 28, 46, 0.4);
     border-bottom: 1px solid var(--border-subtle);
 }
@@ -618,10 +653,20 @@
     border-color: var(--accent-cyan);
 }
 
+.metric-enable-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--text-secondary);
+    font-size: var(--font-size-xs);
+    cursor: pointer;
+    user-select: none;
+}
+
 .metric-row input[type="checkbox"] {
     width: 16px;
     height: 16px;
-    margin: auto;
+    margin: 0;
     accent-color: var(--accent-cyan);
     cursor: pointer;
 }
@@ -642,17 +687,19 @@
 }
 
 .metric-remove-button {
-    width: 29px;
-    height: 29px;
+    width: 100%;
+    height: 32px;
     color: var(--status-critical);
     background: rgba(239, 68, 68, 0.08);
-    border: 1px solid rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.18);
     border-radius: 6px;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
     cursor: pointer;
 }
 
 .metric-remove-button:hover {
-    background: rgba(239, 68, 68, 0.17);
+    background: rgba(239, 68, 68, 0.18);
 }
 
 
@@ -815,6 +862,7 @@
     width: min(440px, calc(100% - 30px));
     max-width: 440px;
     max-height: 85vh;
+    margin: auto;
     padding: 0;
     overflow: auto;
     color: var(--text-primary);
@@ -907,7 +955,53 @@
 
 
 /* ============================================================
-   15. FOOTER
+   15. NOTIFICATION TOAST
+   ============================================================ */
+
+.workspace-notification {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: var(--z-toast, 1100);
+    max-width: 380px;
+    padding: 13px 17px;
+    color: var(--text-primary);
+    background: var(--bg-surface-strong);
+    border: 1px solid var(--border-medium);
+    border-left: 4px solid var(--accent-cyan);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-elevated);
+    font-size: var(--font-size-sm);
+    line-height: 1.45;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(12px);
+    transition:
+        opacity var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.workspace-notification.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.workspace-notification[data-type="success"] {
+    border-left-color: var(--status-nominal);
+}
+
+.workspace-notification[data-type="warning"] {
+    border-left-color: var(--status-warning);
+}
+
+.workspace-notification[data-type="error"] {
+    border-left-color: var(--status-critical);
+}
+
+
+/* ============================================================
+   16. FOOTER
    ============================================================ */
 
 .page-footer {
@@ -924,7 +1018,7 @@
 
 
 /* ============================================================
-   16. ACCESSIBILITY
+   17. ACCESSIBILITY
    ============================================================ */
 
 .workspace-page-header button:focus-visible,
@@ -944,7 +1038,7 @@
 
 
 /* ============================================================
-   17. RESPONSIVE — LARGE TABLETS
+   18. RESPONSIVE — LARGE TABLETS
    ============================================================ */
 
 @media (max-width: 1200px) {
@@ -970,7 +1064,7 @@
 
 
 /* ============================================================
-   18. RESPONSIVE — TABLETS
+   19. RESPONSIVE — TABLETS
    ============================================================ */
 
 @media (max-width: 850px) {
@@ -1010,7 +1104,7 @@
 
 
 /* ============================================================
-   19. RESPONSIVE — MOBILE
+   20. RESPONSIVE — MOBILE
    ============================================================ */
 
 @media (max-width: 650px) {
@@ -1105,11 +1199,18 @@
         padding: 15px;
     }
 
+    .workspace-notification {
+        right: 12px;
+        left: 12px;
+        bottom: 12px;
+        max-width: none;
+    }
+
 }
 
 
 /* ============================================================
-   20. REDUCED MOTION
+   21. REDUCED MOTION
    ============================================================ */
 
 @media (prefers-reduced-motion: reduce) {
@@ -1117,7 +1218,8 @@
     .workspace-summary-card,
     .btn,
     .transfer-option,
-    .dialog-action {
+    .dialog-action,
+    .workspace-notification {
         transition: none;
     }
 
