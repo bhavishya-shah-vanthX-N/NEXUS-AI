@@ -11,6 +11,7 @@
      (CPU cores, WebGL GPU renderer, WebGPU, WebNN/NPU,
       Battery, Network Info, JS Memory, Web Serial, Web Bluetooth)
    - Stream genuinely available live host metrics (inputMode: "device")
+   - Ignore browser background-tab throttling for FPS / Jitter
    - Connect to real hardware via Web Serial, Web Bluetooth, or WebSocket
    - Normalize incoming device payloads into NexusAI readings
 ========================================================= */
@@ -39,6 +40,7 @@
     let fpsSamplerActive = false;
     let latestFps = 60;
     let latestLoopLagMs = 0;
+    let visibilityHandler = null;
 
     let serialPort = null;
     let serialReader = null;
@@ -50,8 +52,8 @@
 
     let wsClient = null;
 
-    let statusListeners = [];
-    let logListeners = [];
+    const statusListeners = [];
+    const logListeners = [];
 
     /* =====================================================
        EVENT / CALLBACK DISPATCH
@@ -218,6 +220,7 @@
 
     /* =====================================================
        LIVE RENDER FPS & EVENT-LOOP LATENCY PROBE
+       (Skips background-tab throttling automatically)
     ===================================================== */
 
     function startRuntimeProbes() {
@@ -226,27 +229,48 @@
 
         let frames = 0;
         let lastFrameWindow = performance.now();
+        let expected = performance.now() + 250;
+
+        if (visibilityHandler) {
+            document.removeEventListener("visibilitychange", visibilityHandler);
+        }
+
+        visibilityHandler = () => {
+            if (!document.hidden) {
+                frames = 0;
+                lastFrameWindow = performance.now();
+                expected = performance.now() + 250;
+            }
+        };
+        document.addEventListener("visibilitychange", visibilityHandler);
 
         function step(now) {
             if (!fpsSamplerActive) return;
-            frames++;
-            const elapsed = now - lastFrameWindow;
-            if (elapsed >= 1000) {
-                latestFps = Math.round((frames * 1000) / elapsed);
+
+            if (document.hidden) {
                 frames = 0;
                 lastFrameWindow = now;
+            } else {
+                frames++;
+                const elapsed = now - lastFrameWindow;
+                if (elapsed >= 1000) {
+                    latestFps = Math.round((frames * 1000) / elapsed);
+                    frames = 0;
+                    lastFrameWindow = now;
+                }
             }
+
             window.requestAnimationFrame(step);
         }
 
         window.requestAnimationFrame(step);
 
-        // Measure JS main-thread event-loop jitter over a 250ms target
-        let expected = performance.now() + 250;
         function measureDrift() {
             if (!fpsSamplerActive) return;
             const now = performance.now();
-            latestLoopLagMs = Number(Math.max(0, now - expected).toFixed(2));
+            if (!document.hidden) {
+                latestLoopLagMs = Number(Math.max(0, now - expected).toFixed(2));
+            }
             expected = now + 250;
             window.setTimeout(measureDrift, 250);
         }
@@ -255,6 +279,10 @@
 
     function stopRuntimeProbes() {
         fpsSamplerActive = false;
+        if (visibilityHandler) {
+            document.removeEventListener("visibilitychange", visibilityHandler);
+            visibilityHandler = null;
+        }
     }
 
     /* =====================================================
@@ -264,9 +292,13 @@
     async function ensureLaptopHostSource() {
         const caps = await inspectCapabilities();
         const existingSources = await DataManager.getSources();
-        const existing = existingSources.find(
-            s => s.inputMode === "device" && s.architecture === (caps.platform || "Host")
-        ) || existingSources.find(s => s.name === "Local Laptop (Real Browser Telemetry)");
+        const existing =
+            existingSources.find(
+                s => s.name === "Local Laptop (Real Browser Telemetry)"
+            ) ||
+            existingSources.find(
+                s => s.inputMode === "device" && s.architecture === (caps.platform || "Host")
+            );
 
         if (existing) {
             return existing;
@@ -321,11 +353,12 @@
             criticalThreshold: 60
         });
 
-        const archGuess = navigator.userAgent.includes("ARM") ||
+        const archGuess =
+            navigator.userAgent.includes("ARM") ||
             navigator.userAgent.includes("aarch64") ||
             String(caps.gpu?.renderer || "").includes("Adreno")
-            ? "ARM64"
-            : "x64";
+                ? "ARM64"
+                : "x64";
 
         const description = [
             `Real browser-exposed telemetry on ${caps.platform}`,
@@ -403,22 +436,27 @@
                         ((memPerf.usedJSHeapSize / memPerf.jsHeapSizeLimit) * 100).toFixed(2)
                     );
                 }
-            } else if (lowerName.includes("rtt") && connection && Number.isFinite(connection.rtt)) {
+            } else if (
+                lowerName.includes("rtt") &&
+                connection &&
+                Number.isFinite(connection.rtt)
+            ) {
                 value = Number(connection.rtt);
             } else if (
-                (lowerName.includes("downlink") || lowerName.includes("network throughput")) &&
+                (lowerName.includes("downlink") ||
+                    lowerName.includes("network throughput")) &&
                 connection &&
                 Number.isFinite(connection.downlink)
             ) {
                 value = Number(connection.downlink);
             } else if (
-                lowerName.includes("frame rate") ||
-                lowerName.includes("fps")
+                (lowerName.includes("frame rate") || lowerName.includes("fps")) &&
+                !document.hidden
             ) {
                 value = Number(latestFps);
             } else if (
-                lowerName.includes("jitter") ||
-                lowerName.includes("thread")
+                (lowerName.includes("jitter") || lowerName.includes("thread")) &&
+                !document.hidden
             ) {
                 value = Number(latestLoopLagMs);
             }
@@ -463,7 +501,9 @@
                     notifyStatus(
                         "host",
                         "warning",
-                        "No browser-exposed metrics matched this source. Click 'Register This Laptop' for real metrics."
+                        document.hidden
+                            ? "Tab hidden — frame/jitter probes paused"
+                            : "No browser-exposed metrics matched this source. Click 'Register This Laptop' for real metrics."
                     );
                 } else {
                     notifyStatus(
@@ -511,7 +551,6 @@
         let metricName = null;
         let numericValue = null;
 
-        // 1. Try JSON line: {"metric":"Temperature","value":42.5} or {"temp":42.5}
         if (text.startsWith("{") && text.endsWith("}")) {
             try {
                 const parsed = JSON.parse(text);
@@ -528,11 +567,10 @@
                     }
                 }
             } catch (err) {
-                // Fall through to text parsers
+                // Fall through
             }
         }
 
-        // 2. Try key:value or key=value
         if (numericValue === null && (text.includes(":") || text.includes("="))) {
             const parts = text.split(/[:=]/);
             if (parts.length >= 2) {
@@ -544,7 +582,6 @@
             }
         }
 
-        // 3. Try plain numeric string
         if (numericValue === null) {
             const plain = Number(text);
             if (Number.isFinite(plain)) {
@@ -704,7 +741,6 @@
         );
         notifyLog(`Connected to BLE device "${bleDevice.name || "Unnamed"}".`, "success");
 
-        // Try reading standard Battery Level (0x180F -> 0x2A19) if exposed
         try {
             const batteryService = await bleServer.getPrimaryService("battery_service");
             const batteryChar = await batteryService.getCharacteristic("battery_level");
