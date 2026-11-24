@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,9 +17,7 @@
 
 <div class="app-layout">
 
-    <!-- ==========================================
-         SIDEBAR
-    =========================================== -->
+    <!-- SIDEBAR -->
 
     <aside class="sidebar" id="sidebar">
 
@@ -94,9 +93,7 @@
     </aside>
 
 
-    <!-- ==========================================
-         MAIN CONTENT
-    =========================================== -->
+    <!-- MAIN CONTENT -->
 
     <main class="main-content" id="main-content">
 
@@ -105,12 +102,10 @@
         <header class="topbar">
 
             <div class="topbar-left">
-
                 <div>
                     <span class="breadcrumb">Workspace /</span>
                     <strong>Dashboard Overview</strong>
                 </div>
-
             </div>
 
             <div class="topbar-right">
@@ -130,7 +125,6 @@
         <!-- PAGE CONTENT -->
 
         <div class="page-container">
-
 
             <!-- WELCOME SECTION -->
 
@@ -166,7 +160,6 @@
 
                 </div>
 
-
                 <div class="welcome-visual">
 
                     <div class="visual-orbit orbit-one"></div>
@@ -185,7 +178,6 @@
             </section>
 
 
-
             <!-- SYSTEM OVERVIEW -->
 
             <section class="overview-section">
@@ -193,7 +185,6 @@
                 <div class="section-heading">
 
                     <div>
-
                         <span class="eyebrow">SYSTEM MONITORING</span>
 
                         <h2>Platform Overview</h2>
@@ -201,7 +192,6 @@
                         <p>
                             A consolidated view of your monitoring environment.
                         </p>
-
                     </div>
 
                     <span class="live-indicator">
@@ -214,17 +204,14 @@
 
                 <div class="stats-grid">
 
-
                     <article class="stat-card">
 
                         <div class="stat-top">
-
                             <span class="stat-label">
                                 Monitoring Sources
                             </span>
 
                             <span class="stat-icon">▣</span>
-
                         </div>
 
                         <h3 id="overview-source-count">0</h3>
@@ -234,17 +221,14 @@
                     </article>
 
 
-
                     <article class="stat-card">
 
                         <div class="stat-top">
-
                             <span class="stat-label">
                                 Telemetry Readings
                             </span>
 
                             <span class="stat-icon">⌁</span>
-
                         </div>
 
                         <h3 id="overview-reading-count">0</h3>
@@ -254,17 +238,14 @@
                     </article>
 
 
-
                     <article class="stat-card">
 
                         <div class="stat-top">
-
                             <span class="stat-label">
                                 Active Alerts
                             </span>
 
                             <span class="stat-icon">⚠</span>
-
                         </div>
 
                         <h3 id="overview-alert-count">0</h3>
@@ -274,30 +255,29 @@
                     </article>
 
 
-
                     <article class="stat-card">
 
                         <div class="stat-top">
-
                             <span class="stat-label">
                                 Platform Status
                             </span>
 
                             <span class="stat-icon">◉</span>
-
                         </div>
 
-                        <h3 class="status-nominal">READY</h3>
+                        <h3 class="status-nominal" id="overview-platform-status">
+                            READY
+                        </h3>
 
-                        <p>Awaiting monitoring activity</p>
+                        <p id="overview-platform-description">
+                            Awaiting monitoring activity
+                        </p>
 
                     </article>
-
 
                 </div>
 
             </section>
-
 
 
             <!-- PLATFORM MODULES -->
@@ -307,7 +287,6 @@
                 <div class="section-heading">
 
                     <div>
-
                         <span class="eyebrow">PLATFORM MODULES</span>
 
                         <h2>Explore NexusAI</h2>
@@ -315,14 +294,12 @@
                         <p>
                             Access the independent workspaces and platform tools.
                         </p>
-
                     </div>
 
                 </div>
 
 
                 <div class="modules-grid">
-
 
                     <a href="pages/workspace.html" class="module-card">
 
@@ -340,7 +317,6 @@
                         </span>
 
                     </a>
-
 
 
                     <a href="pages/telemetry.html" class="module-card">
@@ -361,7 +337,6 @@
                     </a>
 
 
-
                     <a href="pages/ai-analytics.html" class="module-card">
 
                         <div class="module-icon">◈</div>
@@ -378,7 +353,6 @@
                         </span>
 
                     </a>
-
 
 
                     <a href="pages/hardware.html" class="module-card">
@@ -399,7 +373,6 @@
                     </a>
 
 
-
                     <a href="pages/roadmap.html" class="module-card">
 
                         <div class="module-icon">⌖</div>
@@ -416,7 +389,6 @@
                         </span>
 
                     </a>
-
 
 
                     <a href="pages/user-guide.html" class="module-card">
@@ -436,11 +408,9 @@
 
                     </a>
 
-
                 </div>
 
             </section>
-
 
 
             <!-- ARCHITECTURE INFORMATION -->
@@ -450,11 +420,9 @@
                 <div class="section-heading">
 
                     <div>
-
                         <span class="eyebrow">SYSTEM ARCHITECTURE</span>
 
                         <h2>One Platform. Multiple Sources.</h2>
-
                     </div>
 
                 </div>
@@ -505,19 +473,16 @@
             </section>
 
 
-
             <!-- FOOTER -->
 
             <footer class="main-footer">
 
                 <div>
-
                     <strong>NexusAI</strong>
 
                     <span>
                         High-Throughput Edge AI & Telemetry Platform
                     </span>
-
                 </div>
 
                 <p>
@@ -532,6 +497,13 @@
     </main>
 
 </div>
+
+
+<!-- NEXUSAI APPLICATION SCRIPTS -->
+
+<script src="js/storage.js"></script>
+<script src="js/data-manager.js"></script>
+<script src="js/main.js"></script>
 
 </body>
 </html>
