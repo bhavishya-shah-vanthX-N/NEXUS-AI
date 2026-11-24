@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="NexusAI Live Telemetry — real-time host/device connectors, simulated streams, historical readings, and threshold alerts.">
+    <meta name="description" content="NexusAI Live Telemetry — real-time host/device connectors, CPU/GPU/NPU benchmarks, simulated streams, and threshold alerts.">
     <meta name="theme-color" content="#070b14">
     <title>Live Telemetry | NexusAI</title>
 
@@ -129,7 +129,7 @@
 
                     <p>
                         Connect real-time laptop host metrics or compatible hardware interfaces,
-                        run controlled telemetry simulations, and inspect threshold alerts.
+                        benchmark CPU/GPU/NPU compute performance, and inspect threshold alerts.
                     </p>
                 </div>
 
@@ -395,6 +395,76 @@
             </section>
 
 
+            <!-- REAL CPU / GPU / NPU BENCHMARK & RATING SUITE -->
+            <section class="content-card benchmark-card" aria-label="Laptop Compute Benchmarks">
+
+                <div class="section-heading-row">
+                    <div>
+                        <div class="eyebrow">REAL HARDWARE PERFORMANCE RATING</div>
+                        <h2>CPU, GPU &amp; NPU / ML Compute Benchmark</h2>
+                        <p>
+                            Measures actual compute throughput on this device using real math loops, WebGL shaders,
+                            and WebNN / Tensor matrix inference passes.
+                        </p>
+                    </div>
+
+                    <button type="button" class="btn btn-primary btn-small" id="run-hw-benchmark-btn">
+                        ⚡ Run CPU / GPU / NPU Benchmark
+                    </button>
+                </div>
+
+                <div class="benchmark-progress-wrap">
+                    <div class="benchmark-track">
+                        <div id="bench-progress-fill" class="benchmark-fill"></div>
+                    </div>
+                    <span id="bench-progress-text" class="benchmark-progress-text">
+                        Click &ldquo;Run CPU / GPU / NPU Benchmark&rdquo; to rate your laptop&rsquo;s compute capabilities.
+                    </span>
+                </div>
+
+                <div class="benchmark-grid">
+
+                    <article class="benchmark-result-box">
+                        <div class="benchmark-box-top">
+                            <span>CPU COMPUTE RATING</span>
+                            <span class="badge" id="bench-cpu-tier">NOT TESTED</span>
+                        </div>
+                        <strong class="benchmark-score" id="bench-cpu-score">--</strong>
+                        <small class="benchmark-meta" id="bench-cpu-meta">Floating-point &amp; square-root workload</small>
+                    </article>
+
+                    <article class="benchmark-result-box">
+                        <div class="benchmark-box-top">
+                            <span>GPU SHADER RATING</span>
+                            <span class="badge" id="bench-gpu-tier">NOT TESTED</span>
+                        </div>
+                        <strong class="benchmark-score" id="bench-gpu-score">--</strong>
+                        <small class="benchmark-meta" id="bench-gpu-meta">WebGL ALU fragment pass</small>
+                    </article>
+
+                    <article class="benchmark-result-box">
+                        <div class="benchmark-box-top">
+                            <span>NPU / ML INFERENCE RATING</span>
+                            <span class="badge" id="bench-npu-tier">NOT TESTED</span>
+                        </div>
+                        <strong class="benchmark-score" id="bench-npu-score">--</strong>
+                        <small class="benchmark-meta" id="bench-npu-meta">WebNN / Tensor MatMul + ReLU pass</small>
+                    </article>
+
+                    <article class="benchmark-result-box highlight">
+                        <div class="benchmark-box-top">
+                            <span>EDGE READINESS RATING</span>
+                            <span class="badge" id="bench-total-tier">NOT TESTED</span>
+                        </div>
+                        <strong class="benchmark-score" id="bench-total-score">--</strong>
+                        <small class="benchmark-meta" id="bench-total-meta">Weighted CPU (40%) + GPU (35%) + ML (25%)</small>
+                    </article>
+
+                </div>
+
+            </section>
+
+
             <!-- CHART + ALERTS GRID -->
             <section class="telemetry-main-grid">
 
@@ -538,7 +608,7 @@
                     <strong>NexusAI</strong>
                     <span>High-Throughput Edge AI &amp; Telemetry Platform</span>
                 </div>
-                <p>Demonstration Build · Live Telemetry &amp; Device Connectors</p>
+                <p>Demonstration Build · Live Telemetry &amp; Hardware Benchmarks</p>
             </footer>
 
         </div>
