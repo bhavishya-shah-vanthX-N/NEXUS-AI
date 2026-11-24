@@ -1,0 +1,200 @@
+
+/* =========================================================
+   NEXUSAI — GLOBAL DESIGN TOKENS
+   File: css/variables.css
+   Purpose: Centralized visual configuration
+   ========================================================= */
+
+:root {
+
+    /* =========================================
+       1. BACKGROUND COLORS
+    ========================================= */
+
+    --bg-primary: #070b14;
+    --bg-secondary: #0b1220;
+    --bg-surface: #111c2e;
+    --bg-surface-strong: #17243a;
+    --bg-elevated: #1c2b42;
+    --bg-overlay: rgba(4, 9, 18, 0.85);
+
+
+    /* =========================================
+       2. TEXT COLORS
+    ========================================= */
+
+    --text-primary: #f1f5f9;
+    --text-secondary: #a8b6ca;
+    --text-muted: #718096;
+    --text-disabled: #475569;
+    --text-inverse: #06111d;
+
+
+    /* =========================================
+       3. BRAND AND ACCENT COLORS
+    ========================================= */
+
+    --accent-cyan: #22d3ee;
+    --accent-cyan-light: #67e8f9;
+    --accent-cyan-dark: #0891b2;
+
+    --accent-blue: #3b82f6;
+    --accent-blue-dark: #1d4ed8;
+
+    --accent-purple: #a78bfa;
+
+    --accent-gradient: linear-gradient(
+        135deg,
+        #22d3ee,
+        #2563eb
+    );
+
+
+    /* =========================================
+       4. SYSTEM STATUS COLORS
+    ========================================= */
+
+    --status-nominal: #22c55e;
+    --status-warning: #f59e0b;
+    --status-critical: #ef4444;
+    --status-info: #38bdf8;
+    --status-offline: #64748b;
+
+
+    /* =========================================
+       5. BORDERS
+    ========================================= */
+
+    --border-subtle: rgba(148, 163, 184, 0.14);
+    --border-medium: rgba(148, 163, 184, 0.25);
+    --border-strong: rgba(148, 163, 184, 0.4);
+
+    --border-accent: rgba(34, 211, 238, 0.35);
+
+
+    /* =========================================
+       6. TYPOGRAPHY
+    ========================================= */
+
+    --font-sans: "Segoe UI", Arial, sans-serif;
+    --font-mono: "Consolas", "Courier New", monospace;
+
+    --font-size-xs: 10px;
+    --font-size-sm: 12px;
+    --font-size-base: 14px;
+    --font-size-md: 16px;
+    --font-size-lg: 20px;
+    --font-size-xl: 26px;
+    --font-size-2xl: 34px;
+
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+
+    /* =========================================
+       7. SPACING SYSTEM
+    ========================================= */
+
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+
+
+    /* =========================================
+       8. BORDER RADIUS
+    ========================================= */
+
+    --radius-sm: 6px;
+    --radius-md: 9px;
+    --radius-lg: 12px;
+    --radius-xl: 17px;
+    --radius-2xl: 20px;
+    --radius-full: 999px;
+
+
+    /* =========================================
+       9. SHADOWS AND DEPTH
+    ========================================= */
+
+    --shadow-sm: 0 3px 10px rgba(0, 0, 0, 0.18);
+
+    --shadow-card:
+        0 12px 35px rgba(0, 0, 0, 0.3);
+
+    --shadow-elevated:
+        0 18px 45px rgba(0, 0, 0, 0.4);
+
+    --shadow-glow-cyan:
+        0 0 25px rgba(34, 211, 238, 0.15);
+
+
+    /* =========================================
+       10. LAYOUT DIMENSIONS
+    ========================================= */
+
+    --sidebar-width: 260px;
+    --sidebar-collapsed-width: 76px;
+
+    --header-height: 70px;
+
+    --container-max: 1600px;
+
+    --content-padding: 38px;
+
+
+    /* =========================================
+       11. EFFECTS AND TRANSITIONS
+    ========================================= */
+
+    --glass-blur: 16px;
+
+    --transition-fast: 180ms ease;
+    --transition-normal: 250ms ease;
+    --transition-slow: 350ms ease;
+
+
+    /* =========================================
+       12. LAYERING
+    ========================================= */
+
+    --z-base: 1;
+    --z-dropdown: 50;
+    --z-sidebar: 100;
+    --z-header: 90;
+    --z-overlay: 500;
+    --z-modal: 1000;
+    --z-toast: 1100;
+
+
+    /* =========================================
+       13. CHART AND TELEMETRY COLORS
+    ========================================= */
+
+    --chart-primary: #22d3ee;
+    --chart-secondary: #3b82f6;
+    --chart-tertiary: #a78bfa;
+    --chart-quaternary: #22c55e;
+
+    --chart-grid: rgba(148, 163, 184, 0.12);
+    --chart-label: #94a3b8;
+
+
+    /* =========================================
+       14. INTERACTION AND ACCESSIBILITY
+    ========================================= */
+
+    --focus-outline: 2px solid #22d3ee;
+    --focus-offset: 3px;
+
+    --disabled-opacity: 0.45;
+
+}

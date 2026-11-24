@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NexusAI - High-Throughput Edge AI and Telemetry Platform">
+    <meta name="theme-color" content="#070b14">
+
+    <title>NexusAI | System Dashboard</title>
+
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+</head>
+
+<body>
+
+<div class="app-layout">
+
+    <!-- ==========================================
+         SIDEBAR
+    =========================================== -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="brand">
+            <div class="brand-logo">N</div>
+
+            <div class="brand-info">
+                <h2>NexusAI</h2>
+                <span>EDGE INTELLIGENCE</span>
+            </div>
+        </div>
+
+        <div class="sidebar-label">MAIN MENU</div>
+
+        <nav class="sidebar-nav">
+
+            <a href="index.html" class="nav-link active" aria-current="page">
+                <span class="nav-icon">▦</span>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="pages/workspace.html" class="nav-link">
+                <span class="nav-icon">▣</span>
+                <span>Monitoring Workspace</span>
+            </a>
+
+            <a href="pages/telemetry.html" class="nav-link">
+                <span class="nav-icon">⌁</span>
+                <span>Live Telemetry</span>
+            </a>
+
+            <a href="pages/ai-analytics.html" class="nav-link">
+                <span class="nav-icon">◈</span>
+                <span>AI Analytics</span>
+            </a>
+
+            <div class="sidebar-label">PLATFORM</div>
+
+            <a href="pages/hardware.html" class="nav-link">
+                <span class="nav-icon">▤</span>
+                <span>Hardware Gallery</span>
+            </a>
+
+            <a href="pages/roadmap.html" class="nav-link">
+                <span class="nav-icon">⌖</span>
+                <span>Development Roadmap</span>
+            </a>
+
+            <a href="pages/user-guide.html" class="nav-link">
+                <span class="nav-icon">ⓘ</span>
+                <span>User Guide</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <div class="system-status">
+                <span class="status-dot"></span>
+
+                <div>
+                    <strong>System Ready</strong>
+                    <small>Local environment</small>
+                </div>
+            </div>
+
+            <div class="sidebar-version">
+                NEXUSAI · DEMONSTRATION BUILD
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ==========================================
+         MAIN CONTENT
+    =========================================== -->
+
+    <main class="main-content" id="main-content">
+
+        <!-- TOPBAR -->
+
+        <header class="topbar">
+
+            <div class="topbar-left">
+
+                <div>
+                    <span class="breadcrumb">Workspace /</span>
+                    <strong>Dashboard Overview</strong>
+                </div>
+
+            </div>
+
+            <div class="topbar-right">
+
+                <span class="environment-label">
+                    <span class="status-dot"></span>
+                    DEMO ENVIRONMENT
+                </span>
+
+                <div class="user-avatar" title="NexusAI User">N</div>
+
+            </div>
+
+        </header>
+
+
+        <!-- PAGE CONTENT -->
+
+        <div class="page-container">
+
+
+            <!-- WELCOME SECTION -->
+
+            <section class="welcome-section">
+
+                <div class="welcome-content">
+
+                    <span class="eyebrow">
+                        HIGH-THROUGHPUT EDGE INTELLIGENCE
+                    </span>
+
+                    <h1>
+                        Welcome to <span class="accent-text">NexusAI.</span>
+                    </h1>
+
+                    <p>
+                        A unified edge monitoring and telemetry platform
+                        designed to collect, visualize and analyse data
+                        from multiple computing and hardware sources.
+                    </p>
+
+                    <div class="welcome-actions">
+
+                        <a href="pages/workspace.html" class="btn btn-primary">
+                            Open Monitoring Workspace →
+                        </a>
+
+                        <a href="pages/user-guide.html" class="btn btn-secondary">
+                            Explore Documentation
+                        </a>
+
+                    </div>
+
+                </div>
+
+
+                <div class="welcome-visual">
+
+                    <div class="visual-orbit orbit-one"></div>
+                    <div class="visual-orbit orbit-two"></div>
+
+                    <div class="visual-core">
+                        NX
+                    </div>
+
+                    <div class="visual-caption">
+                        NEXUSAI CORE
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- SYSTEM OVERVIEW -->
+
+            <section class="overview-section">
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <span class="eyebrow">SYSTEM MONITORING</span>
+
+                        <h2>Platform Overview</h2>
+
+                        <p>
+                            A consolidated view of your monitoring environment.
+                        </p>
+
+                    </div>
+
+                    <span class="live-indicator">
+                        <span class="status-dot"></span>
+                        LOCAL DEMONSTRATION
+                    </span>
+
+                </div>
+
+
+                <div class="stats-grid">
+
+
+                    <article class="stat-card">
+
+                        <div class="stat-top">
+
+                            <span class="stat-label">
+                                Monitoring Sources
+                            </span>
+
+                            <span class="stat-icon">▣</span>
+
+                        </div>
+
+                        <h3 id="overview-source-count">0</h3>
+
+                        <p>Configured monitoring sources</p>
+
+                    </article>
+
+
+
+                    <article class="stat-card">
+
+                        <div class="stat-top">
+
+                            <span class="stat-label">
+                                Telemetry Readings
+                            </span>
+
+                            <span class="stat-icon">⌁</span>
+
+                        </div>
+
+                        <h3 id="overview-reading-count">0</h3>
+
+                        <p>Recorded measurements</p>
+
+                    </article>
+
+
+
+                    <article class="stat-card">
+
+                        <div class="stat-top">
+
+                            <span class="stat-label">
+                                Active Alerts
+                            </span>
+
+                            <span class="stat-icon">⚠</span>
+
+                        </div>
+
+                        <h3 id="overview-alert-count">0</h3>
+
+                        <p>Detected warning events</p>
+
+                    </article>
+
+
+
+                    <article class="stat-card">
+
+                        <div class="stat-top">
+
+                            <span class="stat-label">
+                                Platform Status
+                            </span>
+
+                            <span class="stat-icon">◉</span>
+
+                        </div>
+
+                        <h3 class="status-nominal">READY</h3>
+
+                        <p>Awaiting monitoring activity</p>
+
+                    </article>
+
+
+                </div>
+
+            </section>
+
+
+
+            <!-- PLATFORM MODULES -->
+
+            <section class="quick-access-section">
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <span class="eyebrow">PLATFORM MODULES</span>
+
+                        <h2>Explore NexusAI</h2>
+
+                        <p>
+                            Access the independent workspaces and platform tools.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="modules-grid">
+
+
+                    <a href="pages/workspace.html" class="module-card">
+
+                        <div class="module-icon">▣</div>
+
+                        <h3>Monitoring Workspace</h3>
+
+                        <p>
+                            Create, configure and manage multiple monitoring
+                            sources, devices and measurement parameters.
+                        </p>
+
+                        <span class="module-link">
+                            Open Workspace →
+                        </span>
+
+                    </a>
+
+
+
+                    <a href="pages/telemetry.html" class="module-card">
+
+                        <div class="module-icon">⌁</div>
+
+                        <h3>Live Telemetry</h3>
+
+                        <p>
+                            Visualize changing readings, explore telemetry
+                            history and monitor source activity.
+                        </p>
+
+                        <span class="module-link">
+                            View Telemetry →
+                        </span>
+
+                    </a>
+
+
+
+                    <a href="pages/ai-analytics.html" class="module-card">
+
+                        <div class="module-icon">◈</div>
+
+                        <h3>AI Analytics</h3>
+
+                        <p>
+                            Analyse anomalies, calculate system health,
+                            forecast trends and generate recommendations.
+                        </p>
+
+                        <span class="module-link">
+                            Open Analytics →
+                        </span>
+
+                    </a>
+
+
+
+                    <a href="pages/hardware.html" class="module-card">
+
+                        <div class="module-icon">▤</div>
+
+                        <h3>Hardware Gallery</h3>
+
+                        <p>
+                            Explore computing hardware, technical
+                            specifications and simulated benchmarks.
+                        </p>
+
+                        <span class="module-link">
+                            Explore Hardware →
+                        </span>
+
+                    </a>
+
+
+
+                    <a href="pages/roadmap.html" class="module-card">
+
+                        <div class="module-icon">⌖</div>
+
+                        <h3>Development Roadmap</h3>
+
+                        <p>
+                            Explore the four development phases,
+                            project milestones and future capabilities.
+                        </p>
+
+                        <span class="module-link">
+                            View Roadmap →
+                        </span>
+
+                    </a>
+
+
+
+                    <a href="pages/user-guide.html" class="module-card">
+
+                        <div class="module-icon">ⓘ</div>
+
+                        <h3>User Guide</h3>
+
+                        <p>
+                            Learn about source configuration, data imports,
+                            device connections and platform operation.
+                        </p>
+
+                        <span class="module-link">
+                            Read Documentation →
+                        </span>
+
+                    </a>
+
+
+                </div>
+
+            </section>
+
+
+
+            <!-- ARCHITECTURE INFORMATION -->
+
+            <section class="platform-info-section">
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <span class="eyebrow">SYSTEM ARCHITECTURE</span>
+
+                        <h2>One Platform. Multiple Sources.</h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="info-panel">
+
+                    <div class="info-panel-content">
+
+                        <h3>Unified Edge Monitoring Architecture</h3>
+
+                        <p>
+                            NexusAI is designed to bring multiple edge
+                            computing and hardware monitoring sources
+                            into one unified environment.
+                        </p>
+
+                        <p>
+                            Its architecture separates source configuration,
+                            telemetry collection, local data storage,
+                            statistical analysis and visualization.
+                        </p>
+
+                        <p>
+                            The demonstration build supports simulated,
+                            manually entered and imported measurements.
+                            Actual hardware readings depend on browser
+                            capabilities, device permissions and supported
+                            communication interfaces.
+                        </p>
+
+                    </div>
+
+
+                    <div class="architecture-tags">
+
+                        <span>HTML5</span>
+                        <span>CSS3</span>
+                        <span>Vanilla JavaScript</span>
+                        <span>IndexedDB</span>
+                        <span>LocalStorage</span>
+                        <span>Browser APIs</span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- FOOTER -->
+
+            <footer class="main-footer">
+
+                <div>
+
+                    <strong>NexusAI</strong>
+
+                    <span>
+                        High-Throughput Edge AI & Telemetry Platform
+                    </span>
+
+                </div>
+
+                <p>
+                    Demonstration Build · HTML5 · CSS3 · Vanilla JavaScript
+                </p>
+
+            </footer>
+
+
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+</html>

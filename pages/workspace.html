@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NexusAI Monitoring Workspace — manage monitoring sources and configure telemetry inputs.">
+    <title>Monitoring Workspace | NexusAI</title>
+
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/workspace.css">
+</head>
+
+<body>
+
+<div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+            <div class="brand-icon">N</div>
+            <div class="brand-text">
+                <strong>NexusAI</strong>
+                <span>EDGE INTELLIGENCE</span>
+            </div>
+        </div>
+
+        <div class="sidebar-section-label">PLATFORM</div>
+
+        <nav class="sidebar-nav" aria-label="Main navigation">
+
+            <a href="../index.html" class="nav-link">
+                <span class="nav-icon">◈</span>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="workspace.html" class="nav-link active" aria-current="page">
+                <span class="nav-icon">▦</span>
+                <span>Monitoring Workspace</span>
+            </a>
+
+            <a href="telemetry.html" class="nav-link">
+                <span class="nav-icon">⌁</span>
+                <span>Live Telemetry</span>
+            </a>
+
+            <a href="ai-analytics.html" class="nav-link">
+                <span class="nav-icon">✧</span>
+                <span>AI Analytics</span>
+            </a>
+
+            <div class="sidebar-section-label">RESOURCES</div>
+
+            <a href="hardware.html" class="nav-link">
+                <span class="nav-icon">▣</span>
+                <span>Hardware Gallery</span>
+            </a>
+
+            <a href="roadmap.html" class="nav-link">
+                <span class="nav-icon">⌘</span>
+                <span>Development Roadmap</span>
+            </a>
+
+            <a href="user-guide.html" class="nav-link">
+                <span class="nav-icon">ⓘ</span>
+                <span>User Guide</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="connection-indicator"></div>
+            <div>
+                <strong>Local Environment</strong>
+                <span>Browser-based operation</span>
+            </div>
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+
+            <div class="topbar-left">
+                <div class="breadcrumb">
+                    <span>Platform</span>
+                    <span>/</span>
+                    <strong>Monitoring Workspace</strong>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <span class="environment-badge">
+                    <span class="status-dot"></span>
+                    DEMO ENVIRONMENT
+                </span>
+
+                <div class="user-avatar">N</div>
+            </div>
+
+        </header>
+
+
+        <!-- PAGE CONTENT -->
+        <div class="page-container">
+
+            <!-- PAGE HEADER -->
+            <section class="page-header workspace-page-header">
+
+                <div>
+                    <div class="eyebrow">SOURCE MANAGEMENT</div>
+
+                    <h1>Monitoring Workspace</h1>
+
+                    <p>
+                        Configure, organize, and manage the devices and data
+                        sources connected to your NexusAI monitoring environment.
+                    </p>
+                </div>
+
+                <div class="page-header-actions">
+                    <button class="btn btn-secondary" id="import-source-data">
+                        Import Data
+                    </button>
+
+                    <button class="btn btn-primary" id="add-source-button">
+                        <span>＋</span>
+                        Add Monitoring Source
+                    </button>
+                </div>
+
+            </section>
+
+
+            <!-- WORKSPACE SUMMARY -->
+            <section class="workspace-summary-grid">
+
+                <article class="workspace-summary-card">
+                    <div class="summary-card-top">
+                        <span class="summary-label">TOTAL SOURCES</span>
+                        <span class="summary-icon">▦</span>
+                    </div>
+
+                    <div class="summary-value" id="total-sources">0</div>
+
+                    <div class="summary-description">
+                        Registered monitoring sources
+                    </div>
+                </article>
+
+
+                <article class="workspace-summary-card">
+                    <div class="summary-card-top">
+                        <span class="summary-label">ACTIVE SOURCES</span>
+                        <span class="summary-icon success">●</span>
+                    </div>
+
+                    <div class="summary-value" id="active-sources">0</div>
+
+                    <div class="summary-description">
+                        Currently producing readings
+                    </div>
+                </article>
+
+
+                <article class="workspace-summary-card">
+                    <div class="summary-card-top">
+                        <span class="summary-label">CONFIGURED METRICS</span>
+                        <span class="summary-icon">⌁</span>
+                    </div>
+
+                    <div class="summary-value" id="configured-metrics">0</div>
+
+                    <div class="summary-description">
+                        Measurement fields across sources
+                    </div>
+                </article>
+
+
+                <article class="workspace-summary-card">
+                    <div class="summary-card-top">
+                        <span class="summary-label">SOURCE ALERTS</span>
+                        <span class="summary-icon warning">!</span>
+                    </div>
+
+                    <div class="summary-value" id="source-alerts">0</div>
+
+                    <div class="summary-description">
+                        Sources requiring attention
+                    </div>
+                </article>
+
+            </section>
+
+
+            <!-- SOURCE MANAGEMENT -->
+            <section class="content-card workspace-sources-card">
+
+                <div class="section-heading-row">
+
+                    <div>
+                        <h2>Monitoring Sources</h2>
+                        <p>
+                            View and manage every registered device or data source.
+                        </p>
+                    </div>
+
+                    <div class="source-toolbar">
+
+                        <div class="search-field">
+                            <span>⌕</span>
+                            <input
+                                type="search"
+                                id="source-search"
+                                placeholder="Search sources..."
+                                aria-label="Search monitoring sources"
+                            >
+                        </div>
+
+                        <select id="source-filter" aria-label="Filter sources">
+                            <option value="all">All Sources</option>
+                            <option value="active">Active</option>
+                            <option value="offline">Offline</option>
+                            <option value="warning">Warning</option>
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <!-- SOURCE TABLE -->
+                <div class="data-table-wrapper">
+
+                    <table class="data-table workspace-table">
+
+                        <thead>
+                            <tr>
+                                <th>MONITORING SOURCE</th>
+                                <th>DEVICE TYPE</th>
+                                <th>ARCHITECTURE</th>
+                                <th>METRICS</th>
+                                <th>STATUS</th>
+                                <th>LAST READING</th>
+                                <th>ACTIONS</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="source-table-body">
+
+                            <!-- JavaScript will populate this table -->
+
+                            <tr class="initial-empty-row">
+                                <td colspan="7">
+                                    <div class="empty-state">
+                                        <div class="empty-state-icon">▦</div>
+                                        <h3>No monitoring sources yet</h3>
+                                        <p>
+                                            Add a source to begin building your
+                                            monitoring environment.
+                                        </p>
+
+                                        <button
+                                            class="btn btn-primary"
+                                            id="empty-add-source-button"
+                                        >
+                                            ＋ Add Your First Source
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                <div class="table-footer">
+                    <span id="source-table-count">
+                        Showing 0 monitoring sources
+                    </span>
+
+                    <span class="table-footer-note">
+                        Source configurations are stored locally
+                    </span>
+                </div>
+
+            </section>
+
+
+            <!-- SOURCE CREATION / CONFIGURATION -->
+            <section class="content-card source-configuration-card" id="source-configuration">
+
+                <div class="section-heading-row">
+
+                    <div>
+                        <div class="eyebrow">CONFIGURATION CENTER</div>
+                        <h2 id="configuration-heading">Add Monitoring Source</h2>
+
+                        <p>
+                            Define a source, its hardware profile, and the
+                            measurements you want NexusAI to monitor.
+                        </p>
+                    </div>
+
+                    <button
+                        class="btn btn-secondary"
+                        id="close-configuration-button"
+                        type="button"
+                    >
+                        Close
+                    </button>
+
+                </div>
+
+
+                <form id="source-configuration-form">
+
+                    <input type="hidden" id="source-id">
+
+                    <!-- BASIC INFORMATION -->
+                    <div class="configuration-section">
+
+                        <h3>01. Source Information</h3>
+
+                        <p class="configuration-description">
+                            Identify the device or system being monitored.
+                        </p>
+
+                        <div class="configuration-grid">
+
+                            <div class="form-group">
+                                <label for="source-name">Source Name</label>
+
+                                <input
+                                    type="text"
+                                    id="source-name"
+                                    placeholder="e.g. Main Laptop"
+                                    required
+                                >
+                            </div>
+
+
+                            <div class="form-group">
+                                <label for="source-type">Device Type</label>
+
+                                <select id="source-type" required>
+                                    <option value="">Select device type</option>
+                                    <option value="Laptop">Laptop / Computer</option>
+                                    <option value="Server">Server</option>
+                                    <option value="NPU Node">NPU / AI Accelerator</option>
+                                    <option value="GPU Node">GPU System</option>
+                                    <option value="Robotic Arm">Robotic System</option>
+                                    <option value="Cooling System">Cooling System</option>
+                                    <option value="Sensor">Sensor Unit</option>
+                                    <option value="Custom">Custom Device</option>
+                                </select>
+                            </div>
+
+
+                            <div class="form-group">
+                                <label for="source-architecture">Architecture</label>
+
+                                <select id="source-architecture" required>
+                                    <option value="">Select architecture</option>
+                                    <option value="ARM64">ARM64</option>
+                                    <option value="x64">x64</option>
+                                    <option value="x86">x86</option>
+                                    <option value="Other">Other / Unknown</option>
+                                </select>
+                            </div>
+
+
+                            <div class="form-group">
+                                <label for="source-input-mode">Input Method</label>
+
+                                <select id="source-input-mode" required>
+                                    <option value="simulated">Simulated Live Data</option>
+                                    <option value="manual">Manual Readings</option>
+                                    <option value="import">Imported Dataset</option>
+                                    <option value="serial">Web Serial Device</option>
+                                    <option value="bluetooth">Web Bluetooth Device</option>
+                                    <option value="usb">WebUSB Device</option>
+                                </select>
+                            </div>
+
+
+                            <div class="form-group full-width">
+                                <label for="source-description">Description</label>
+
+                                <textarea
+                                    id="source-description"
+                                    rows="3"
+                                    placeholder="Describe this device or its monitoring purpose..."
+                                ></textarea>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- MEASUREMENT CONFIGURATION -->
+                    <div class="configuration-section">
+
+                        <div class="section-heading-row">
+
+                            <div>
+                                <h3>02. Measurement Configuration</h3>
+
+                                <p class="configuration-description">
+                                    Select the metrics that this source will provide.
+                                </p>
+                            </div>
+
+                            <button
+                                type="button"
+                                class="btn btn-secondary btn-small"
+                                id="add-metric-button"
+                            >
+                                ＋ Add Custom Metric
+                            </button>
+
+                        </div>
+
+
+                        <div class="metric-builder">
+
+                            <div class="metric-builder-header">
+                                <span>METRIC NAME</span>
+                                <span>UNIT</span>
+                                <span>WARNING THRESHOLD</span>
+                                <span>CRITICAL THRESHOLD</span>
+                                <span>ENABLE</span>
+                            </div>
+
+
+                            <div id="metric-list">
+
+                                <!-- JavaScript will insert metric configuration rows -->
+
+                                <div class="metric-empty-state">
+                                    Select a device type to configure its metrics.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- READING SETTINGS -->
+                    <div class="configuration-section">
+
+                        <h3>03. Data Collection Settings</h3>
+
+                        <p class="configuration-description">
+                            Configure how readings are received and recorded.
+                        </p>
+
+                        <div class="configuration-grid">
+
+                            <div class="form-group">
+                                <label for="sampling-interval">
+                                    Sampling Interval
+                                </label>
+
+                                <select id="sampling-interval">
+                                    <option value="1000">1 second</option>
+                                    <option value="2000">2 seconds</option>
+                                    <option value="5000" selected>5 seconds</option>
+                                    <option value="10000">10 seconds</option>
+                                    <option value="30000">30 seconds</option>
+                                    <option value="60000">60 seconds</option>
+                                </select>
+                            </div>
+
+
+                            <div class="form-group">
+                                <label for="history-retention">
+                                    History Retention
+                                </label>
+
+                                <select id="history-retention">
+                                    <option value="1">1 day</option>
+                                    <option value="7" selected>7 days</option>
+                                    <option value="30">30 days</option>
+                                    <option value="90">90 days</option>
+                                    <option value="365">365 days</option>
+                                </select>
+                            </div>
+
+
+                            <div class="form-group">
+                                <label for="source-status">
+                                    Initial Source Status
+                                </label>
+
+                                <select id="source-status">
+                                    <option value="active">Active</option>
+                                    <option value="offline">Offline</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- CONFIGURATION ACTIONS -->
+                    <div class="configuration-actions">
+
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            id="reset-source-form"
+                        >
+                            Reset Form
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                            id="save-source-button"
+                        >
+                            Save Monitoring Source
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+
+            <!-- DATA INPUT PANEL -->
+            <section class="content-card data-input-card">
+
+                <div class="section-heading-row">
+
+                    <div>
+                        <h2>Manual Reading Entry</h2>
+
+                        <p>
+                            Enter a reading directly when a source does not
+                            have an automatic input connection.
+                        </p>
+                    </div>
+
+                    <span class="feature-tag">MANUAL INPUT</span>
+
+                </div>
+
+
+                <form id="manual-reading-form">
+
+                    <div class="configuration-grid">
+
+                        <div class="form-group">
+                            <label for="reading-source">
+                                Monitoring Source
+                            </label>
+
+                            <select id="reading-source" required>
+                                <option value="">Select a source</option>
+                            </select>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="reading-metric">
+                                Measurement
+                            </label>
+
+                            <select id="reading-metric" required>
+                                <option value="">Select a metric</option>
+                            </select>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="reading-value">
+                                Reading Value
+                            </label>
+
+                            <input
+                                type="number"
+                                id="reading-value"
+                                step="any"
+                                placeholder="Enter measurement"
+                                required
+                            >
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="reading-timestamp">
+                                Reading Timestamp
+                            </label>
+
+                            <input
+                                type="datetime-local"
+                                id="reading-timestamp"
+                                required
+                            >
+                        </div>
+
+                    </div>
+
+
+                    <div class="configuration-actions">
+
+                        <span class="input-helper-text">
+                            Manual readings are added to the source's history.
+                        </span>
+
+                        <button type="submit" class="btn btn-primary">
+                            Submit Reading
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+
+            <!-- IMPORT / EXPORT -->
+            <section class="content-card data-transfer-card">
+
+                <div class="section-heading-row">
+
+                    <div>
+                        <h2>Data Import & Export</h2>
+
+                        <p>
+                            Move telemetry datasets into and out of your
+                            local NexusAI environment.
+                        </p>
+                    </div>
+
+                    <span class="feature-tag">LOCAL DATA</span>
+
+                </div>
+
+
+                <div class="transfer-grid">
+
+                    <div class="transfer-option">
+
+                        <div class="transfer-icon">↑</div>
+
+                        <div>
+                            <h3>Import Dataset</h3>
+
+                            <p>
+                                Load existing telemetry records using
+                                supported CSV or JSON files.
+                            </p>
+                        </div>
+
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            id="open-import-button"
+                        >
+                            Choose File
+                        </button>
+
+                    </div>
+
+
+                    <div class="transfer-option">
+
+                        <div class="transfer-icon">↓</div>
+
+                        <div>
+                            <h3>Export Workspace</h3>
+
+                            <p>
+                                Export source configurations and monitoring
+                                records for backup or analysis.
+                            </p>
+                        </div>
+
+                        <div class="transfer-actions">
+
+                            <button
+                                type="button"
+                                class="btn btn-secondary"
+                                id="export-csv-button"
+                            >
+                                Export CSV
+                            </button>
+
+                            <button
+                                type="button"
+                                class="btn btn-secondary"
+                                id="export-json-button"
+                            >
+                                Export JSON
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <input
+                    type="file"
+                    id="dataset-file-input"
+                    accept=".csv,.json,application/json,text/csv"
+                    hidden
+                >
+
+            </section>
+
+
+            <!-- WORKSPACE INFORMATION -->
+            <section class="workspace-information">
+
+                <div class="information-icon">ⓘ</div>
+
+                <div>
+                    <strong>About source monitoring</strong>
+
+                    <p>
+                        NexusAI supports simulated readings, manual data entry,
+                        imported datasets, and compatible browser-native device
+                        connections. Actual hardware measurements depend on
+                        device support, browser permissions, and available
+                        communication protocols. Simulated values are identified
+                        separately from real device readings.
+                    </p>
+                </div>
+
+            </section>
+
+
+            <!-- FOOTER -->
+            <footer class="page-footer">
+                <span>© 2026 NexusAI — Edge Intelligence Platform</span>
+                <span>Monitoring Workspace · Local Environment</span>
+            </footer>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<!-- SOURCE ACTIONS DIALOG -->
+<dialog id="source-action-dialog" class="nexus-dialog">
+
+    <div class="dialog-header">
+        <div>
+            <span class="eyebrow">SOURCE MANAGEMENT</span>
+            <h2 id="dialog-source-name">Source Actions</h2>
+        </div>
+
+        <button
+            type="button"
+            class="dialog-close"
+            id="close-source-dialog"
+            aria-label="Close dialog"
+        >
+            ×
+        </button>
+    </div>
+
+    <div class="dialog-content">
+
+        <button type="button" id="edit-source-action" class="dialog-action">
+            <strong>Edit Configuration</strong>
+            <span>Change source details and measurement settings</span>
+        </button>
+
+        <button type="button" id="toggle-source-action" class="dialog-action">
+            <strong>Change Source Status</strong>
+            <span>Activate or deactivate this monitoring source</span>
+        </button>
+
+        <button type="button" id="delete-source-action" class="dialog-action danger">
+            <strong>Delete Source</strong>
+            <span>Remove this source and its associated local records</span>
+        </button>
+
+    </div>
+
+</dialog>
+
+
+<!-- SHARED APPLICATION SCRIPT -->
+<script src="../js/storage.js" defer></script>
+<script src="../js/data-manager.js" defer></script>
+<script src="../js/workspace.js" defer></script>
+
+</body>
+</html>
