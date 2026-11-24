@@ -3,12 +3,9 @@
  * NEXUSAI — MAIN APPLICATION CONTROLLER
  * File: js/main.js
  *
- * Responsibilities:
- * 1. Initialize the application.
- * 2. Connect the dashboard to DataManager.
- * 3. Display live dashboard statistics.
- * 4. Refresh dashboard data when records change.
- * 5. Handle shared navigation interactions.
+ * Connects the dashboard with:
+ * Storage.js
+ * DataManager.js
  */
 
 (function () {
@@ -19,27 +16,17 @@
     const App = {};
 
     let initialized = false;
-    let refreshTimeout = null;
+    let refreshTimer = null;
 
     // -----------------------------------------
     // DOM HELPERS
     // -----------------------------------------
 
-    function getElement(...selectors) {
-        for (const selector of selectors) {
-            const element = document.querySelector(selector);
-
-            if (element) return element;
-        }
-
-        return null;
-    }
-
-    function setText(selectors, value) {
-        const element = getElement(...selectors);
+    function setText(id, value) {
+        const element = document.getElementById(id);
 
         if (element) {
-            element.textContent = value ?? "0";
+            element.textContent = value;
         }
     }
 
@@ -52,39 +39,36 @@
     }
 
     // -----------------------------------------
-    // DASHBOARD STATISTICS
+    // GET DASHBOARD DATA
     // -----------------------------------------
 
     async function getDashboardData() {
         const manager = window.NexusAI.DataManager;
+        const storage = window.NexusAI.Storage;
 
         if (!manager) {
-            throw new Error("DataManager is not loaded.");
+            throw new Error("DataManager is not available.");
         }
 
-        const summary = await manager.getSummary();
         const sources = await manager.getSources();
 
         let readingCount = 0;
 
-        if (window.NexusAI.Storage) {
-            try {
-                readingCount = await window.NexusAI.Storage.count(
-                    "readings"
-                );
-            } catch (error) {
-                console.warn(
-                    "Could not retrieve reading count:",
-                    error
-                );
-            }
+        if (storage) {
+            readingCount = await storage.count("readings");
+        }
+
+        let summary = {};
+
+        if (typeof manager.getSummary === "function") {
+            summary = await manager.getSummary() || {};
         }
 
         const activeSources = sources.filter(
             source => source.status === "active"
         ).length;
 
-        const configuredMetrics = sources.reduce(
+        const metricCount = sources.reduce(
             (total, source) => {
                 return total + (
                     Array.isArray(source.metrics)
@@ -96,11 +80,11 @@
         );
 
         return {
-            summary: summary || {},
             sources,
+            summary,
             totalSources: sources.length,
             activeSources,
-            configuredMetrics,
+            metricCount,
             readingCount
         };
     }
@@ -112,52 +96,64 @@
     async function refreshDashboard() {
         try {
             const data = await getDashboardData();
-            const summary = data.summary;
 
             const alertCount =
-                summary.alertCount ??
-                summary.totalAlerts ??
-                summary.activeAlerts ??
+                data.summary.alertCount ??
+                data.summary.totalAlerts ??
                 0;
 
-            // Main dashboard statistics
+            // Monitoring sources
             setText(
-                ["#total-sources", "#totalSources", "[data-stat='sources']"],
+                "overview-source-count",
                 formatNumber(data.totalSources)
             );
 
+            // Telemetry readings
             setText(
-                ["#active-sources", "#activeSources", "[data-stat='active-sources']"],
-                formatNumber(data.activeSources)
-            );
-
-            setText(
-                ["#configured-metrics", "#configuredMetrics", "[data-stat='metrics']"],
-                formatNumber(data.configuredMetrics)
-            );
-
-            setText(
-                ["#total-readings", "#totalReadings", "[data-stat='readings']"],
+                "overview-reading-count",
                 formatNumber(data.readingCount)
             );
 
+            // Active alerts
             setText(
-                ["#source-alerts", "#total-alerts", "#alertCount", "[data-stat='alerts']"],
+                "overview-alert-count",
                 formatNumber(alertCount)
             );
 
-            // Optional dashboard source table
-            renderSourceOverview(data.sources);
+            // Platform status
+            setText(
+                "overview-platform-status",
+                "READY"
+            );
 
-            // Optional dashboard connection status
-            renderConnectionStatus(data.activeSources, data.totalSources);
+            setText(
+                "overview-platform-description",
+                data.totalSources > 0
+                    ? `${data.activeSources} of ${data.totalSources} sources active`
+                    : "Awaiting monitoring activity"
+            );
+
+            console.log(
+                "NexusAI dashboard refreshed.",
+                data
+            );
 
             return data;
 
         } catch (error) {
             console.error(
-                "NexusAI dashboard refresh failed:",
+                "Dashboard refresh failed:",
                 error
+            );
+
+            setText(
+                "overview-platform-status",
+                "ERROR"
+            );
+
+            setText(
+                "overview-platform-description",
+                "Unable to load dashboard data"
             );
 
             return null;
@@ -165,150 +161,15 @@
     }
 
     // -----------------------------------------
-    // SOURCE OVERVIEW
+    // LISTEN FOR DATA CHANGES
     // -----------------------------------------
 
-    function renderSourceOverview(sources) {
-        const container = getElement(
-            "#dashboard-source-list",
-            "#recent-sources",
-            "[data-dashboard='sources']"
-        );
+    function scheduleRefresh() {
+        clearTimeout(refreshTimer);
 
-        if (!container) return;
-
-        if (!sources.length) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <p>No monitoring sources have been added yet.</p>
-                    <a href="pages/workspace.html">
-                        Configure your first source
-                    </a>
-                </div>
-            `;
-
-            return;
-        }
-
-        container.innerHTML = sources
-            .slice(0, 5)
-            .map(source => {
-                const name = escapeHTML(source.name || "Unnamed Source");
-                const type = escapeHTML(source.type || "Custom");
-                const status = source.status || "inactive";
-
-                return `
-                    <div class="dashboard-source-item">
-                        <div class="source-info">
-                            <strong>${name}</strong>
-                            <span>${type}</span>
-                        </div>
-
-                        <span class="status-badge status-${escapeHTML(status)}">
-                            ${escapeHTML(status)}
-                        </span>
-                    </div>
-                `;
-            })
-            .join("");
-    }
-
-    // -----------------------------------------
-    // CONNECTION STATUS
-    // -----------------------------------------
-
-    function renderConnectionStatus(active, total) {
-        const statusElement = getElement(
-            "#connection-status",
-            "[data-dashboard='connection-status']"
-        );
-
-        if (!statusElement) return;
-
-        if (total === 0) {
-            statusElement.textContent = "No sources configured";
-        } else if (active === total) {
-            statusElement.textContent = "All sources active";
-        } else {
-            statusElement.textContent =
-                `${active} of ${total} sources active`;
-        }
-    }
-
-    // -----------------------------------------
-    // HTML ESCAPING
-    // -----------------------------------------
-
-    function escapeHTML(value) {
-        return String(value)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-
-    // -----------------------------------------
-    // NAVIGATION
-    // -----------------------------------------
-
-    function initializeNavigation() {
-        const currentPath = window.location.pathname
-            .replace(/\\/g, "/")
-            .toLowerCase();
-
-        document.querySelectorAll(
-            "a[href], [data-page]"
-        ).forEach(link => {
-            const href = link.getAttribute("href");
-
-            if (!href || href.startsWith("#")) return;
-
-            const targetPath = new URL(
-                href,
-                window.location.href
-            ).pathname.toLowerCase();
-
-            if (targetPath === currentPath) {
-                link.classList.add("active");
-                link.setAttribute("aria-current", "page");
-            }
-        });
-
-        // Mobile sidebar toggle
-        const menuButton = getElement(
-            "#menu-toggle",
-            "[data-menu-toggle]"
-        );
-
-        const sidebar = getElement(
-            "#sidebar",
-            ".sidebar",
-            "[data-sidebar]"
-        );
-
-        if (menuButton && sidebar) {
-            menuButton.addEventListener("click", () => {
-                const isOpen = sidebar.classList.toggle("open");
-
-                menuButton.setAttribute(
-                    "aria-expanded",
-                    String(isOpen)
-                );
-            });
-        }
-    }
-
-    // -----------------------------------------
-    // DATA CHANGE LISTENERS
-    // -----------------------------------------
-
-    function scheduleDashboardRefresh() {
-        clearTimeout(refreshTimeout);
-
-        refreshTimeout = setTimeout(() => {
+        refreshTimer = setTimeout(() => {
             refreshDashboard();
-        }, 150);
+        }, 200);
     }
 
     function initializeDataListeners() {
@@ -323,13 +184,33 @@
         events.forEach(eventName => {
             window.addEventListener(
                 eventName,
-                scheduleDashboardRefresh
+                scheduleRefresh
             );
+        });
+    }
 
-            document.addEventListener(
-                eventName,
-                scheduleDashboardRefresh
-            );
+    // -----------------------------------------
+    // NAVIGATION
+    // -----------------------------------------
+
+    function initializeNavigation() {
+        const currentPath = window.location.pathname
+            .replace(/\\/g, "/")
+            .toLowerCase();
+
+        document.querySelectorAll(".sidebar-nav a[href]").forEach(link => {
+            const targetPath = new URL(
+                link.getAttribute("href"),
+                window.location.href
+            ).pathname.toLowerCase();
+
+            if (targetPath === currentPath) {
+                link.classList.add("active");
+                link.setAttribute("aria-current", "page");
+            } else {
+                link.classList.remove("active");
+                link.removeAttribute("aria-current");
+            }
         });
     }
 
@@ -342,29 +223,29 @@
 
         initialized = true;
 
-        console.log("NexusAI: Initializing application...");
+        console.log("NexusAI initializing...");
 
         try {
             const manager = window.NexusAI.DataManager;
 
             if (!manager) {
                 throw new Error(
-                    "DataManager is missing. Check script loading order."
+                    "DataManager missing. Check script order."
                 );
             }
 
-            // Initialize shared data and storage
+            // Initialize storage and shared data
             await manager.init();
 
-            // Initialize shared interface
+            // Set up common application features
             initializeNavigation();
             initializeDataListeners();
 
-            // Load initial dashboard information
+            // Load dashboard information
             await refreshDashboard();
 
             console.log(
-                "NexusAI: Application initialized successfully."
+                "NexusAI initialized successfully."
             );
 
         } catch (error) {
@@ -374,21 +255,33 @@
                 "NexusAI initialization failed:",
                 error
             );
+
+            setText(
+                "overview-platform-status",
+                "ERROR"
+            );
+
+            setText(
+                "overview-platform-description",
+                "Application initialization failed"
+            );
         }
     }
 
     // -----------------------------------------
-    // PUBLIC APPLICATION API
+    // PUBLIC API
     // -----------------------------------------
 
     App.init = init;
     App.refreshDashboard = refreshDashboard;
     App.getDashboardData = getDashboardData;
-    App.escapeHTML = escapeHTML;
 
     window.NexusAI.App = App;
 
-    // Start when the document is ready
+    // -----------------------------------------
+    // START APPLICATION
+    // -----------------------------------------
+
     if (document.readyState === "loading") {
         document.addEventListener(
             "DOMContentLoaded",
