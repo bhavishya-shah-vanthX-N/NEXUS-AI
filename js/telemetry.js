@@ -11,6 +11,7 @@
    - Load registered monitoring sources & telemetry history
    - Filter readings by source, metric, time window & input mode
    - Probe real laptop/browser capabilities & wire live Device Connectors
+   - Run real CPU, GPU & NPU/ML hardware compute benchmarks
    - Run controlled live telemetry simulations (persisted to IndexedDB)
    - Evaluate warning/critical thresholds & record anomaly events
    - Render DPI-scaled HTML5 Canvas time-series chart with hover inspection
@@ -50,6 +51,7 @@
     let simTimer = null;
     let isSimulating = false;
     let isTickBusy = false;
+    let isBenchmarkRunning = false;
     let pendingSpike = false;
     let internalWriteInProgress = false;
     let refreshDebounce = null;
@@ -185,6 +187,7 @@
             await DataManager.init();
             bindEvents();
             bindConnectorEvents();
+            bindBenchmarkEvents();
             await loadDataAndRender(true);
             await refreshLaptopProbe();
             setupChartResizeObserver();
@@ -325,6 +328,117 @@
     }
 
     /* =====================================================
+       REAL HARDWARE BENCHMARK & RATING UI
+    ===================================================== */
+
+    function bindBenchmarkEvents() {
+        const btn = getElement("run-hw-benchmark-btn");
+        if (!btn) return;
+
+        btn.addEventListener("click", async () => {
+            if (isBenchmarkRunning) return;
+
+            if (
+                !DeviceConnectors ||
+                typeof DeviceConnectors.runFullHardwareBenchmark !== "function"
+            ) {
+                showMessage(
+                    "DeviceConnectors benchmark engine is not loaded.",
+                    "error"
+                );
+                return;
+            }
+
+            isBenchmarkRunning = true;
+            btn.disabled = true;
+            btn.textContent = "Running Benchmark...";
+
+            const fill = getElement("bench-progress-fill");
+            if (fill) fill.style.width = "5%";
+
+            try {
+                const result = await DeviceConnectors.runFullHardwareBenchmark(
+                    (percent, statusMsg) => {
+                        if (fill) fill.style.width = `${percent}%`;
+                        setText("bench-progress-text", statusMsg);
+                    }
+                );
+
+                // CPU Card
+                setText("bench-cpu-score", result.cpu.score.toLocaleString());
+                setBadgeState(
+                    "bench-cpu-tier",
+                    result.cpu.tier,
+                    result.cpu.score >= 2200 ? "connected" : "warning"
+                );
+                setText(
+                    "bench-cpu-meta",
+                    `${result.cpu.throughputLabel} · ${result.cpu.elapsedMs} ms · ${result.cpu.mode}`
+                );
+
+                // GPU Card
+                setText("bench-gpu-score", result.gpu.score.toLocaleString());
+                setBadgeState(
+                    "bench-gpu-tier",
+                    result.gpu.tier,
+                    result.gpu.score >= 2200
+                        ? "connected"
+                        : result.gpu.score === 0
+                            ? "error"
+                            : "warning"
+                );
+                setText(
+                    "bench-gpu-meta",
+                    `${result.gpu.throughputLabel} · ${result.gpu.elapsedMs} ms · ${result.gpu.renderer}`
+                );
+
+                // NPU / ML Card
+                setText("bench-npu-score", result.npu.score.toLocaleString());
+                setBadgeState(
+                    "bench-npu-tier",
+                    result.npu.tier,
+                    result.npu.webnnAvailable ? "connected" : "warning"
+                );
+                setText(
+                    "bench-npu-meta",
+                    `${result.npu.throughputLabel} · ${result.npu.backend}`
+                );
+
+                // Overall Edge Readiness Card
+                setText(
+                    "bench-total-score",
+                    result.overallScore.toLocaleString()
+                );
+                setBadgeState(
+                    "bench-total-tier",
+                    result.overallTier,
+                    result.overallScore >= 2200 ? "connected" : "warning"
+                );
+                setText(
+                    "bench-total-meta",
+                    `Measured at ${formatShortTime(result.testedAt)} on this device`
+                );
+
+                showMessage(
+                    `Hardware benchmark complete! Edge Readiness Score: ${result.overallScore.toLocaleString()} (${result.overallTier}).`,
+                    "success"
+                );
+            } catch (error) {
+                console.error("Hardware benchmark failed:", error);
+                setText(
+                    "bench-progress-text",
+                    `Benchmark failed: ${error.message}`
+                );
+                showMessage(`Benchmark error: ${error.message}`, "error");
+            } finally {
+                isBenchmarkRunning = false;
+                btn.disabled = false;
+                btn.textContent = "⚡ Run CPU / GPU / NPU Benchmark";
+            }
+        });
+    }
+
+    /* =====================================================
        LAPTOP PROBE & DEVICE CONNECTORS WIRING
     ===================================================== */
 
@@ -386,9 +500,7 @@
             const ctxText = caps.isSecureContext ? "Secure" : "file:// (Limited)";
             setText("probe-memory", `${memText} · ${ctxText}`);
 
-            // Disable hardware buttons cleanly if browser lacks API
-            const serialBtn = getElement("serial-connect-btn");
-            if (serialBtn && !caps.hasWebSerial) {
+            if (!caps.hasWebSerial) {
                 setBadgeState("serial-badge", "UNSUPPORTED", "warning");
                 setText(
                     "serial-status-text",
@@ -396,8 +508,7 @@
                 );
             }
 
-            const bleBtn = getElement("ble-connect-btn");
-            if (bleBtn && !caps.hasWebBluetooth) {
+            if (!caps.hasWebBluetooth) {
                 setBadgeState("ble-badge", "UNSUPPORTED", "warning");
                 setText(
                     "ble-status-text",
@@ -414,7 +525,11 @@
         if (!badge) return;
         badge.textContent = label;
         badge.classList.remove("connected", "warning", "error");
-        if (stateClass === "connected" || stateClass === "warning" || stateClass === "error") {
+        if (
+            stateClass === "connected" ||
+            stateClass === "warning" ||
+            stateClass === "error"
+        ) {
             badge.classList.add(stateClass);
         }
     }
@@ -454,7 +569,11 @@
                     connected ? "connected" : ""
                 );
                 const btn = getElement("serial-connect-btn");
-                if (btn) btn.textContent = connected ? "Disconnect Serial" : "Connect Serial";
+                if (btn) {
+                    btn.textContent = connected
+                        ? "Disconnect Serial"
+                        : "Connect Serial";
+                }
             } else if (payload.channel === "bluetooth") {
                 setText("ble-status-text", payload.message);
                 const connected = payload.state === "connected";
@@ -464,17 +583,31 @@
                     connected ? "connected" : ""
                 );
                 const btn = getElement("ble-connect-btn");
-                if (btn) btn.textContent = connected ? "Disconnect BLE" : "Pair BLE Device";
+                if (btn) {
+                    btn.textContent = connected
+                        ? "Disconnect BLE"
+                        : "Pair BLE Device";
+                }
             } else if (payload.channel === "websocket") {
                 setText("ws-status-text", payload.message);
                 const connected = payload.state === "connected";
                 setBadgeState(
                     "ws-badge",
-                    connected ? "CONNECTED" : payload.state === "error" ? "ERROR" : "IDLE",
-                    connected ? "connected" : payload.state === "error" ? "error" : ""
+                    connected
+                        ? "CONNECTED"
+                        : payload.state === "error"
+                            ? "ERROR"
+                            : "IDLE",
+                    connected
+                        ? "connected"
+                        : payload.state === "error"
+                            ? "error"
+                            : ""
                 );
                 const btn = getElement("ws-connect-btn");
-                if (btn) btn.textContent = connected ? "Disconnect WS" : "Connect WS";
+                if (btn) {
+                    btn.textContent = connected ? "Disconnect WS" : "Connect WS";
+                }
             }
         });
 
@@ -494,7 +627,8 @@
         if (registerHostBtn) {
             registerHostBtn.addEventListener("click", async () => {
                 try {
-                    const hostSource = await DeviceConnectors.ensureLaptopHostSource();
+                    const hostSource =
+                        await DeviceConnectors.ensureLaptopHostSource();
                     await loadDataAndRender(false);
                     const select = getElement("telemetry-source-select");
                     if (select) {
@@ -555,11 +689,16 @@
                     }
                     const source = getSelectedSource();
                     if (!source) {
-                        showMessage("Select or create a monitoring source first.", "warning");
+                        showMessage(
+                            "Select or create a monitoring source first.",
+                            "warning"
+                        );
                         return;
                     }
                     const metric = getSelectedMetric(source);
-                    const baud = Number(getElement("serial-baud-select")?.value || 115200);
+                    const baud = Number(
+                        getElement("serial-baud-select")?.value || 115200
+                    );
                     await DeviceConnectors.connectSerial(
                         source.id,
                         metric?.id || null,
@@ -581,7 +720,10 @@
                     }
                     const source = getSelectedSource();
                     if (!source) {
-                        showMessage("Select or create a monitoring source first.", "warning");
+                        showMessage(
+                            "Select or create a monitoring source first.",
+                            "warning"
+                        );
                         return;
                     }
                     const metric = getSelectedMetric(source);
@@ -605,7 +747,10 @@
                     }
                     const source = getSelectedSource();
                     if (!source) {
-                        showMessage("Select or create a monitoring source first.", "warning");
+                        showMessage(
+                            "Select or create a monitoring source first.",
+                            "warning"
+                        );
                         return;
                     }
                     const metric = getSelectedMetric(source);

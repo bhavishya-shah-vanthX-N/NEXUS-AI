@@ -6,11 +6,12 @@
    1. Page header & KPI summary cards
    2. Filter & simulation control bar
    3. Real-time system & laptop connectors
-   4. Responsive Canvas chart & tooltip
-   5. Threshold alert feed
-   6. Current metric snapshot grid
-   7. Telemetry history table & origin badges
-   8. Transparency notice, toast & responsive rules
+   4. CPU / GPU / NPU benchmark & rating suite
+   5. Responsive Canvas chart & tooltip
+   6. Threshold alert feed
+   7. Current metric snapshot grid
+   8. Telemetry history table & origin badges
+   9. Transparency notice, toast & responsive rules
 
    Depends on: variables.css and base.css
    ============================================================ */
@@ -377,7 +378,99 @@
 
 
 /* ============================================================
-   05. MAIN CHART + ALERTS LAYOUT
+   05. CPU / GPU / NPU BENCHMARK & RATING SUITE
+   ============================================================ */
+
+.benchmark-card {
+    margin-bottom: 24px;
+}
+
+.benchmark-progress-wrap {
+    margin-bottom: 18px;
+}
+
+.benchmark-track {
+    width: 100%;
+    height: 8px;
+    margin-bottom: 8px;
+    border-radius: var(--radius-full);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    overflow: hidden;
+}
+
+.benchmark-fill {
+    width: 0%;
+    height: 100%;
+    border-radius: var(--radius-full);
+    background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
+    transition: width 220ms ease;
+}
+
+.benchmark-progress-text {
+    display: block;
+    color: var(--text-muted);
+    font-size: var(--font-size-xs);
+}
+
+.benchmark-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.benchmark-result-box {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    padding: 16px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    background: var(--bg-secondary);
+}
+
+.benchmark-result-box.highlight {
+    border-color: rgba(34, 211, 238, 0.3);
+    background: linear-gradient(
+        145deg,
+        rgba(34, 211, 238, 0.08),
+        rgba(37, 99, 235, 0.08)
+    );
+}
+
+.benchmark-box-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.benchmark-box-top > span:first-child {
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.6px;
+}
+
+.benchmark-score {
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: 26px;
+    line-height: 1.15;
+    font-weight: var(--font-weight-bold);
+    font-variant-numeric: tabular-nums;
+}
+
+.benchmark-meta {
+    color: var(--text-secondary);
+    font-size: 11px;
+    line-height: 1.45;
+}
+
+
+/* ============================================================
+   06. MAIN CHART + ALERTS LAYOUT
    ============================================================ */
 
 .section-heading-row {
@@ -518,7 +611,7 @@
 
 
 /* ============================================================
-   06. THRESHOLD ALERT FEED
+   07. THRESHOLD ALERT FEED
    ============================================================ */
 
 .alerts-list {
@@ -598,7 +691,7 @@
 
 
 /* ============================================================
-   07. CURRENT METRIC SNAPSHOTS
+   08. CURRENT METRIC SNAPSHOTS
    ============================================================ */
 
 .metric-snapshot-grid {
@@ -665,7 +758,7 @@
 
 
 /* ============================================================
-   08. TELEMETRY HISTORY TABLE & BADGES
+   09. TELEMETRY HISTORY TABLE & BADGES
    ============================================================ */
 
 .telemetry-table {
@@ -734,7 +827,7 @@
 
 
 /* ============================================================
-   09. TRANSPARENCY NOTICE & TOAST
+   10. TRANSPARENCY NOTICE & TOAST
    ============================================================ */
 
 .telemetry-notice {
@@ -816,12 +909,13 @@
 
 
 /* ============================================================
-   10. RESPONSIVE BREAKPOINTS
+   11. RESPONSIVE BREAKPOINTS
    ============================================================ */
 
 @media (max-width: 1200px) {
     .telemetry-summary-grid,
-    .telemetry-filters-grid {
+    .telemetry-filters-grid,
+    .benchmark-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
@@ -865,7 +959,8 @@
     }
 
     .telemetry-filters-grid,
-    .probe-grid {
+    .probe-grid,
+    .benchmark-grid {
         grid-template-columns: 1fr;
     }
 
@@ -905,6 +1000,7 @@
     .telemetry-summary-card,
     .snapshot-card,
     .connector-box,
+    .benchmark-fill,
     .telemetry-notification {
         transition: none;
     }
