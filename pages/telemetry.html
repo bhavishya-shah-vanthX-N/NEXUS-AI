@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="NexusAI Live Telemetry — visualize real-time simulated streams, historical readings, and threshold alerts.">
+    <meta name="description" content="NexusAI Live Telemetry — real-time host/device connectors, simulated streams, historical readings, and threshold alerts.">
     <meta name="theme-color" content="#070b14">
     <title>Live Telemetry | NexusAI</title>
 
@@ -128,9 +128,8 @@
                     <h1>Live Telemetry</h1>
 
                     <p>
-                        Inspect historical measurements, run controlled live telemetry
-                        simulations, and monitor threshold breaches across your registered
-                        monitoring sources.
+                        Connect real-time laptop host metrics or compatible hardware interfaces,
+                        run controlled telemetry simulations, and inspect threshold alerts.
                     </p>
                 </div>
 
@@ -222,10 +221,10 @@
                         <label for="telemetry-mode-filter">Input Mode</label>
                         <select id="telemetry-mode-filter">
                             <option value="all">All Input Modes</option>
+                            <option value="device">Real Device / Host</option>
                             <option value="simulated">Simulated</option>
                             <option value="manual">Manual</option>
                             <option value="import">Imported</option>
-                            <option value="device">Device</option>
                         </select>
                     </div>
 
@@ -251,6 +250,145 @@
                             + Generate 1 Sample
                         </button>
                     </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- REAL-TIME SYSTEM & HARDWARE CONNECTORS -->
+            <section class="content-card connectors-card" aria-label="Real-Time System Connectors">
+
+                <div class="section-heading-row">
+                    <div>
+                        <div class="eyebrow">UNIVERSAL DEVICE ADAPTER</div>
+                        <h2>Real-Time System &amp; Laptop Connectors</h2>
+                        <p>
+                            Inspect what this browser can genuinely detect from your laptop and stream live
+                            <code>DEVICE</code> readings via Browser APIs, Web Serial, Web Bluetooth, or WebSocket.
+                        </p>
+                    </div>
+
+                    <button type="button" class="btn btn-secondary btn-small" id="refresh-probe-btn">
+                        ↻ Re-Probe Laptop
+                    </button>
+                </div>
+
+                <!-- Live Laptop Capability Matrix -->
+                <div class="probe-grid">
+                    <div class="probe-item">
+                        <span>CPU Logical Cores</span>
+                        <strong id="probe-cores">--</strong>
+                    </div>
+                    <div class="probe-item">
+                        <span>GPU Renderer (WebGL)</span>
+                        <strong id="probe-gpu">--</strong>
+                    </div>
+                    <div class="probe-item">
+                        <span>WebGPU / NPU (WebNN)</span>
+                        <strong id="probe-npu-gpu">--</strong>
+                    </div>
+                    <div class="probe-item">
+                        <span>Battery (Live API)</span>
+                        <strong id="probe-battery">--</strong>
+                    </div>
+                    <div class="probe-item">
+                        <span>Network (RTT / Downlink)</span>
+                        <strong id="probe-network">--</strong>
+                    </div>
+                    <div class="probe-item">
+                        <span>JS Heap / Context</span>
+                        <strong id="probe-memory">--</strong>
+                    </div>
+                </div>
+
+                <!-- 4 Real-Time Connectors -->
+                <div class="connectors-grid">
+
+                    <!-- 1. Local Laptop Host Stream -->
+                    <article class="connector-box">
+                        <div class="connector-top">
+                            <strong>1. This Laptop (Browser Telemetry)</strong>
+                            <span class="badge" id="host-badge">IDLE</span>
+                        </div>
+                        <p class="connector-desc">
+                            Streams real battery %, network RTT/Mbps, JS heap %, render FPS &amp; thread jitter.
+                            <em>(CPU/GPU/NPU % &amp; °C temps are blocked by browser OS sandbox.)</em>
+                        </p>
+                        <div class="connector-controls">
+                            <button type="button" class="btn btn-secondary btn-small" id="register-host-source-btn">
+                                + Register This Laptop
+                            </button>
+                            <button type="button" class="btn btn-primary btn-small" id="host-stream-btn">
+                                ▶ Stream Real Host
+                            </button>
+                        </div>
+                        <small class="connector-status" id="host-status-text">Ready to register or stream.</small>
+                    </article>
+
+                    <!-- 2. Web Serial -->
+                    <article class="connector-box">
+                        <div class="connector-top">
+                            <strong>2. Web Serial (USB / ESP32 / Arduino)</strong>
+                            <span class="badge" id="serial-badge">READY</span>
+                        </div>
+                        <p class="connector-desc">
+                            Streams real external sensors/controllers sending JSON or <code>metric:value</code> lines over USB.
+                        </p>
+                        <div class="connector-controls">
+                            <select id="serial-baud-select" class="connector-input" aria-label="Serial baud rate">
+                                <option value="115200">115200 baud</option>
+                                <option value="9600">9600 baud</option>
+                                <option value="57600">57600 baud</option>
+                            </select>
+                            <button type="button" class="btn btn-secondary btn-small" id="serial-connect-btn">
+                                Connect Serial
+                            </button>
+                        </div>
+                        <small class="connector-status" id="serial-status-text">Requires localhost or HTTPS.</small>
+                    </article>
+
+                    <!-- 3. Web Bluetooth -->
+                    <article class="connector-box">
+                        <div class="connector-top">
+                            <strong>3. Web Bluetooth (BLE Peripherals)</strong>
+                            <span class="badge" id="ble-badge">READY</span>
+                        </div>
+                        <p class="connector-desc">
+                            Pairs with Bluetooth LE devices and reads GATT services (e.g., Battery Service 0x180F).
+                        </p>
+                        <div class="connector-controls">
+                            <button type="button" class="btn btn-secondary btn-small" id="ble-connect-btn">
+                                Pair BLE Device
+                            </button>
+                        </div>
+                        <small class="connector-status" id="ble-status-text">Requires localhost or HTTPS.</small>
+                    </article>
+
+                    <!-- 4. WebSocket Adapter -->
+                    <article class="connector-box">
+                        <div class="connector-top">
+                            <strong>4. WebSocket Stream (Local Agent)</strong>
+                            <span class="badge" id="ws-badge">IDLE</span>
+                        </div>
+                        <p class="connector-desc">
+                            Optional client adapter for any local hardware agent pushing JSON telemetry over <code>ws://</code>.
+                        </p>
+                        <div class="connector-controls">
+                            <input
+                                type="url"
+                                id="ws-url-input"
+                                class="connector-input"
+                                value="ws://localhost:8765"
+                                placeholder="ws://localhost:8765"
+                                aria-label="WebSocket URL"
+                            >
+                            <button type="button" class="btn btn-secondary btn-small" id="ws-connect-btn">
+                                Connect WS
+                            </button>
+                        </div>
+                        <small class="connector-status" id="ws-status-text">Not connected.</small>
+                    </article>
 
                 </div>
 
@@ -288,7 +426,7 @@
                         <canvas id="telemetry-chart" aria-label="Telemetry time-series chart"></canvas>
                         <div id="telemetry-chart-empty" class="chart-empty-overlay">
                             <p>No readings recorded for this selection yet.</p>
-                            <span>Click <strong>Start Live Simulation</strong> or add manual readings in Workspace.</span>
+                            <span>Click <strong>▶ Stream Real Host</strong>, <strong>Start Live Simulation</strong>, or add manual readings in Workspace.</span>
                         </div>
                         <div id="telemetry-chart-tooltip" class="chart-tooltip hidden" role="status"></div>
                     </div>
@@ -346,7 +484,7 @@
                     <div>
                         <h2>Reading History</h2>
                         <p>
-                            Detailed telemetry log clearly distinguishing simulated, manual, imported, and device inputs.
+                            Detailed telemetry log clearly distinguishing simulated, manual, imported, and real device inputs.
                         </p>
                     </div>
                     <span class="badge" id="history-count-badge">0 Records</span>
@@ -383,12 +521,12 @@
             <section class="telemetry-notice">
                 <div class="notice-icon">ⓘ</div>
                 <div>
-                    <strong>Data Source Transparency</strong>
+                    <strong>Hardware &amp; Data Source Transparency</strong>
                     <p>
-                        Simulated streams generated on this page are labeled as
-                        <strong>SIMULATED</strong> and are intended for testing, visualization,
-                        and demonstration. Manual entries, imported datasets, and browser-connected
-                        device inputs retain their own distinct origin labels.
+                        Readings from your laptop&rsquo;s Browser APIs, Web Serial, Web Bluetooth, or WebSocket are labeled
+                        <strong>DEVICE</strong>. Synthetic test streams are labeled <strong>SIMULATED</strong>.
+                        Per browser security rules, OS-level CPU/GPU/NPU load percentages and thermal sensors cannot be read
+                        directly by a web page without an external hardware sensor or local OS agent.
                     </p>
                 </div>
             </section>
@@ -400,7 +538,7 @@
                     <strong>NexusAI</strong>
                     <span>High-Throughput Edge AI &amp; Telemetry Platform</span>
                 </div>
-                <p>Demonstration Build · Live Telemetry Module</p>
+                <p>Demonstration Build · Live Telemetry &amp; Device Connectors</p>
             </footer>
 
         </div>
@@ -411,6 +549,7 @@
 
 <script src="../js/storage.js" defer></script>
 <script src="../js/data-manager.js" defer></script>
+<script src="../js/device-connectors.js" defer></script>
 <script src="../js/telemetry.js" defer></script>
 
 </body>

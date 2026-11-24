@@ -5,10 +5,12 @@
    Dependencies:
    1. js/storage.js
    2. js/data-manager.js
+   3. js/device-connectors.js (optional but recommended)
 
    Responsibilities:
    - Load registered monitoring sources & telemetry history
    - Filter readings by source, metric, time window & input mode
+   - Probe real laptop/browser capabilities & wire live Device Connectors
    - Run controlled live telemetry simulations (persisted to IndexedDB)
    - Evaluate warning/critical thresholds & record anomaly events
    - Render DPI-scaled HTML5 Canvas time-series chart with hover inspection
@@ -21,6 +23,7 @@
     window.NexusAI = window.NexusAI || {};
 
     const DataManager = window.NexusAI.DataManager;
+    const DeviceConnectors = window.NexusAI.DeviceConnectors || null;
 
     if (!DataManager) {
         console.error(
@@ -91,7 +94,7 @@
         window.clearTimeout(container._hideTimer);
         container._hideTimer = window.setTimeout(() => {
             container.classList.remove("visible");
-        }, 3600);
+        }, 3800);
     }
 
     function formatTime(isoString) {
@@ -123,7 +126,7 @@
         try {
             window.localStorage.setItem(key, value || "");
         } catch (error) {
-            // Ignore storage quota/privacy restrictions
+            // Ignore storage restrictions
         }
     }
 
@@ -181,7 +184,9 @@
         try {
             await DataManager.init();
             bindEvents();
+            bindConnectorEvents();
             await loadDataAndRender(true);
+            await refreshLaptopProbe();
             setupChartResizeObserver();
             console.info("NexusAI Telemetry initialized.");
         } catch (error) {
@@ -197,8 +202,10 @@
         const sourceSelect = getElement("telemetry-source-select");
         if (sourceSelect) {
             sourceSelect.addEventListener("change", () => {
-                if (isSimulating) {
-                    stopSimulation();
+                if (isSimulating) stopSimulation();
+                if (DeviceConnectors?.isHostRunning()) {
+                    DeviceConnectors.stopHostMonitor();
+                    updateHostButtonState(false);
                 }
                 savePreference(STORAGE_KEY_SOURCE, sourceSelect.value);
                 populateMetricDropdown();
@@ -215,31 +222,23 @@
         }
 
         const timeFilter = getElement("telemetry-time-filter");
-        if (timeFilter) {
-            timeFilter.addEventListener("change", renderAll);
-        }
+        if (timeFilter) timeFilter.addEventListener("change", renderAll);
 
         const modeFilter = getElement("telemetry-mode-filter");
-        if (modeFilter) {
-            modeFilter.addEventListener("change", renderAll);
-        }
+        if (modeFilter) modeFilter.addEventListener("change", renderAll);
 
         const simToggleBtn = getElement("sim-toggle-btn");
-        if (simToggleBtn) {
-            simToggleBtn.addEventListener("click", toggleSimulation);
-        }
+        if (simToggleBtn) simToggleBtn.addEventListener("click", toggleSimulation);
 
         const spikeBtn = getElement("sim-spike-btn");
         if (spikeBtn) {
             spikeBtn.addEventListener("click", () => {
                 pendingSpike = true;
                 showMessage(
-                    "Load spike armed — injecting anomaly on next sample.",
+                    "Injecting threshold spike immediately...",
                     "warning"
                 );
-                if (!isSimulating) {
-                    runSimulationTick();
-                }
+                runSimulationTick();
             });
         }
 
@@ -256,11 +255,50 @@
         bindCanvasInteraction();
 
         if (DataManager.events) {
+            DataManager.subscribe(DataManager.events.READING_ADDED, async event => {
+                const reading = event?.detail?.reading;
+                const src = event?.detail?.source;
+
+                if (
+                    reading &&
+                    src &&
+                    reading.inputMode === "device" &&
+                    !internalWriteInProgress
+                ) {
+                    const metric = (src.metrics || []).find(
+                        m => m.id === reading.metricId
+                    );
+                    const severity = evaluateThreshold(metric, reading.value);
+                    if (severity !== "normal") {
+                        internalWriteInProgress = true;
+                        try {
+                            await DataManager.saveAnomaly({
+                                sourceId: src.id,
+                                metricId: metric.id,
+                                metric: metric.name,
+                                value: reading.value,
+                                severity,
+                                message: `${metric.name} reached ${formatNumber(reading.value)} ${metric.unit || ""} (${severity} threshold breached on live device).`,
+                                timestamp: reading.timestamp,
+                                detectionMethod: "threshold"
+                            });
+                        } finally {
+                            internalWriteInProgress = false;
+                        }
+                    }
+                }
+
+                if (internalWriteInProgress) return;
+                window.clearTimeout(refreshDebounce);
+                refreshDebounce = window.setTimeout(() => {
+                    loadDataAndRender(false);
+                }, 180);
+            });
+
             [
                 DataManager.events.SOURCE_CREATED,
                 DataManager.events.SOURCE_UPDATED,
                 DataManager.events.SOURCE_DELETED,
-                DataManager.events.READING_ADDED,
                 "nexusai:anomaly-created"
             ].forEach(eventName => {
                 if (eventName) {
@@ -277,7 +315,311 @@
 
         window.addEventListener("beforeunload", () => {
             if (simTimer) window.clearInterval(simTimer);
+            if (DeviceConnectors) {
+                DeviceConnectors.stopHostMonitor();
+                DeviceConnectors.disconnectSerial();
+                DeviceConnectors.disconnectBluetooth();
+                DeviceConnectors.disconnectWebSocket();
+            }
         });
+    }
+
+    /* =====================================================
+       LAPTOP PROBE & DEVICE CONNECTORS WIRING
+    ===================================================== */
+
+    async function refreshLaptopProbe() {
+        if (!DeviceConnectors) return;
+
+        try {
+            const caps = await DeviceConnectors.inspectCapabilities();
+
+            setText(
+                "probe-cores",
+                caps.cores ? `${caps.cores} Logical Threads` : "Unavailable"
+            );
+
+            setText(
+                "probe-gpu",
+                caps.gpu?.renderer || "Unavailable"
+            );
+
+            const webGpuText = caps.hasWebGPU
+                ? caps.webGpuAdapterName || "WebGPU Ready"
+                : "No WebGPU";
+            const webNnText = caps.hasWebNN
+                ? "WebNN Ready"
+                : "WebNN Unavailable";
+            setText("probe-npu-gpu", `${webGpuText} / ${webNnText}`);
+
+            if (caps.batteryInfo) {
+                setText(
+                    "probe-battery",
+                    `${caps.batteryInfo.level}% (${caps.batteryInfo.charging ? "Charging" : "On Battery"})`
+                );
+            } else {
+                setText("probe-battery", "Unavailable in browser");
+            }
+
+            if (caps.networkInfo) {
+                const rtt =
+                    caps.networkInfo.rttMs !== null
+                        ? `${caps.networkInfo.rttMs} ms`
+                        : "--";
+                const dl =
+                    caps.networkInfo.downlinkMbps !== null
+                        ? `${caps.networkInfo.downlinkMbps} Mbps`
+                        : "--";
+                setText(
+                    "probe-network",
+                    `${rtt} / ${dl} (${caps.networkInfo.effectiveType})`
+                );
+            } else {
+                setText("probe-network", "Network API unavailable");
+            }
+
+            const memText = caps.memoryPerf
+                ? `${caps.memoryPerf.usedMB} / ${caps.memoryPerf.limitMB} MB`
+                : caps.deviceMemoryGB
+                    ? `~${caps.deviceMemoryGB} GB tier`
+                    : "Heap API N/A";
+            const ctxText = caps.isSecureContext ? "Secure" : "file:// (Limited)";
+            setText("probe-memory", `${memText} · ${ctxText}`);
+
+            // Disable hardware buttons cleanly if browser lacks API
+            const serialBtn = getElement("serial-connect-btn");
+            if (serialBtn && !caps.hasWebSerial) {
+                setBadgeState("serial-badge", "UNSUPPORTED", "warning");
+                setText(
+                    "serial-status-text",
+                    "Web Serial requires Chrome/Edge on localhost or HTTPS."
+                );
+            }
+
+            const bleBtn = getElement("ble-connect-btn");
+            if (bleBtn && !caps.hasWebBluetooth) {
+                setBadgeState("ble-badge", "UNSUPPORTED", "warning");
+                setText(
+                    "ble-status-text",
+                    "Web Bluetooth requires Chrome/Edge on localhost or HTTPS."
+                );
+            }
+        } catch (error) {
+            console.error("Laptop probe failed:", error);
+        }
+    }
+
+    function setBadgeState(id, label, stateClass) {
+        const badge = getElement(id);
+        if (!badge) return;
+        badge.textContent = label;
+        badge.classList.remove("connected", "warning", "error");
+        if (stateClass === "connected" || stateClass === "warning" || stateClass === "error") {
+            badge.classList.add(stateClass);
+        }
+    }
+
+    function updateHostButtonState(running) {
+        const btn = getElement("host-stream-btn");
+        if (!btn) return;
+        if (running) {
+            btn.textContent = "⏸ Stop Host Stream";
+            btn.classList.add("btn-running");
+            btn.classList.remove("btn-primary");
+            setBadgeState("host-badge", "STREAMING", "connected");
+        } else {
+            btn.textContent = "▶ Stream Real Host";
+            btn.classList.remove("btn-running");
+            btn.classList.add("btn-primary");
+            setBadgeState("host-badge", "IDLE", "");
+        }
+    }
+
+    function bindConnectorEvents() {
+        if (!DeviceConnectors) return;
+
+        DeviceConnectors.onStatusChange(payload => {
+            if (payload.channel === "host") {
+                setText("host-status-text", payload.message);
+                updateHostButtonState(payload.state === "connected");
+                if (payload.state === "warning") {
+                    setBadgeState("host-badge", "CHECK METRICS", "warning");
+                }
+            } else if (payload.channel === "serial") {
+                setText("serial-status-text", payload.message);
+                const connected = payload.state === "connected";
+                setBadgeState(
+                    "serial-badge",
+                    connected ? "CONNECTED" : "IDLE",
+                    connected ? "connected" : ""
+                );
+                const btn = getElement("serial-connect-btn");
+                if (btn) btn.textContent = connected ? "Disconnect Serial" : "Connect Serial";
+            } else if (payload.channel === "bluetooth") {
+                setText("ble-status-text", payload.message);
+                const connected = payload.state === "connected";
+                setBadgeState(
+                    "ble-badge",
+                    connected ? "CONNECTED" : "IDLE",
+                    connected ? "connected" : ""
+                );
+                const btn = getElement("ble-connect-btn");
+                if (btn) btn.textContent = connected ? "Disconnect BLE" : "Pair BLE Device";
+            } else if (payload.channel === "websocket") {
+                setText("ws-status-text", payload.message);
+                const connected = payload.state === "connected";
+                setBadgeState(
+                    "ws-badge",
+                    connected ? "CONNECTED" : payload.state === "error" ? "ERROR" : "IDLE",
+                    connected ? "connected" : payload.state === "error" ? "error" : ""
+                );
+                const btn = getElement("ws-connect-btn");
+                if (btn) btn.textContent = connected ? "Disconnect WS" : "Connect WS";
+            }
+        });
+
+        DeviceConnectors.onLog(entry => {
+            showMessage(entry.message, entry.level);
+        });
+
+        const refreshProbeBtn = getElement("refresh-probe-btn");
+        if (refreshProbeBtn) {
+            refreshProbeBtn.addEventListener("click", async () => {
+                await refreshLaptopProbe();
+                showMessage("Laptop hardware capabilities refreshed.", "info");
+            });
+        }
+
+        const registerHostBtn = getElement("register-host-source-btn");
+        if (registerHostBtn) {
+            registerHostBtn.addEventListener("click", async () => {
+                try {
+                    const hostSource = await DeviceConnectors.ensureLaptopHostSource();
+                    await loadDataAndRender(false);
+                    const select = getElement("telemetry-source-select");
+                    if (select) {
+                        select.value = hostSource.id;
+                        savePreference(STORAGE_KEY_SOURCE, hostSource.id);
+                        populateMetricDropdown(false);
+                        renderAll();
+                    }
+                    showMessage(
+                        `Selected "${hostSource.name}". Click ▶ Stream Real Host to collect live readings.`,
+                        "success"
+                    );
+                } catch (error) {
+                    showMessage(error.message, "error");
+                }
+            });
+        }
+
+        const hostStreamBtn = getElement("host-stream-btn");
+        if (hostStreamBtn) {
+            hostStreamBtn.addEventListener("click", async () => {
+                try {
+                    if (DeviceConnectors.isHostRunning()) {
+                        DeviceConnectors.stopHostMonitor();
+                        updateHostButtonState(false);
+                        return;
+                    }
+
+                    if (isSimulating) stopSimulation();
+
+                    let source = getSelectedSource();
+                    if (!source) {
+                        source = await DeviceConnectors.ensureLaptopHostSource();
+                        await loadDataAndRender(false);
+                        const select = getElement("telemetry-source-select");
+                        if (select) {
+                            select.value = source.id;
+                            populateMetricDropdown(false);
+                        }
+                    }
+
+                    await DeviceConnectors.startHostMonitor(source.id);
+                    updateHostButtonState(true);
+                    await refreshLaptopProbe();
+                } catch (error) {
+                    showMessage(error.message, "error");
+                }
+            });
+        }
+
+        const serialBtn = getElement("serial-connect-btn");
+        if (serialBtn) {
+            serialBtn.addEventListener("click", async () => {
+                try {
+                    if (DeviceConnectors.isSerialConnected()) {
+                        await DeviceConnectors.disconnectSerial();
+                        return;
+                    }
+                    const source = getSelectedSource();
+                    if (!source) {
+                        showMessage("Select or create a monitoring source first.", "warning");
+                        return;
+                    }
+                    const metric = getSelectedMetric(source);
+                    const baud = Number(getElement("serial-baud-select")?.value || 115200);
+                    await DeviceConnectors.connectSerial(
+                        source.id,
+                        metric?.id || null,
+                        baud
+                    );
+                } catch (error) {
+                    showMessage(error.message, "error");
+                }
+            });
+        }
+
+        const bleBtn = getElement("ble-connect-btn");
+        if (bleBtn) {
+            bleBtn.addEventListener("click", async () => {
+                try {
+                    if (DeviceConnectors.isBluetoothConnected()) {
+                        DeviceConnectors.disconnectBluetooth();
+                        return;
+                    }
+                    const source = getSelectedSource();
+                    if (!source) {
+                        showMessage("Select or create a monitoring source first.", "warning");
+                        return;
+                    }
+                    const metric = getSelectedMetric(source);
+                    await DeviceConnectors.connectBluetooth(
+                        source.id,
+                        metric?.id || null
+                    );
+                } catch (error) {
+                    showMessage(error.message, "error");
+                }
+            });
+        }
+
+        const wsBtn = getElement("ws-connect-btn");
+        if (wsBtn) {
+            wsBtn.addEventListener("click", () => {
+                try {
+                    if (DeviceConnectors.isWebSocketConnected()) {
+                        DeviceConnectors.disconnectWebSocket();
+                        return;
+                    }
+                    const source = getSelectedSource();
+                    if (!source) {
+                        showMessage("Select or create a monitoring source first.", "warning");
+                        return;
+                    }
+                    const metric = getSelectedMetric(source);
+                    const url = getElement("ws-url-input")?.value.trim();
+                    DeviceConnectors.connectWebSocket(
+                        url,
+                        source.id,
+                        metric?.id || null
+                    );
+                } catch (error) {
+                    showMessage(error.message, "error");
+                }
+            });
+        }
     }
 
     /* =====================================================
@@ -324,7 +666,7 @@
 
         if (!sources.length) {
             select.innerHTML =
-                '<option value="">No sources registered (add one in Workspace)</option>';
+                '<option value="">No sources registered (use Register This Laptop or Workspace)</option>';
             select.value = "";
             return;
         }
@@ -360,8 +702,7 @@
             : select.value;
 
         if (!metrics.length) {
-            select.innerHTML =
-                '<option value="">No enabled metrics</option>';
+            select.innerHTML = '<option value="">No enabled metrics</option>';
             select.value = "";
             return;
         }
@@ -464,12 +805,8 @@
                 statusPill.innerHTML =
                     '<span class="status-dot"></span>LIVE SIMULATION ACTIVE';
             }
-            if (sidebarStatus) {
-                sidebarStatus.textContent = "Streaming Simulated";
-            }
-            if (sidebarDot) {
-                sidebarDot.style.background = "var(--status-nominal)";
-            }
+            if (sidebarStatus) sidebarStatus.textContent = "Streaming Simulated";
+            if (sidebarDot) sidebarDot.style.background = "var(--status-nominal)";
         } else {
             if (toggleBtn) {
                 toggleBtn.textContent = "▶ Start Live Simulation";
@@ -482,7 +819,9 @@
                     '<span class="status-dot"></span>SIMULATION IDLE';
             }
             if (sidebarStatus) {
-                sidebarStatus.textContent = "Telemetry Ready";
+                sidebarStatus.textContent = DeviceConnectors?.isHostRunning()
+                    ? "Streaming Real Host"
+                    : "Telemetry Ready";
             }
         }
     }
@@ -510,7 +849,9 @@
             setText("tel-latest-value", "--");
             setText(
                 "tel-latest-meta",
-                metric ? `No readings for ${metric.name}` : "Select a source & metric"
+                metric
+                    ? `No readings for ${metric.name}`
+                    : "Select a source & metric"
             );
         }
 
@@ -528,15 +869,12 @@
         if (!source) {
             setText(
                 "snapshots-subtitle",
-                "No monitoring sources found. Create one in Monitoring Workspace."
+                "No monitoring sources found. Click '+ Register This Laptop' above or open Workspace."
             );
             grid.innerHTML = `
                 <div class="empty-state">
-                    No monitoring sources registered yet.
-                    <a href="workspace.html" style="color: var(--accent-cyan); text-decoration: underline;">
-                        Open Monitoring Workspace
-                    </a>
-                    to add a source.
+                    No monitoring sources registered yet. Click <strong>+ Register This Laptop</strong> above
+                    or open <a href="workspace.html" style="color: var(--accent-cyan); text-decoration: underline;">Monitoring Workspace</a>.
                 </div>
             `;
             return;
@@ -738,6 +1076,11 @@
         if (!enabledMetrics.length) {
             showMessage("This source has no enabled metrics.", "warning");
             return;
+        }
+
+        if (DeviceConnectors?.isHostRunning()) {
+            DeviceConnectors.stopHostMonitor();
+            updateHostButtonState(false);
         }
 
         isSimulating = true;
@@ -1029,7 +1372,6 @@
             return pad.top + plotH - ratio * plotH;
         };
 
-        // Threshold lines
         if (warn !== null) {
             drawThresholdLine(
                 ctx,
@@ -1051,7 +1393,6 @@
             );
         }
 
-        // Area fill
         if (chartPoints.length > 1) {
             const grad = ctx.createLinearGradient(
                 0,
@@ -1076,7 +1417,6 @@
             ctx.fill();
         }
 
-        // Main line
         ctx.beginPath();
         chartPoints.forEach((point, i) => {
             const x = toX(i);
@@ -1088,7 +1428,6 @@
         ctx.lineWidth = 2.2;
         ctx.stroke();
 
-        // Data points & hover ring
         chartPoints.forEach((point, i) => {
             const x = toX(i);
             const y = toY(Number(point.value));
@@ -1116,7 +1455,6 @@
             }
         });
 
-        // X-axis timestamps (first, middle, last)
         ctx.fillStyle = "#94a3b8";
         ctx.font = "10px Consolas, monospace";
         ctx.textAlign = "left";

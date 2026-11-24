@@ -5,11 +5,12 @@
    Purpose:
    1. Page header & KPI summary cards
    2. Filter & simulation control bar
-   3. Responsive Canvas chart & tooltip
-   4. Threshold alert feed
-   5. Current metric snapshot grid
-   6. Telemetry history table & origin badges
-   7. Transparency notice, toast & responsive rules
+   3. Real-time system & laptop connectors
+   4. Responsive Canvas chart & tooltip
+   5. Threshold alert feed
+   6. Current metric snapshot grid
+   7. Telemetry history table & origin badges
+   8. Transparency notice, toast & responsive rules
 
    Depends on: variables.css and base.css
    ============================================================ */
@@ -234,7 +235,149 @@
 
 
 /* ============================================================
-   04. MAIN CHART + ALERTS LAYOUT
+   04. REAL-TIME SYSTEM & HARDWARE CONNECTORS
+   ============================================================ */
+
+.connectors-card {
+    margin-bottom: 24px;
+}
+
+.connectors-card code {
+    padding: 2px 5px;
+    border-radius: 4px;
+    background: rgba(34, 211, 238, 0.1);
+    color: var(--accent-cyan);
+    font-family: var(--font-mono);
+    font-size: 11px;
+}
+
+.probe-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.probe-item {
+    min-width: 0;
+    padding: 12px 14px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    background: var(--bg-secondary);
+}
+
+.probe-item span {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+}
+
+.probe-item strong {
+    display: block;
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.connectors-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.connector-box {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    padding: 16px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    background: var(--bg-secondary);
+    transition: border-color var(--transition-fast);
+}
+
+.connector-box:hover {
+    border-color: var(--border-accent);
+}
+
+.connector-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.connector-top strong {
+    color: var(--text-primary);
+    font-size: 13px;
+}
+
+.connector-desc {
+    color: var(--text-muted);
+    font-size: 11px;
+    line-height: 1.55;
+}
+
+.connector-controls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.connector-input {
+    flex: 1;
+    min-width: 140px;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: var(--font-size-xs);
+    outline: none;
+}
+
+.connector-input:focus {
+    border-color: var(--accent-cyan);
+}
+
+.connector-status {
+    color: var(--text-secondary);
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.badge.connected {
+    color: var(--status-nominal);
+    background: rgba(34, 197, 94, 0.12);
+    border-color: rgba(34, 197, 94, 0.35);
+}
+
+.badge.warning {
+    color: var(--status-warning);
+    background: rgba(245, 158, 11, 0.12);
+    border-color: rgba(245, 158, 11, 0.35);
+}
+
+.badge.error {
+    color: var(--status-critical);
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.35);
+}
+
+
+/* ============================================================
+   05. MAIN CHART + ALERTS LAYOUT
    ============================================================ */
 
 .section-heading-row {
@@ -375,7 +518,7 @@
 
 
 /* ============================================================
-   05. THRESHOLD ALERT FEED
+   06. THRESHOLD ALERT FEED
    ============================================================ */
 
 .alerts-list {
@@ -455,7 +598,7 @@
 
 
 /* ============================================================
-   06. CURRENT METRIC SNAPSHOTS
+   07. CURRENT METRIC SNAPSHOTS
    ============================================================ */
 
 .metric-snapshot-grid {
@@ -522,7 +665,7 @@
 
 
 /* ============================================================
-   07. TELEMETRY HISTORY TABLE & BADGES
+   08. TELEMETRY HISTORY TABLE & BADGES
    ============================================================ */
 
 .telemetry-table {
@@ -591,7 +734,7 @@
 
 
 /* ============================================================
-   08. TRANSPARENCY NOTICE & TOAST
+   09. TRANSPARENCY NOTICE & TOAST
    ============================================================ */
 
 .telemetry-notice {
@@ -673,7 +816,7 @@
 
 
 /* ============================================================
-   09. RESPONSIVE BREAKPOINTS
+   10. RESPONSIVE BREAKPOINTS
    ============================================================ */
 
 @media (max-width: 1200px) {
@@ -681,10 +824,15 @@
     .telemetry-filters-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+
+    .probe-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 @media (max-width: 1050px) {
-    .telemetry-main-grid {
+    .telemetry-main-grid,
+    .connectors-grid {
         grid-template-columns: 1fr;
     }
 
@@ -716,7 +864,8 @@
         gap: 10px;
     }
 
-    .telemetry-filters-grid {
+    .telemetry-filters-grid,
+    .probe-grid {
         grid-template-columns: 1fr;
     }
 
@@ -735,7 +884,8 @@
 
     .page-header-actions .btn,
     .simulation-actions,
-    .simulation-actions .btn {
+    .simulation-actions .btn,
+    .connector-controls .btn {
         width: 100%;
     }
 
@@ -754,6 +904,7 @@
 @media (prefers-reduced-motion: reduce) {
     .telemetry-summary-card,
     .snapshot-card,
+    .connector-box,
     .telemetry-notification {
         transition: none;
     }
