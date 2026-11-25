@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NexusAI Hardware Gallery — explore edge AI accelerators, laptops, microcontrollers, robotic nodes, and deploy preconfigured monitoring profiles.">
+    <meta name="theme-color" content="#070b14">
+    <title>Hardware Gallery | NexusAI</title>
+
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/hardware.css">
+</head>
+
+<body>
+
+<div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="brand">
+            <div class="brand-logo">N</div>
+
+            <div class="brand-info">
+                <h2>NexusAI</h2>
+                <span>EDGE INTELLIGENCE</span>
+            </div>
+        </div>
+
+        <div class="sidebar-label">MAIN MENU</div>
+
+        <nav class="sidebar-nav" aria-label="Main navigation">
+
+            <a href="../index.html" class="nav-link">
+                <span class="nav-icon">▦</span>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="workspace.html" class="nav-link">
+                <span class="nav-icon">▣</span>
+                <span>Monitoring Workspace</span>
+            </a>
+
+            <a href="telemetry.html" class="nav-link">
+                <span class="nav-icon">⌁</span>
+                <span>Live Telemetry</span>
+            </a>
+
+            <a href="ai-analytics.html" class="nav-link">
+                <span class="nav-icon">◈</span>
+                <span>AI Analytics</span>
+            </a>
+
+            <div class="sidebar-label">PLATFORM</div>
+
+            <a href="hardware.html" class="nav-link active" aria-current="page">
+                <span class="nav-icon">▤</span>
+                <span>Hardware Gallery</span>
+            </a>
+
+            <a href="roadmap.html" class="nav-link">
+                <span class="nav-icon">⌖</span>
+                <span>Development Roadmap</span>
+            </a>
+
+            <a href="user-guide.html" class="nav-link">
+                <span class="nav-icon">ⓘ</span>
+                <span>User Guide</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <div class="system-status">
+                <span class="status-dot"></span>
+
+                <div>
+                    <strong>Hardware Catalog</strong>
+                    <small>Reference &amp; host specs</small>
+                </div>
+            </div>
+
+            <div class="sidebar-version">
+                NEXUSAI · DEMONSTRATION BUILD
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content" id="main-content">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+
+            <div class="topbar-left">
+                <div>
+                    <span class="breadcrumb">Platform /</span>
+                    <strong>Hardware Gallery</strong>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <span class="environment-label">
+                    <span class="status-dot"></span>
+                    DEMO ENVIRONMENT
+                </span>
+
+                <div class="user-avatar" title="NexusAI User">N</div>
+            </div>
+
+        </header>
+
+
+        <!-- PAGE CONTENT -->
+        <div class="page-container">
+
+            <!-- PAGE HEADER -->
+            <section class="page-header hardware-page-header">
+
+                <div>
+                    <div class="eyebrow">EDGE COMPUTE &amp; COMPATIBILITY</div>
+
+                    <h1>Hardware Gallery</h1>
+
+                    <p>
+                        Explore supported Edge AI processors, laptops, microcontrollers, and industrial nodes.
+                        Inspect browser-detected host capabilities or deploy any hardware template directly into your Workspace.
+                    </p>
+                </div>
+
+                <div class="page-header-actions">
+                    <button type="button" class="btn btn-secondary" id="hw-detect-btn">
+                        ↻ Re-Scan This Device
+                    </button>
+
+                    <a href="telemetry.html" class="btn btn-primary">
+                        ⚡ Open Live Telemetry
+                    </a>
+                </div>
+
+            </section>
+
+
+            <!-- KPI SUMMARY CARDS -->
+            <section class="hardware-summary-grid" aria-label="Hardware Catalog Summary">
+
+                <article class="hw-summary-card">
+                    <div class="summary-card-top">
+                        <span class="summary-label">CATALOG PROFILES</span>
+                        <span class="summary-icon">▤</span>
+                    </div>
+                    <div class="summary-value" id="hw-total-profiles">0</div>
+                    <div class="summary-description">Reference edge &amp; sensor platforms</div>
+                </article>
+
+                <article class="hw-summary-card">
+                    <div class="summary-card-top">
+                        <span class="summary-label">AI / NPU READY</span>
+                        <span class="summary-icon">◈</span>
+                    </div>
+                    <div class="summary-value" id="hw-npu-count">0</div>
+                    <div class="summary-description">Dedicated NPU / Tensor / TPU nodes</div>
+                </article>
+
+                <article class="hw-summary-card">
+                    <div class="summary-card-top">
+                        <span class="summary-label">THIS DEVICE</span>
+                        <span class="summary-icon">◉</span>
+                    </div>
+                    <div class="summary-value" id="hw-host-threads">--</div>
+                    <div class="summary-description" id="hw-host-gpu-short">Detecting browser capabilities...</div>
+                </article>
+
+                <article class="hw-summary-card">
+                    <div class="summary-card-top">
+                        <span class="summary-label">WORKSPACE SOURCES</span>
+                        <span class="summary-icon">▣</span>
+                    </div>
+                    <div class="summary-value" id="hw-registered-count">0</div>
+                    <div class="summary-description">Saved in local IndexedDB</div>
+                </article>
+
+            </section>
+
+
+            <!-- LIVE DETECTED HOST PROFILE -->
+            <section class="content-card host-profile-card" aria-label="Detected Host Hardware">
+
+                <div class="section-heading-row">
+                    <div>
+                        <div class="eyebrow">BROWSER CAPABILITY PROBE (LIVE)</div>
+                        <h2>This Laptop / Host Environment</h2>
+                        <p>
+                            Hardware signals genuinely exposed by your browser right now—paired with direct actions to register or benchmark on this machine.
+                        </p>
+                    </div>
+
+                    <span class="badge connected" id="hw-context-badge">CHECKING</span>
+                </div>
+
+                <div class="host-probe-grid">
+                    <div class="host-probe-box">
+                        <span>PLATFORM / ARCH</span>
+                        <strong id="hw-probe-platform">--</strong>
+                    </div>
+                    <div class="host-probe-box">
+                        <span>LOGICAL THREADS</span>
+                        <strong id="hw-probe-cores">--</strong>
+                    </div>
+                    <div class="host-probe-box">
+                        <span>WEBGL GPU RENDERER</span>
+                        <strong id="hw-probe-gpu">--</strong>
+                    </div>
+                    <div class="host-probe-box">
+                        <span>WEBGPU / WEBNN</span>
+                        <strong id="hw-probe-ai">--</strong>
+                    </div>
+                    <div class="host-probe-box">
+                        <span>SERIAL / BLE SUPPORT</span>
+                        <strong id="hw-probe-io">--</strong>
+                    </div>
+                </div>
+
+            </section>
+
+
+            <!-- CATALOG FILTER BAR -->
+            <section class="content-card hw-filter-card" aria-label="Hardware Filter Controls">
+
+                <div class="hw-filters-grid">
+
+                    <div class="form-group">
+                        <label for="hw-search-input">Search Hardware</label>
+                        <input
+                            type="search"
+                            id="hw-search-input"
+                            placeholder="Search Snapdragon, Jetson, ESP32, GPU..."
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hw-category-filter">Category</label>
+                        <select id="hw-category-filter">
+                            <option value="all">All Categories</option>
+                            <option value="Laptop">Laptop / Edge PC</option>
+                            <option value="NPU Node">NPU / AI Accelerator</option>
+                            <option value="GPU Node">GPU Node</option>
+                            <option value="Sensor">Microcontroller / Sensor</option>
+                            <option value="Robotic Arm">Robotic System</option>
+                            <option value="Cooling Unit">Cooling System</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hw-arch-filter">Architecture</label>
+                        <select id="hw-arch-filter">
+                            <option value="all">All Architectures</option>
+                            <option value="ARM64">ARM64</option>
+                            <option value="x64">x64</option>
+                            <option value="Other">MCU / Embedded</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hw-sort-select">Sort By</label>
+                        <select id="hw-sort-select">
+                            <option value="featured">Recommended Order</option>
+                            <option value="tops-desc">Peak AI TOPS (High → Low)</option>
+                            <option value="tdp-asc">Power Draw (Low → High)</option>
+                            <option value="name-asc">Name (A → Z)</option>
+                        </select>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- HARDWARE CATALOG GRID -->
+            <section class="hardware-catalog-grid" id="hardware-catalog-grid" aria-label="Hardware Profiles">
+                <!-- Populated by js/gallery.js -->
+            </section>
+
+
+            <!-- REFERENCE BENCHMARK COMPARISON CHART -->
+            <section class="content-card hw-chart-card" aria-label="Reference Throughput Comparison">
+
+                <div class="section-heading-row">
+                    <div>
+                        <div class="eyebrow">PUBLISHED REFERENCE SPECIFICATIONS</div>
+                        <h2>Edge AI Peak Throughput vs. Power Envelope</h2>
+                        <p>
+                            Visual comparison of published INT8/FP16 TOPS across the filtered hardware profiles (reference specs, not live telemetry).
+                        </p>
+                    </div>
+
+                    <div class="hw-chart-mode">
+                        <button type="button" class="btn btn-secondary btn-small active-metric" data-chart-mode="tops">
+                            Peak AI TOPS
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-small" data-chart-mode="efficiency">
+                            TOPS / Watt
+                        </button>
+                    </div>
+                </div>
+
+                <div class="hw-canvas-wrap">
+                    <canvas id="hw-comparison-canvas" aria-label="Hardware throughput comparison chart"></canvas>
+                </div>
+
+            </section>
+
+
+            <!-- TRANSPARENCY NOTICE -->
+            <section class="hardware-notice">
+                <div class="notice-icon">ⓘ</div>
+                <div>
+                    <strong>Reference Catalog &amp; One-Click Provisioning</strong>
+                    <p>
+                        Hardware cards display published vendor reference specifications (tagged <strong>REFERENCE SPEC</strong>)
+                        to help you design Edge AI monitoring topologies. Clicking <strong>+ Add to Workspace</strong> registers a
+                        preconfigured source in IndexedDB with appropriate metrics and warning/critical thresholds—ready for simulated,
+                        manual, CSV, or live device streaming.
+                    </p>
+                </div>
+            </section>
+
+
+            <!-- FOOTER -->
+            <footer class="main-footer">
+                <div>
+                    <strong>NexusAI</strong>
+                    <span>High-Throughput Edge AI &amp; Telemetry Platform</span>
+                </div>
+                <p>Demonstration Build · Hardware Catalog &amp; Compatibility</p>
+            </footer>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<!-- HARDWARE DETAIL MODAL -->
+<dialog id="hardware-detail-dialog" class="nexus-dialog hw-dialog">
+
+    <div class="dialog-header">
+        <div>
+            <span class="eyebrow" id="hw-modal-category">HARDWARE PROFILE</span>
+            <h2 id="hw-modal-title">Device Specifications</h2>
+        </div>
+
+        <button
+            type="button"
+            class="dialog-close"
+            id="hw-modal-close"
+            aria-label="Close hardware details"
+        >
+            ×
+        </button>
+    </div>
+
+    <div class="dialog-content hw-modal-body">
+        <p id="hw-modal-summary" class="hw-modal-summary"></p>
+
+        <div id="hw-modal-specs" class="hw-modal-specs"></div>
+
+        <div class="hw-modal-section">
+            <h3>Default Telemetry Metrics</h3>
+            <ul id="hw-modal-metrics" class="hw-modal-metrics-list"></ul>
+        </div>
+
+        <div class="hw-modal-section">
+            <h3>Compatible Interfaces</h3>
+            <p id="hw-modal-interfaces" class="hw-modal-interfaces"></p>
+        </div>
+
+        <div class="hw-modal-actions">
+            <button type="button" class="btn btn-secondary" id="hw-modal-cancel-btn">Close</button>
+            <button type="button" class="btn btn-primary" id="hw-modal-deploy-btn">＋ Add to Workspace</button>
+        </div>
+    </div>
+
+</dialog>
+
+<div id="hardware-toast" class="hardware-toast" role="status" aria-live="polite" hidden></div>
+
+<script src="../js/storage.js" defer></script>
+<script src="../js/data-manager.js" defer></script>
+<script src="../js/device-connectors.js" defer></script>
+<script src="../js/gallery.js" defer></script>
+
+</body>
+</html>
