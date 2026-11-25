@@ -1,351 +1,463 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Analytics &amp; Anomaly Engine — NexusAI</title>
-  <meta name="description" content="Statistical Z-score anomaly detection, health scoring, linear regression forecasting, and rule-based optimization analytics for NexusAI." />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NexusAI AI Analytics — statistical Z-score anomaly detection, health scoring, linear regression forecasting, and rule-based optimization.">
+    <meta name="theme-color" content="#070b14">
+    <title>AI Analytics | NexusAI</title>
 
-  <link rel="stylesheet" href="../css/variables.css" />
-  <link rel="stylesheet" href="../css/base.css" />
-  <link rel="stylesheet" href="../css/analytics.css" />
-
-  <script defer src="../js/storage.js"></script>
-  <script defer src="../js/data-manager.js"></script>
-  <script defer src="../js/ai-engine.js"></script>
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/analytics.css">
 </head>
+
 <body>
-  <div class="app-shell">
-    <!-- Shared Sidebar -->
-    <aside class="sidebar" aria-label="Primary Navigation">
-      <div class="brand">
-        <div class="brand-logo" aria-hidden="true">N</div>
-        <div class="brand-info">
-          <strong>NexusAI</strong>
-          <span>Edge Telemetry OS</span>
+
+<div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="brand">
+            <div class="brand-logo">N</div>
+
+            <div class="brand-info">
+                <h2>NexusAI</h2>
+                <span>EDGE INTELLIGENCE</span>
+            </div>
         </div>
-      </div>
 
-      <nav class="sidebar-nav">
-        <div class="sidebar-label">Platform</div>
-        <a href="../index.html" class="nav-link">
-          <span class="nav-icon" aria-hidden="true">◈</span>
-          <span>Command Center</span>
-        </a>
-        <a href="./workspace.html" class="nav-link">
-          <span class="nav-icon" aria-hidden="true">◫</span>
-          <span>Workspace</span>
-        </a>
-        <a href="./telemetry.html" class="nav-link">
-          <span class="nav-icon" aria-hidden="true">〰</span>
-          <span>Live Telemetry</span>
-        </a>
-        <a href="./ai-analytics.html" class="nav-link active" aria-current="page">
-          <span class="nav-icon" aria-hidden="true">✦</span>
-          <span>AI Analytics</span>
-        </a>
+        <div class="sidebar-label">MAIN MENU</div>
 
-        <div class="sidebar-label">System &amp; Docs</div>
-        <a href="./hardware.html" class="nav-link">
-          <span class="nav-icon" aria-hidden="true">▣</span>
-          <span>Hardware Gallery</span>
-        </a>
-        <a href="./roadmap.html" class="nav-link">
-          <span class="nav-icon" aria-hidden="true">⚑</span>
-          <span>Roadmap</span>
-        </a>
-        <a href="./user-guide.html" class="nav-link">
-          <span class="nav-icon" aria-hidden="true">?</span>
-          <span>User Guide</span>
-        </a>
-      </nav>
+        <nav class="sidebar-nav" aria-label="Main navigation">
 
-      <div class="sidebar-bottom">
-        <div class="environment-label">
-          <span class="status-dot" aria-hidden="true"></span>
-          <span>Local Browser Storage</span>
+            <a href="../index.html" class="nav-link">
+                <span class="nav-icon">▦</span>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="workspace.html" class="nav-link">
+                <span class="nav-icon">▣</span>
+                <span>Monitoring Workspace</span>
+            </a>
+
+            <a href="telemetry.html" class="nav-link">
+                <span class="nav-icon">⌁</span>
+                <span>Live Telemetry</span>
+            </a>
+
+            <a href="ai-analytics.html" class="nav-link active" aria-current="page">
+                <span class="nav-icon">◈</span>
+                <span>AI Analytics</span>
+            </a>
+
+            <div class="sidebar-label">PLATFORM</div>
+
+            <a href="hardware.html" class="nav-link">
+                <span class="nav-icon">▤</span>
+                <span>Hardware Gallery</span>
+            </a>
+
+            <a href="roadmap.html" class="nav-link">
+                <span class="nav-icon">⌖</span>
+                <span>Development Roadmap</span>
+            </a>
+
+            <a href="user-guide.html" class="nav-link">
+                <span class="nav-icon">ⓘ</span>
+                <span>User Guide</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <div class="system-status">
+                <span class="status-dot"></span>
+
+                <div>
+                    <strong>Analytics Engine</strong>
+                    <small>Statistical &amp; rule-based</small>
+                </div>
+            </div>
+
+            <div class="sidebar-version">
+                NEXUSAI · DEMONSTRATION BUILD
+            </div>
+
         </div>
-      </div>
+
     </aside>
 
-    <!-- Main Workspace Area -->
-    <div class="main-wrapper">
-      <header class="topbar">
-        <div class="topbar-left">
-          <h1>AI Analytics &amp; Anomaly Engine</h1>
-          <p class="topbar-subtitle">Statistical Z-score detection, health scoring &amp; linear trend forecasting from local IndexedDB telemetry.</p>
-        </div>
-        <div class="topbar-right">
-          <button type="button" id="run-ai-scan-btn" class="btn btn-primary">
-            ⚡ Run Z-Score Scan
-          </button>
-          <button type="button" id="export-analytics-btn" class="btn btn-secondary">
-            Export Report JSON
-          </button>
-        </div>
-      </header>
 
-      <main class="page-content">
-        <!-- Statistical Transparency Banner -->
-        <section class="transparency-banner" aria-label="Algorithm Transparency Notice">
-          <div class="transparency-badge">STATISTICAL &amp; RULE-BASED ENGINE</div>
-          <p>
-            All diagnostics on this page are computed locally in your browser using deterministic math—rolling
-            <strong>Z-Score</strong> (<code>Z = (x − μ) / σ</code>), <strong>Least-Squares Linear Regression</strong>,
-            and threshold-weighted <strong>Health Scoring</strong>—not a trained neural network or external LLM.
-            Every reading retains its exact origin tag (<code>DEVICE</code>, <code>SIMULATED</code>, <code>MANUAL</code>, or <code>IMPORT</code>).
-          </p>
-        </section>
+    <!-- MAIN CONTENT -->
+    <main class="main-content" id="main-content">
 
-        <!-- Summary KPI Cards -->
-        <section class="analytics-kpi-grid" aria-label="Analytics Summary KPIs">
-          <article class="kpi-card">
-            <div class="kpi-header">
-              <span class="kpi-label">Fleet Health Score</span>
-              <span id="kpi-health-badge" class="health-pill health-neutral">--</span>
-            </div>
-            <div id="kpi-health-score" class="kpi-value">--</div>
-            <div id="kpi-health-sub" class="kpi-sub">Waiting for telemetry data...</div>
-          </article>
+        <!-- TOPBAR -->
+        <header class="topbar">
 
-          <article class="kpi-card">
-            <div class="kpi-header">
-              <span class="kpi-label">Statistical Anomalies (|Z| ≥ Threshold)</span>
-              <span class="kpi-tag">Z-SCORE</span>
-            </div>
-            <div id="kpi-zscore-anomalies" class="kpi-value">0</div>
-            <div id="kpi-anomalies-sub" class="kpi-sub">0 logged in IndexedDB alerts</div>
-          </article>
-
-          <article class="kpi-card">
-            <div class="kpi-header">
-              <span class="kpi-label">Regression Trend Slope</span>
-              <span id="kpi-trend-badge" class="trend-pill">FLAT</span>
-            </div>
-            <div id="kpi-trend-direction" class="kpi-value">--</div>
-            <div id="kpi-trend-sub" class="kpi-sub">Need ≥ 5 readings for regression</div>
-          </article>
-
-          <article class="kpi-card">
-            <div class="kpi-header">
-              <span class="kpi-label">Analyzed Sample Window</span>
-              <span class="kpi-tag">LOCAL DB</span>
-            </div>
-            <div id="kpi-sample-coverage" class="kpi-value">0</div>
-            <div id="kpi-sample-sub" class="kpi-sub">Across 0 active sources</div>
-          </article>
-        </section>
-
-        <!-- Analysis Filter & Parameter Controls -->
-        <section class="card analytics-controls-card" aria-label="Analysis Controls">
-          <div class="controls-grid">
-            <div class="control-group">
-              <label for="analytics-source-select">Telemetry Source</label>
-              <select id="analytics-source-select">
-                <option value="">Loading sources...</option>
-              </select>
+            <div class="topbar-left">
+                <div>
+                    <span class="breadcrumb">Platform /</span>
+                    <strong>AI Analytics</strong>
+                </div>
             </div>
 
-            <div class="control-group">
-              <label for="analytics-metric-select">Target Metric</label>
-              <select id="analytics-metric-select">
-                <option value="">Select a metric...</option>
-              </select>
+            <div class="topbar-right">
+                <span class="environment-label">
+                    <span class="status-dot"></span>
+                    DEMO ENVIRONMENT
+                </span>
+
+                <div class="user-avatar" title="NexusAI User">N</div>
             </div>
 
-            <div class="control-group">
-              <label for="origin-filter-select">Data Origin Filter</label>
-              <select id="origin-filter-select">
-                <option value="ALL">All Origins (Combined)</option>
-                <option value="DEVICE">DEVICE (Real Laptop / Hardware)</option>
-                <option value="SIMULATED">SIMULATED (Synthetic Stream)</option>
-                <option value="MANUAL">MANUAL (User Entered)</option>
-                <option value="IMPORT">IMPORT (CSV / JSON)</option>
-              </select>
-            </div>
+        </header>
 
-            <div class="control-group">
-              <label for="zscore-threshold-select">Z-Score Sensitivity (|Z|)</label>
-              <select id="zscore-threshold-select">
-                <option value="1.5">1.5σ (Strict — Early Warning)</option>
-                <option value="2.0" selected>2.0σ (Balanced — Default)</option>
-                <option value="2.5">2.5σ (Standard — Moderate)</option>
-                <option value="3.0">3.0σ (Conservative — Extreme Only)</option>
-              </select>
-            </div>
 
-            <div class="control-group">
-              <label for="forecast-steps-select">Forecast Horizon</label>
-              <select id="forecast-steps-select">
-                <option value="5">Next 5 Intervals</option>
-                <option value="10" selected>Next 10 Intervals</option>
-                <option value="15">Next 15 Intervals</option>
-              </select>
-            </div>
+        <!-- PAGE CONTENT -->
+        <div class="page-container">
 
-            <div class="control-actions">
-              <button type="button" id="sync-anomalies-btn" class="btn btn-primary">
-                Save Outliers to Alert Log
-              </button>
-              <button type="button" id="refresh-analytics-btn" class="btn btn-secondary">
-                Refresh
-              </button>
-            </div>
-          </div>
-        </section>
+            <!-- PAGE HEADER -->
+            <section class="page-header analytics-page-header">
 
-        <!-- Empty / Low Sample State -->
-        <section id="analytics-empty-state" class="card empty-state-card" hidden>
-          <div class="empty-state-content">
-            <h2>No Telemetry Readings Found for Analysis</h2>
-            <p>
-              Add a source or stream live/simulated readings first so the statistical engine can compute
-              rolling Z-scores, health scores, and trend forecasts.
-            </p>
-            <div class="empty-state-actions">
-              <a href="./telemetry.html" class="btn btn-primary">Go to Live Telemetry</a>
-              <a href="./workspace.html" class="btn btn-secondary">Open Workspace Setup</a>
-            </div>
-          </div>
-        </section>
+                <div>
+                    <div class="eyebrow">DIAGNOSTICS &amp; FORECASTING</div>
 
-        <!-- Primary Visual & Health Grid -->
-        <section class="analytics-main-grid" id="analytics-main-grid">
-          <!-- Regression & Anomaly Band Chart -->
-          <article class="card chart-card">
-            <div class="card-header">
-              <div>
-                <h2 id="chart-title">Linear Regression &amp; Z-Score Control Band</h2>
-                <p id="chart-subtitle" class="card-subtitle">
-                  Plots observed samples against rolling baseline mean (μ), ±Z·σ control band, and projected linear trend.
+                    <h1>AI Analytics &amp; Anomaly Engine</h1>
+
+                    <p>
+                        Statistical Z-score outlier detection, weighted metric health scoring,
+                        and least-squares linear trend forecasting from local IndexedDB telemetry.
+                    </p>
+                </div>
+
+                <div class="page-header-actions">
+                    <button type="button" class="btn btn-secondary" id="export-analytics-btn">
+                        Export Report JSON
+                    </button>
+
+                    <button type="button" class="btn btn-primary" id="run-ai-scan-btn">
+                        ⚡ Run Z-Score Scan
+                    </button>
+                </div>
+
+            </section>
+
+
+            <!-- TRANSPARENCY NOTICE -->
+            <section class="transparency-banner" aria-label="Algorithm Transparency Notice">
+                <div class="transparency-badge">STATISTICAL &amp; RULE-BASED ENGINE</div>
+                <p>
+                    All diagnostics here are computed locally in your browser using deterministic math—rolling
+                    <strong>Z-Score</strong> (<code>Z = (x − μ) / σ</code>), <strong>Least-Squares Linear Regression</strong>,
+                    and threshold-weighted <strong>Health Scoring</strong>—not a trained neural network or external LLM.
+                    Every reading preserves its origin tag (<code>DEVICE</code>, <code>SIMULATED</code>, <code>MANUAL</code>, or <code>IMPORT</code>).
                 </p>
-              </div>
-              <div class="chart-legend">
-                <span class="legend-item"><i class="dot dot-actual"></i> Actual</span>
-                <span class="legend-item"><i class="dot dot-mean"></i> Mean (μ)</span>
-                <span class="legend-item"><i class="dot dot-forecast"></i> Forecast</span>
-                <span class="legend-item"><i class="dot dot-anomaly"></i> Outlier</span>
-              </div>
-            </div>
+            </section>
 
-            <div class="chart-canvas-wrap">
-              <canvas id="analytics-chart-canvas" aria-label="Regression and Z-score anomaly chart"></canvas>
-              <div id="analytics-chart-tooltip" class="chart-tooltip" hidden></div>
-            </div>
 
-            <div id="regression-stats-bar" class="regression-stats-bar">
-              <div class="stat-pill">
-                <span>Mean (μ)</span>
-                <strong id="stat-mean">--</strong>
-              </div>
-              <div class="stat-pill">
-                <span>Std Dev (σ)</span>
-                <strong id="stat-stddev">--</strong>
-              </div>
-              <div class="stat-pill">
-                <span>R² Fit</span>
-                <strong id="stat-r2">--</strong>
-              </div>
-              <div class="stat-pill">
-                <span>Next Forecast</span>
-                <strong id="stat-forecast-next">--</strong>
-              </div>
-              <div class="stat-pill">
-                <span>Est. Threshold Breach</span>
-                <strong id="stat-eta-breach">--</strong>
-              </div>
-            </div>
-          </article>
+            <!-- SUMMARY KPI CARDS -->
+            <section class="analytics-kpi-grid" aria-label="Analytics Summary KPIs">
 
-          <!-- Fleet & Metric Health Score Breakdown -->
-          <article class="card health-card">
-            <div class="card-header">
-              <div>
-                <h2>Health Score Breakdown</h2>
-                <p class="card-subtitle">Weighted from threshold compliance, variance stability, and anomaly frequency.</p>
-              </div>
-            </div>
-            <div id="health-breakdown-list" class="health-breakdown-list">
-              <p class="muted-placeholder">No metric diagnostics available yet.</p>
-            </div>
-          </article>
-        </section>
+                <article class="kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-label">FLEET HEALTH SCORE</span>
+                        <span id="kpi-health-badge" class="health-pill health-neutral">--</span>
+                    </div>
+                    <div id="kpi-health-score" class="kpi-value">--</div>
+                    <div id="kpi-health-sub" class="kpi-sub">Waiting for telemetry data...</div>
+                </article>
 
-        <!-- Secondary Grid: Anomalies Table + Rule-Based Recommendations & Simulator -->
-        <section class="analytics-secondary-grid" id="analytics-secondary-grid">
-          <!-- Detected Statistical Anomalies -->
-          <article class="card anomalies-card">
-            <div class="card-header">
-              <div>
-                <h2>Z-Score Anomaly Inspector</h2>
-                <p class="card-subtitle">Readings whose deviation exceeds your selected |Z| threshold.</p>
-              </div>
-              <span id="outlier-count-pill" class="count-pill">0 outliers</span>
-            </div>
+                <article class="kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-label">STATISTICAL ANOMALIES</span>
+                        <span class="kpi-tag">Z-SCORE</span>
+                    </div>
+                    <div id="kpi-zscore-anomalies" class="kpi-value">0</div>
+                    <div id="kpi-anomalies-sub" class="kpi-sub">0 saved in IndexedDB alerts</div>
+                </article>
 
-            <div class="table-scroll">
-              <table class="analytics-table">
-                <thead>
-                  <tr>
-                    <th>Time</th>
-                    <th>Metric</th>
-                    <th>Origin</th>
-                    <th>Value</th>
-                    <th>Baseline (μ ± σ)</th>
-                    <th>Z-Score</th>
-                    <th>Severity</th>
-                  </tr>
-                </thead>
-                <tbody id="anomalies-table-body">
-                  <tr>
-                    <td colspan="7" class="table-empty">Run analysis or record ≥ 5 readings to inspect outliers.</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </article>
+                <article class="kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-label">REGRESSION TREND SLOPE</span>
+                        <span id="kpi-trend-badge" class="trend-pill">FLAT</span>
+                    </div>
+                    <div id="kpi-trend-direction" class="kpi-value">--</div>
+                    <div id="kpi-trend-sub" class="kpi-sub">Need ≥ 5 readings for regression</div>
+                </article>
 
-          <!-- Optimization Recommendations & What-If Simulator -->
-          <article class="card recommendations-card">
-            <div class="card-header">
-              <div>
-                <h2>Optimization Recommendations</h2>
-                <p class="card-subtitle">Deterministic rules derived from slope, volatility, and threshold headroom.</p>
-              </div>
-            </div>
+                <article class="kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-label">ANALYZED SAMPLE WINDOW</span>
+                        <span class="kpi-tag">LOCAL DB</span>
+                    </div>
+                    <div id="kpi-sample-coverage" class="kpi-value">0</div>
+                    <div id="kpi-sample-sub" class="kpi-sub">Across 0 active sources</div>
+                </article>
 
-            <div id="recommendations-list" class="recommendations-list">
-              <p class="muted-placeholder">Recommendations appear once telemetry is evaluated.</p>
-            </div>
+            </section>
 
-            <div class="simulator-box">
-              <div class="simulator-header">
-                <h3>What-If Threshold Sensitivity Preview</h3>
-                <span class="simulator-note">Read-only simulation (does not alter stored metrics)</span>
-              </div>
 
-              <div class="simulator-controls">
-                <label class="sim-field">
-                  <span>Simulated Warning Headroom: <strong id="sim-headroom-label">100%</strong></span>
-                  <input type="range" id="sim-threshold-slider" min="70" max="130" step="5" value="100" />
-                </label>
+            <!-- ANALYSIS CONTROLS -->
+            <section class="content-card analytics-controls-card" aria-label="Analysis Controls">
 
-                <label class="sim-field">
-                  <span>Rolling Window Size: <strong id="sim-window-label">Last 40 samples</strong></span>
-                  <input type="range" id="sim-window-slider" min="10" max="100" step="10" value="40" />
-                </label>
-              </div>
+                <div class="controls-grid">
 
-              <div id="scenario-impact-output" class="scenario-impact-output">
-                Adjust sliders to preview projected warning rate and stability score.
-              </div>
-            </div>
-          </article>
-        </section>
-      </main>
-    </div>
-  </div>
+                    <div class="form-group">
+                        <label for="analytics-source-select">Telemetry Source</label>
+                        <select id="analytics-source-select">
+                            <option value="">Loading sources...</option>
+                        </select>
+                    </div>
 
-  <div id="analytics-toast" class="analytics-toast" role="status" aria-live="polite" hidden></div>
+                    <div class="form-group">
+                        <label for="analytics-metric-select">Target Metric</label>
+                        <select id="analytics-metric-select">
+                            <option value="">Select a metric...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="origin-filter-select">Data Origin Filter</label>
+                        <select id="origin-filter-select">
+                            <option value="ALL">All Origins (Combined)</option>
+                            <option value="DEVICE">DEVICE (Real Laptop / Hardware)</option>
+                            <option value="SIMULATED">SIMULATED (Synthetic Stream)</option>
+                            <option value="MANUAL">MANUAL (User Entered)</option>
+                            <option value="IMPORT">IMPORT (CSV / JSON)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="zscore-threshold-select">Z-Score Sensitivity (|Z|)</label>
+                        <select id="zscore-threshold-select">
+                            <option value="1.5">1.5σ (Strict — Early Warning)</option>
+                            <option value="2.0" selected>2.0σ (Balanced — Default)</option>
+                            <option value="2.5">2.5σ (Standard — Moderate)</option>
+                            <option value="3.0">3.0σ (Conservative — Extreme Only)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="forecast-steps-select">Forecast Horizon</label>
+                        <select id="forecast-steps-select">
+                            <option value="5">Next 5 Intervals</option>
+                            <option value="10" selected>Next 10 Intervals</option>
+                            <option value="15">Next 15 Intervals</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="controls-actions-bar">
+                    <span class="controls-hint">
+                        Minimum 5 readings required for Z-score &amp; linear regression calculations.
+                    </span>
+                    <div class="control-actions">
+                        <button type="button" id="refresh-analytics-btn" class="btn btn-secondary btn-small">
+                            ↻ Refresh
+                        </button>
+                        <button type="button" id="sync-anomalies-btn" class="btn btn-primary btn-small">
+                            Save Outliers to Alert Log
+                        </button>
+                    </div>
+                </div>
+
+            </section>
+
+
+            <!-- EMPTY STATE -->
+            <section id="analytics-empty-state" class="content-card empty-state-card" hidden>
+                <div class="empty-state-content">
+                    <h2>No Telemetry Readings Found for Analysis</h2>
+                    <p>
+                        Register a source or stream live/simulated readings first so the statistical engine
+                        can compute rolling Z-scores, health scores, and trend forecasts.
+                    </p>
+                    <div class="empty-state-actions">
+                        <a href="telemetry.html" class="btn btn-primary">Go to Live Telemetry</a>
+                        <a href="workspace.html" class="btn btn-secondary">Open Monitoring Workspace</a>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- PRIMARY VISUAL & HEALTH GRID -->
+            <section class="analytics-main-grid" id="analytics-main-grid">
+
+                <!-- LINEAR REGRESSION & Z-SCORE BAND CHART -->
+                <article class="content-card chart-card">
+
+                    <div class="section-heading-row">
+                        <div>
+                            <h2 id="chart-title">Linear Regression &amp; Z-Score Control Band</h2>
+                            <p id="chart-subtitle">
+                                Plots observed samples against rolling baseline mean (μ), ±Z·σ control band, and projected trend.
+                            </p>
+                        </div>
+
+                        <div class="chart-legend">
+                            <span class="legend-item"><i class="dot dot-actual"></i> Actual</span>
+                            <span class="legend-item"><i class="dot dot-mean"></i> Mean (μ)</span>
+                            <span class="legend-item"><i class="dot dot-forecast"></i> Forecast</span>
+                            <span class="legend-item"><i class="dot dot-anomaly"></i> Outlier</span>
+                        </div>
+                    </div>
+
+                    <div class="chart-canvas-wrap">
+                        <canvas id="analytics-chart-canvas" aria-label="Regression and Z-score anomaly chart"></canvas>
+                        <div id="analytics-chart-tooltip" class="chart-tooltip" hidden></div>
+                    </div>
+
+                    <div id="regression-stats-bar" class="regression-stats-bar">
+                        <div class="stat-pill">
+                            <span>MEAN (μ)</span>
+                            <strong id="stat-mean">--</strong>
+                        </div>
+                        <div class="stat-pill">
+                            <span>STD DEV (σ)</span>
+                            <strong id="stat-stddev">--</strong>
+                        </div>
+                        <div class="stat-pill">
+                            <span>R² FIT</span>
+                            <strong id="stat-r2">--</strong>
+                        </div>
+                        <div class="stat-pill">
+                            <span>NEXT FORECAST</span>
+                            <strong id="stat-forecast-next">--</strong>
+                        </div>
+                        <div class="stat-pill">
+                            <span>EST. BREACH</span>
+                            <strong id="stat-eta-breach">--</strong>
+                        </div>
+                    </div>
+
+                </article>
+
+
+                <!-- HEALTH SCORE BREAKDOWN -->
+                <aside class="content-card health-card">
+
+                    <div class="section-heading-row">
+                        <div>
+                            <h2>Health Score Breakdown</h2>
+                            <p>Weighted from threshold compliance, volatility, and anomaly rate.</p>
+                        </div>
+                    </div>
+
+                    <div id="health-breakdown-list" class="health-breakdown-list">
+                        <p class="muted-placeholder">No metric diagnostics available yet.</p>
+                    </div>
+
+                </aside>
+
+            </section>
+
+
+            <!-- SECONDARY GRID: ANOMALIES TABLE + RECOMMENDATIONS & SIMULATOR -->
+            <section class="analytics-secondary-grid" id="analytics-secondary-grid">
+
+                <!-- DETECTED STATISTICAL ANOMALIES -->
+                <article class="content-card anomalies-card">
+
+                    <div class="section-heading-row">
+                        <div>
+                            <h2>Z-Score Anomaly Inspector</h2>
+                            <p>Readings whose deviation exceeds your selected |Z| threshold.</p>
+                        </div>
+                        <span id="outlier-count-pill" class="badge">0 Outliers</span>
+                    </div>
+
+                    <div class="data-table-wrapper analytics-table-wrap">
+                        <table class="data-table analytics-table">
+                            <thead>
+                                <tr>
+                                    <th>TIME</th>
+                                    <th>METRIC</th>
+                                    <th>ORIGIN</th>
+                                    <th>VALUE</th>
+                                    <th>BASELINE (μ ± σ)</th>
+                                    <th>Z-SCORE</th>
+                                    <th>SEVERITY</th>
+                                </tr>
+                            </thead>
+                            <tbody id="anomalies-table-body">
+                                <tr>
+                                    <td colspan="7" class="table-empty">
+                                        Run analysis or record ≥ 5 readings to inspect outliers.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </article>
+
+
+                <!-- RECOMMENDATIONS & WHAT-IF SIMULATOR -->
+                <article class="content-card recommendations-card">
+
+                    <div class="section-heading-row">
+                        <div>
+                            <h2>Optimization Recommendations</h2>
+                            <p>Deterministic rules derived from slope, volatility, and threshold headroom.</p>
+                        </div>
+                    </div>
+
+                    <div id="recommendations-list" class="recommendations-list">
+                        <p class="muted-placeholder">Recommendations appear once telemetry is evaluated.</p>
+                    </div>
+
+                    <div class="simulator-box">
+                        <div class="simulator-header">
+                            <h3>What-If Threshold Sensitivity Preview</h3>
+                            <span class="simulator-note">Read-only (does not alter stored metrics)</span>
+                        </div>
+
+                        <div class="simulator-controls">
+                            <label class="sim-field">
+                                <span>Warning Headroom: <strong id="sim-headroom-label">100%</strong></span>
+                                <input type="range" id="sim-threshold-slider" min="70" max="130" step="5" value="100">
+                            </label>
+
+                            <label class="sim-field">
+                                <span>Window Size: <strong id="sim-window-label">Last 40 samples</strong></span>
+                                <input type="range" id="sim-window-slider" min="10" max="100" step="10" value="40">
+                            </label>
+                        </div>
+
+                        <div id="scenario-impact-output" class="scenario-impact-output">
+                            Adjust sliders to preview projected warning rate and alert volume.
+                        </div>
+                    </div>
+
+                </article>
+
+            </section>
+
+
+            <!-- FOOTER -->
+            <footer class="main-footer">
+                <div>
+                    <strong>NexusAI</strong>
+                    <span>High-Throughput Edge AI &amp; Telemetry Platform</span>
+                </div>
+                <p>Demonstration Build · Statistical Analytics Engine</p>
+            </footer>
+
+        </div>
+
+    </main>
+
+</div>
+
+<div id="analytics-toast" class="analytics-toast" role="status" aria-live="polite" hidden></div>
+
+<script src="../js/storage.js" defer></script>
+<script src="../js/data-manager.js" defer></script>
+<script src="../js/ai-engine.js" defer></script>
+
 </body>
 </html>

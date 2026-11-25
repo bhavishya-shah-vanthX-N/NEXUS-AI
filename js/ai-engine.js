@@ -126,7 +126,7 @@
 
   function normalizeOrigin(reading) {
     const raw = String(
-      reading.origin || reading.sourceType || reading.mode || "SIMULATED"
+      reading.inputMode || reading.origin || reading.sourceType || reading.mode || "simulated"
     ).toUpperCase();
     if (raw.includes("DEVICE") || raw.includes("HOST") || raw.includes("SERIAL") || raw.includes("BLE") || raw.includes("WS")) {
       return "DEVICE";
@@ -227,7 +227,6 @@
 
     for (let i = 0; i < n; i++) {
       const val = values[i];
-      // Use trailing baseline when enough history exists; otherwise overall window
       let baseSlice;
       if (i >= MIN_SAMPLES_FOR_STATS) {
         const start = Math.max(0, i - windowSize);
@@ -567,7 +566,7 @@
     ctx.strokeStyle = "rgba(148, 163, 184, 0.12)";
     ctx.lineWidth = 1;
     ctx.fillStyle = "#94a3b8";
-    ctx.font = "11px ui-monospace, SFMono-Regular, Menlo, monospace";
+    ctx.font = "11px Consolas, monospace";
     ctx.textAlign = "right";
     ctx.textBaseline = "middle";
 
@@ -615,11 +614,10 @@
         ctx.lineTo(xForIndex(i), yForVal(lower));
       }
       ctx.closePath();
-      ctx.fillStyle = "rgba(56, 189, 248, 0.08)";
+      ctx.fillStyle = "rgba(34, 211, 238, 0.08)";
       ctx.fill();
       ctx.restore();
 
-      // Overall mean horizontal dashed line
       if (Number.isFinite(analysis.stats.mean)) {
         const meanY = yForVal(analysis.stats.mean);
         ctx.save();
@@ -662,7 +660,7 @@
 
     // Actual values line
     ctx.save();
-    ctx.strokeStyle = "#38bdf8";
+    ctx.strokeStyle = "#22d3ee";
     ctx.lineWidth = 2.2;
     ctx.beginPath();
     visibleHistory.forEach((p, i) => {
@@ -674,7 +672,6 @@
     ctx.stroke();
     ctx.restore();
 
-    // Interactive Point Cache & Markers
     const interactive = [];
 
     visibleHistory.forEach((p, i) => {
@@ -705,7 +702,7 @@
       } else {
         ctx.beginPath();
         ctx.arc(x, y, 2.6, 0, Math.PI * 2);
-        ctx.fillStyle = "#38bdf8";
+        ctx.fillStyle = "#22d3ee";
         ctx.fill();
       }
     });
@@ -733,9 +730,8 @@
 
     state.chartPoints = interactive;
 
-    // X-axis caption
-    ctx.fillStyle = "#64748b";
-    ctx.font = "11px system-ui, -apple-system, sans-serif";
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "11px Segoe UI, Arial, sans-serif";
     ctx.textAlign = "left";
     ctx.fillText(
       `Showing last ${visibleHistory.length} samples (${analysis.points.length} total)`,
@@ -855,7 +851,6 @@
       return;
     }
 
-    // Prefer source with most readings if none selected
     if (!state.sources.some((s) => s.id === state.selectedSourceId)) {
       const counts = {};
       state.readings.forEach((r) => {
@@ -978,7 +973,6 @@
     const metrics = source && Array.isArray(source.metrics) ? source.metrics : [];
     const metric = metrics.find((m) => m.id === state.selectedMetricId) || null;
 
-    // Sample coverage KPI
     if (els["kpi-sample-coverage"]) {
       els["kpi-sample-coverage"].textContent = String(state.readings.length);
     }
@@ -1000,7 +994,6 @@
       return;
     }
 
-    // Health breakdown across all metrics of the active source
     const healthItems = metrics.map((m) => {
       const mReadings = getFilteredReadings(source.id, m.id);
       return computeMetricHealth(mReadings, m, state.zThreshold);
@@ -1035,14 +1028,12 @@
       els["kpi-health-sub"].textContent = `Source: ${source.name} (${scoredItems.length}/${metrics.length} active metrics)`;
     }
 
-    // Selected metric deep analysis
     const filtered = getFilteredReadings(source.id, metric.id);
     const analysis = detectZScoreAnomalies(filtered, metric, state.zThreshold);
     const values = analysis.points.map((p) => p.value);
     const regression = computeLinearRegression(values, state.forecastSteps);
     const activeHealth = healthItems.find((h) => h.metric.id === metric.id);
 
-    // Anomaly KPI
     if (els["kpi-zscore-anomalies"]) {
       els["kpi-zscore-anomalies"].textContent = String(analysis.outliers.length);
     }
@@ -1050,7 +1041,6 @@
       els["kpi-anomalies-sub"].textContent = `${state.storedAnomalies.length} saved in IndexedDB alerts`;
     }
 
-    // Trend KPI
     const slopeEl = els["kpi-trend-direction"];
     const trendBadge = els["kpi-trend-badge"];
     const trendSub = els["kpi-trend-sub"];
@@ -1083,7 +1073,6 @@
       }
     }
 
-    // Chart headers & stats bar
     if (els["chart-title"]) {
       els["chart-title"].textContent = `${metric.name} — Regression & ±${state.zThreshold.toFixed(1)}σ Band`;
     }
@@ -1113,7 +1102,6 @@
 
     drawAnalyticsChart(analysis, regression, metric);
 
-    // Health Breakdown List
     const healthList = els["health-breakdown-list"];
     if (healthList) {
       healthList.innerHTML = healthItems
@@ -1125,7 +1113,7 @@
               : item.status === "warn"
               ? "#f59e0b"
               : item.status === "good"
-              ? "#10b981"
+              ? "#22c55e"
               : "#64748b";
           return `
             <div class="health-item">
@@ -1148,9 +1136,8 @@
         .join("");
     }
 
-    // Anomalies Table
     if (els["outlier-count-pill"]) {
-      els["outlier-count-pill"].textContent = `${analysis.outliers.length} outlier(s)`;
+      els["outlier-count-pill"].textContent = `${analysis.outliers.length} Outlier${analysis.outliers.length === 1 ? "" : "s"}`;
     }
 
     const tbody = els["anomalies-table-body"];
@@ -1191,7 +1178,6 @@
       }
     }
 
-    // Recommendations
     const recs = buildRecommendations(source, metric, analysis, regression, activeHealth);
     if (els["recommendations-list"]) {
       els["recommendations-list"].innerHTML = recs
@@ -1209,7 +1195,6 @@
         .join("");
     }
 
-    // What-If Simulator
     updateSimulatorPreview(metric, filtered);
 
     state.lastReport = {
@@ -1278,12 +1263,10 @@
       const payload = {
         id: `anom_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
         sourceId: source.id,
-        sourceName: source.name,
         metricId: metric.id,
-        metricName: metric.name,
+        metric: metric.name,
         readingId: o.reading.id || null,
         value: o.value,
-        unit: metric.unit || "",
         zScore: Number(o.zScore.toFixed(3)),
         severity: o.severity === "critical" ? "critical" : "warning",
         detectionMethod: "z-score",
@@ -1460,5 +1443,9 @@
     }
   };
 
-  document.addEventListener("DOMContentLoaded", init);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
 })(window, document);
