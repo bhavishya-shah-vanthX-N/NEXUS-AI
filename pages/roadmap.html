@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NexusAI Development Roadmap — post-prototype cleanup, Rust/C++/Python engine migration, enterprise observability architecture, and global competitor benchmarks.">
+    <meta name="theme-color" content="#141414">
+    <title>Development Roadmap | NexusAI</title>
+
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/roadmap.css">
+</head>
+
+<body>
+
+<div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="brand">
+            <div class="brand-logo">N</div>
+
+            <div class="brand-info">
+                <h2>NexusAI</h2>
+                <span>EDGE INTELLIGENCE</span>
+            </div>
+        </div>
+
+        <div class="sidebar-label">MAIN MENU</div>
+
+        <nav class="sidebar-nav" aria-label="Main navigation">
+
+            <a href="../index.html" class="nav-link">
+                <span class="nav-icon">▦</span>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="workspace.html" class="nav-link">
+                <span class="nav-icon">▣</span>
+                <span>Monitoring Workspace</span>
+            </a>
+
+            <a href="telemetry.html" class="nav-link">
+                <span class="nav-icon">⌁</span>
+                <span>Live Telemetry</span>
+            </a>
+
+            <a href="ai-analytics.html" class="nav-link">
+                <span class="nav-icon">◈</span>
+                <span>AI Analytics</span>
+            </a>
+
+            <div class="sidebar-label">PLATFORM</div>
+
+            <a href="hardware.html" class="nav-link">
+                <span class="nav-icon">▤</span>
+                <span>Hardware Gallery</span>
+            </a>
+
+            <a href="roadmap.html" class="nav-link active" aria-current="page">
+                <span class="nav-icon">⌖</span>
+                <span>Development Roadmap</span>
+            </a>
+
+            <a href="user-guide.html" class="nav-link">
+                <span class="nav-icon">ⓘ</span>
+                <span>User Guide</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <div class="system-status">
+                <span class="status-dot"></span>
+
+                <div>
+                    <strong>v1.0 Baseline Live</strong>
+                    <small>Phase 2–4 Engineering Plan</small>
+                </div>
+            </div>
+
+            <div class="sidebar-version">
+                NEXUSAI · ARCHITECTURE ROADMAP
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content" id="main-content">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+
+            <div class="topbar-left">
+                <div>
+                    <span class="breadcrumb">Platform /</span>
+                    <strong>Development Roadmap</strong>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <span class="environment-label">
+                    <span class="status-dot"></span>
+                    EVOLUTION BLUEPRINT
+                </span>
+
+                <div class="user-avatar" title="NexusAI User">N</div>
+            </div>
+
+        </header>
+
+
+        <!-- PAGE CONTENT -->
+        <div class="page-container">
+
+            <!-- PAGE HEADER -->
+            <section class="page-header roadmap-page-header">
+
+                <div>
+                    <div class="eyebrow">POST-PROTOTYPE EVOLUTION &amp; ENTERPRISE ARCHITECTURE</div>
+
+                    <h1>Development Roadmap</h1>
+
+                    <p>
+                        Once unconstrained by browser-only assessment rules, NexusAI transitions from a local
+                        HTML/CSS/JS prototype into a production edge-observability platform powered by
+                        <strong>Rust</strong>, <strong>C++</strong>, and <strong>Python</strong> engines—retaining
+                        clean data provenance while replacing browser bottlenecks with native systems.
+                    </p>
+                </div>
+
+                <div class="page-header-actions">
+                    <a href="#cleanup-audit" class="btn btn-secondary">
+                        Architecture Cleanup
+                    </a>
+
+                    <a href="#competitor-matrix" class="btn btn-primary">
+                        Competitor Benchmarks
+                    </a>
+                </div>
+
+            </section>
+
+
+            <!-- SUMMARY KPI CARDS -->
+            <section class="roadmap-kpi-grid" aria-label="Roadmap overview metrics">
+
+                <article class="roadmap-kpi-card">
+                    <div class="kpi-top">
+                        <span class="kpi-label">CURRENT BASELINE</span>
+                        <span class="kpi-icon">▣</span>
+                    </div>
+                    <div class="kpi-value">v1.0 Web</div>
+                    <div class="kpi-meta">Browser-native HTML/JS + IndexedDB</div>
+                </article>
+
+                <article class="roadmap-kpi-card">
+                    <div class="kpi-top">
+                        <span class="kpi-label">TARGET CORE ENGINES</span>
+                        <span class="kpi-icon">⚙</span>
+                    </div>
+                    <div class="kpi-value">Rust · C++ · Py</div>
+                    <div class="kpi-meta">Native telemetry, NPU FFI &amp; ML pipelines</div>
+                </article>
+
+                <article class="roadmap-kpi-card">
+                    <div class="kpi-top">
+                        <span class="kpi-label">DATA PLANE UPGRADE</span>
+                        <span class="kpi-icon">▤</span>
+                    </div>
+                    <div class="kpi-value">Columnar TSDB</div>
+                    <div class="kpi-meta">ClickHouse / TimescaleDB + OTLP ingestion</div>
+                </article>
+
+                <article class="roadmap-kpi-card">
+                    <div class="kpi-top">
+                        <span class="kpi-label">INDUSTRY BENCHMARKS</span>
+                        <span class="kpi-icon">⌖</span>
+                    </div>
+                    <div class="kpi-value">5 Platforms</div>
+                    <div class="kpi-meta">Netdata, DCGM, Grafana, W&amp;B, Balena</div>
+                </article>
+
+            </section>
+
+
+            <!-- QUICK JUMP NAV -->
+            <nav class="roadmap-jump-bar" aria-label="Roadmap sections">
+                <a href="#cleanup-audit" class="jump-link">1. Replace vs. Keep Cleanup</a>
+                <a href="#execution-phases" class="jump-link">2. Engine Migration Phases</a>
+                <a href="#competitor-matrix" class="jump-link">3. Global Competitor Analysis</a>
+                <a href="#enterprise-stack" class="jump-link">4. Target Enterprise Stack</a>
+                <a href="#production-utility" class="jump-link">5. Real-World Utility</a>
+            </nav>
+
+
+            <!-- SECTION 1: REPLACE VS KEEP CLEANUP AUDIT -->
+            <section class="content-card roadmap-section" id="cleanup-audit">
+
+                <div class="section-header-inline">
+                    <div>
+                        <div class="eyebrow">STRUCTURAL CLEANUP</div>
+                        <h2>What Gets Replaced vs. What Stays &amp; Evolves</h2>
+                        <p>
+                            A deliberate audit of the current browser prototype: eliminating sandbox workarounds while
+                            preserving the core architecture choices that make the platform transparent and fast.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="cleanup-grid">
+
+                    <!-- REPLACE COLUMN -->
+                    <div class="cleanup-column replace-col">
+                        <div class="column-header">
+                            <span class="phase-badge replace">REPLACE / REMOVE</span>
+                            <h3>Browser Workarounds &rarr; Native Engines</h3>
+                        </div>
+
+                        <ul class="cleanup-list">
+                            <li class="cleanup-item">
+                                <div class="cleanup-item-top">
+                                    <strong>Browser Hardware Sandbox Probes</strong>
+                                    <span class="engine-tag">RUST + C++ DAEMON</span>
+                                </div>
+                                <p>
+                                    <em>Current:</em> Restricted to WebGL renderer, FPS, heap, and battery APIs; OS blocks
+                                    CPU%, per-core clocks, NPU load, and °C thermals.
+                                </p>
+                                <p class="target-line">
+                                    <strong>Replacement:</strong> Lightweight Rust collector (<code>sysinfo</code> + eBPF)
+                                    with C++ hardware FFI (NVML, Qualcomm QNN, Windows PDH/WMI, Linux <code>hwmon</code>)
+                                    streaming sub-second metrics via gRPC.
+                                </p>
+                            </li>
+
+                            <li class="cleanup-item">
+                                <div class="cleanup-item-top">
+                                    <strong>IndexedDB Tab-Local Storage (<code>NexusAI_DB</code>)</strong>
+                                    <span class="engine-tag">TIMESCALEDB / CLICKHOUSE</span>
+                                </div>
+                                <p>
+                                    <em>Current:</em> Single-machine browser storage capped by local quota, lacking
+                                    cross-device queries, compression, or retention policies.
+                                </p>
+                                <p class="target-line">
+                                    <strong>Replacement:</strong> Rust ingestion worker buffering to local WAL/SQLite during
+                                    outages and batch-writing into TimescaleDB or ClickHouse with tiered downsampling.
+                                </p>
+                            </li>
+
+                            <li class="cleanup-item">
+                                <div class="cleanup-item-top">
+                                    <strong>Single-Thread JS Statistical Heuristics</strong>
+                                    <span class="engine-tag">PYTHON ML + C++ ONNX</span>
+                                </div>
+                                <p>
+                                    <em>Current:</em> Univariate Z-scores, linear OLS, and <em>t</em>-tests in
+                                    <code>js/ai-engine.js</code> cannot model multivariate hardware-thermal interactions.
+                                </p>
+                                <p class="target-line">
+                                    <strong>Replacement:</strong> Python analytics engine (<code>scikit-learn</code>,
+                                    <code>PyTorch</code>, <code>statsmodels</code>) for drift &amp; Remaining Useful Life
+                                    (RUL), compiled to C++ <code>ONNX Runtime</code> / TensorRT for edge scoring.
+                                </p>
+                            </li>
+
+                            <li class="cleanup-item">
+                                <div class="cleanup-item-top">
+                                    <strong>UI Simulation Loop &amp; Static Hardware JSON</strong>
+                                    <span class="engine-tag">REPLAY HARNESS + GRPC DISCOVERY</span>
+                                </div>
+                                <p>
+                                    <em>Current:</em> Synthetic timers in <code>telemetry.js</code> and static device cards
+                                    in <code>gallery.js</code>.
+                                </p>
+                                <p class="target-line">
+                                    <strong>Replacement:</strong> Deterministic Rust/Python fault-injection &amp; trace
+                                    replay CLI for QA, plus live mDNS / Kubernetes Device Plugin node auto-discovery.
+                                </p>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- KEEP & UPGRADE COLUMN -->
+                    <div class="cleanup-column keep-col">
+                        <div class="column-header">
+                            <span class="phase-badge keep">KEEP &amp; UPGRADE</span>
+                            <h3>Proven Design Foundations Worth Retaining</h3>
+                        </div>
+
+                        <ul class="cleanup-list">
+                            <li class="cleanup-item">
+                                <div class="cleanup-item-top">
+                                    <strong>Explicit Data Provenance (<code>inputMode</code>)</strong>
+                                    <span class="engine-tag">AUDIT INTEGRITY</span>
+                                </div>
+                                <p>
+                                    Strictly tagging every sample as <code>DEVICE</code>, <code>SIMULATED</code>,
+                                    <code>MANUAL</code>, or <code>IMPORT</code> prevents test noise from polluting
+                                    production ML training sets or paging on-call engineers.
+                                </p>
+                                <p class="target-line">
+                                    <strong>Upgrade:</strong> Promote <code>inputMode</code> into a first-class Protobuf
+                                    enum and signed ingestion metadata field across the TSDB schema.
+                                </p>
+                            </li>
+
+                            <li class="cleanup-item">
+                                <div class="cleanup-item-top">
+                                    <strong>Unified Source &rarr; Metric &rarr; Threshold Model</strong>
+                                    <span class="engine-tag">SCHEMA CONTRACT</span>
+                                </div>
+                                <p>
+                                    The structured source configuration (metrics, units, warning/critical bounds,
+                                    direction-aware thresholds, sampling rate) already maps cleanly to real monitoring rules.
+                                </p>
+                                <p class="target-line">
+                                    <strong>Upgrade:</strong> Formalize as versioned YAML/JSON manifests and OpenAPI/gRPC
+                                    contracts compatible with Prometheus &amp; OpenTelemetry semantics.
+                                </p>
+                            </li>
+
+                            <li class="cleanup-item">
+                                <div class="cleanup-item-top">
+                                    <strong>Web Serial / Web Bluetooth Field Diagnostics</strong>
+                                    <span class="engine-tag">ZERO-INSTALL LAB MODE</span>
+                                </div>
+                                <p>
+                                    Direct browser UART and BLE GATT pairing is genuinely valuable for field technicians
+                                    debugging an ESP32, Arduino, or sensor node over USB without installing drivers.
+                                </p>
+                                <p class="target-line">
+                                    <strong>Upgrade:</strong> Keep as an optional "Direct Bench Diagnostics" mode alongside
+                                    the persistent Rust/C++ fleet agent.
+                                </p>
+                            </li>
+
+                            <li class="cleanup-item">
+                                <div class="cleanup-item-top">
+                                    <strong>Statistical Inference Baseline &amp; High-Legibility UI</strong>
+                                    <span class="engine-tag">EXPLAINABILITY &amp; UX</span>
+                                </div>
+                                <p>
+                                    Student&rsquo;s <em>t</em> intervals, Welch shift tests, DPI-scaled Canvas charts, and the
+                                    low-noise monochrome layout deliver clarity without dashboard bloat.
+                                </p>
+                                <p class="target-line">
+                                    <strong>Upgrade:</strong> Keep classical statistical tests as fast, explainable sanity
+                                    guardrails next to Python deep-learning detectors, backed by WebGL-accelerated charting.
+                                </p>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- SECTION 2: PHASED MIGRATION TIMELINE -->
+            <section class="content-card roadmap-section" id="execution-phases">
+
+                <div class="section-header-inline">
+                    <div>
+                        <div class="eyebrow">EXECUTION SEQUENCE</div>
+                        <h2>Four-Phase Evolution Plan</h2>
+                        <p>
+                            Incremental migration path from the live browser prototype to distributed Rust, C++, and
+                            Python enterprise services without breaking existing workflows.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="phases-grid">
+
+                    <article class="phase-card is-completed">
+                        <div class="phase-card-top">
+                            <span class="phase-number">PHASE 01</span>
+                            <span class="phase-status completed">COMPLETED · LIVE</span>
+                        </div>
+                        <h3>Browser-First Prototype &amp; UX Foundation</h3>
+                        <p>
+                            Zero-dependency web platform proving the end-to-end UX, IndexedDB storage layer,
+                            Workspace CRUD, CSV/JSON portability, Web Serial/BLE/WS pairing, WebGL2 benchmarks,
+                            and pure-JS statistical inference.
+                        </p>
+                        <ul class="milestone-checks">
+                            <li>7-page monochrome operator interface</li>
+                            <li>Source/metric builder &amp; bidirectional threshold alerts</li>
+                            <li>Student&rsquo;s <em>t</em> CI/PI, OLS slope &amp; Welch shift tests</li>
+                        </ul>
+                    </article>
+
+                    <article class="phase-card">
+                        <div class="phase-card-top">
+                            <span class="phase-number">PHASE 02</span>
+                            <span class="phase-status next">NEXT · RUST &amp; C++ CORE</span>
+                        </div>
+                        <h3>Native Edge Collector &amp; Hardware Telemetry</h3>
+                        <p>
+                            Build <code>nexus-agent</code> in Rust with C++ FFI drivers to bypass browser sandboxes,
+                            unlocking real per-core CPU, GPU/NPU utilization, wattage, fan RPM, and thermal headroom
+                            at sub-second intervals.
+                        </p>
+                        <ul class="milestone-checks">
+                            <li>Rust collector (<code>tokio</code> + eBPF + <code>sysinfo</code>) &lt; 15 MB RAM</li>
+                            <li>C++ FFI bridges for NVML, QNN/Adreno, ROCm &amp; WMI</li>
+                            <li>Local SQLite/WAL ring-buffer for offline edge resilience</li>
+                        </ul>
+                    </article>
+
+                    <article class="phase-card">
+                        <div class="phase-card-top">
+                            <span class="phase-number">PHASE 03</span>
+                            <span class="phase-status planned">PLANNED · PYTHON &amp; ONNX</span>
+                        </div>
+                        <h3>Python ML Pipeline &amp; C++ Edge Inference</h3>
+                        <p>
+                            Move analytics server-side into Python for multivariate forecasting and hardware-to-model
+                            correlation, compiling lightweight anomaly detectors to C++/Rust ONNX Runtime on edge nodes.
+                        </p>
+                        <ul class="milestone-checks">
+                            <li>Python FastAPI/gRPC service (<code>PyTorch</code>, <code>scikit-learn</code>, <code>Evidently</code>)</li>
+                            <li>Multivariate Isolation Forest &amp; thermal-throttle RUL modeling</li>
+                            <li>P50/P95/P99 model latency + hardware drift correlation</li>
+                        </ul>
+                    </article>
+
+                    <article class="phase-card">
+                        <div class="phase-card-top">
+                            <span class="phase-number">PHASE 04</span>
+                            <span class="phase-status enterprise">FUTURE · ENTERPRISE SCALE</span>
+                        </div>
+                        <h3>Multi-Tenant Fleet Control Plane</h3>
+                        <p>
+                            Harden NexusAI for multi-cluster enterprise operations with open observability protocols,
+                            columnar time-series storage, security governance, and automated incident routing.
+                        </p>
+                        <ul class="milestone-checks">
+                            <li>TimescaleDB / ClickHouse + OpenTelemetry (OTLP) &amp; PromQL</li>
+                            <li>OIDC/SSO, RBAC, mTLS device certs &amp; immutable audit logs</li>
+                            <li>PagerDuty / Slack / Webhook Alertmanager + Helm charts</li>
+                        </ul>
+                    </article>
+
+                </div>
+
+            </section>
+
+
+            <!-- SECTION 3: GLOBAL COMPETITOR BENCHMARK MATRIX -->
+            <section class="content-card roadmap-section" id="competitor-matrix">
+
+                <div class="section-header-inline">
+                    <div>
+                        <div class="eyebrow">GLOBAL BENCHMARKING</div>
+                        <h2>Learning from Leading Telemetry &amp; Edge AI Platforms</h2>
+                        <p>
+                            How top production tools solve observability—where each leaves a gap for edge AI hardware,
+                            and the exact capabilities NexusAI adopts to surpass generic dashboards.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="data-table-wrapper">
+                    <table class="data-table roadmap-table">
+                        <thead>
+                            <tr>
+                                <th>Reference Platform</th>
+                                <th>Core Tech</th>
+                                <th>What They Do Best</th>
+                                <th>Gap for Edge AI Teams</th>
+                                <th>What NexusAI Adopts &amp; Improves</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Netdata</strong></td>
+                                <td><span class="tech-pill">C / C++ / Rust</span></td>
+                                <td>Sub-second per-core/eBPF collection at &lt;1% CPU with zero-config charts.</td>
+                                <td>Minimal focus on NPU tensor throughput or ML model inference drift.</td>
+                                <td>Adopt low-overhead Rust + eBPF collector loop and add dedicated NPU/ML inference channels.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>NVIDIA DCGM &amp; jtop</strong></td>
+                                <td><span class="tech-pill">C++ / CUDA / NVML</span></td>
+                                <td>Exact SM occupancy, VRAM ECC errors, thermal throttle reasons &amp; wattage.</td>
+                                <td>Locked strictly to NVIDIA GPUs/Jetson; blind to Snapdragon, Intel, AMD, or MCUs.</td>
+                                <td>Build vendor-neutral C++ FFI hardware adapters unifying NVIDIA, Adreno/QNN, Apple, AMD &amp; ESP32.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Grafana + Prometheus</strong></td>
+                                <td><span class="tech-pill">Go / PromQL / OTel</span></td>
+                                <td>Industry-standard OTLP/Prometheus scraping, fleet dashboards &amp; Alertmanager.</td>
+                                <td>Heavy YAML boilerplate; requires manual queries with no built-in statistical inference.</td>
+                                <td>Support OTLP &amp; <code>/metrics</code> interoperability while keeping auto-computed <em>t</em>-tests &amp; plain-English diagnoses.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Weights &amp; Biases / Arize</strong></td>
+                                <td><span class="tech-pill">Python / ML Ops</span></td>
+                                <td>Deep tracking of model latency percentiles, output drift &amp; evaluation runs.</td>
+                                <td>Disconnected from edge thermal throttling, battery sag &amp; MCU sensor health.</td>
+                                <td>Correlate hardware bottlenecks (CPU/GPU heat, power limits) directly against Python/ONNX inference latency.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>BalenaCloud / Edge Impulse</strong></td>
+                                <td><span class="tech-pill">Fleet / Embedded</span></td>
+                                <td>Managed edge device fleets, offline buffering &amp; embedded microcontroller pipelines.</td>
+                                <td>Proprietary SaaS lock-in and per-device cloud pricing at scale.</td>
+                                <td>Self-hostable open architecture combining offline Rust WAL ring-buffers with browser Web Serial/BLE bench checks.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </section>
+
+
+            <!-- SECTION 4: TARGET ENTERPRISE STACK -->
+            <section class="content-card roadmap-section" id="enterprise-stack">
+
+                <div class="section-header-inline">
+                    <div>
+                        <div class="eyebrow">TARGET ARCHITECTURE</div>
+                        <h2>Post-Migration Multi-Engine Stack</h2>
+                        <p>
+                            Assigning each language to the layer where it performs best rather than forcing JavaScript
+                            to handle systems telemetry or heavy ML math.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="stack-layers-grid">
+
+                    <article class="stack-layer-card">
+                        <div class="layer-badge">EDGE COLLECTOR LAYER</div>
+                        <h3>Rust + C++ Agents</h3>
+                        <ul>
+                            <li><strong>Rust (<code>tokio</code>, <code>tonic</code>, <code>sysinfo</code>):</strong> Memory-safe daemon, gRPC streaming, eBPF network/process probes, SQLite WAL ring-buffer.</li>
+                            <li><strong>C++20 FFI Plugins:</strong> Direct bindings to NVML, CUDA, Qualcomm QNN NPU SDK, DirectML/ROCm, and industrial Modbus/CAN buses.</li>
+                            <li><strong>Footprint Goal:</strong> &lt; 1% CPU overhead and &lt; 15 MB RSS memory per edge node.</li>
+                        </ul>
+                    </article>
+
+                    <article class="stack-layer-card">
+                        <div class="layer-badge">INTELLIGENCE LAYER</div>
+                        <h3>Python ML + ONNX Runtime</h3>
+                        <ul>
+                            <li><strong>Python (<code>FastAPI</code>, <code>PyTorch</code>, <code>scikit-learn</code>):</strong> Offline training of Isolation Forests, LSTM/Temporal Fusion forecasting &amp; drift audits.</li>
+                            <li><strong>C++ / Rust Inference:</strong> Export trained models via ONNX for real-time edge anomaly scoring without Python GIL overhead.</li>
+                            <li><strong>Statistical Guardrails:</strong> Retain Student&rsquo;s <em>t</em> intervals &amp; Welch shift tests for deterministic, interpretable alerts.</li>
+                        </ul>
+                    </article>
+
+                    <article class="stack-layer-card">
+                        <div class="layer-badge">STORAGE &amp; CONTROL PLANE</div>
+                        <h3>TSDB + Enterprise Security</h3>
+                        <ul>
+                            <li><strong>Time-Series Engine:</strong> TimescaleDB or ClickHouse with automatic 1s &rarr; 1m &rarr; 1h rollup policies and Zstandard compression.</li>
+                            <li><strong>Open Protocols:</strong> OpenTelemetry (OTLP), Prometheus exposition, WebSockets for live UI push, REST/gRPC APIs.</li>
+                            <li><strong>Governance:</strong> mTLS node identity, OIDC/SSO, role-based access control, and immutable alert audit logs.</li>
+                        </ul>
+                    </article>
+
+                </div>
+
+            </section>
+
+
+            <!-- SECTION 5: WHAT MAKES IT GENUINELY USEFUL -->
+            <section class="content-card roadmap-section" id="production-utility">
+
+                <div class="section-header-inline">
+                    <div>
+                        <div class="eyebrow">PRACTICAL VALUE</div>
+                        <h2>What Turns NexusAI Into a Truly Useful Platform</h2>
+                        <p>
+                            Beyond visual graphs, four engineering capabilities determine whether operators actually
+                            rely on a monitoring tool every day.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="utility-grid">
+
+                    <article class="utility-card">
+                        <span class="utility-num">01</span>
+                        <h3>Hardware-to-Model Correlation</h3>
+                        <p>
+                            When an edge vision or LLM model slows down, most tools only show API latency. NexusAI
+                            correlates P95 inference spikes directly with NPU clock drops, thermal throttling, or
+                            battery power-saving states on the same timeline.
+                        </p>
+                    </article>
+
+                    <article class="utility-card">
+                        <span class="utility-num">02</span>
+                        <h3>Offline-First Edge Resilience</h3>
+                        <p>
+                            Real robots, factory gateways, and mobile laptops lose Wi-Fi/5G. The Rust agent keeps
+                            writing telemetry to a bounded local disk ring-buffer and seamlessly backfills missed
+                            windows once connectivity returns.
+                        </p>
+                    </article>
+
+                    <article class="utility-card">
+                        <span class="utility-num">03</span>
+                        <h3>One-Click Lab Check + Fleet Scale</h3>
+                        <p>
+                            Keep the browser&rsquo;s Web Serial / Web Bluetooth pairing for instant 10-second bench
+                            debugging of microcontrollers, while scaling Linux, Windows, and Jetson fleets via
+                            containerized Rust daemons.
+                        </p>
+                    </article>
+
+                    <article class="utility-card">
+                        <span class="utility-num">04</span>
+                        <h3>Actionable Diagnostics Over Noise</h3>
+                        <p>
+                            Instead of flooding Slack with static threshold spam, combine hysteresis windows, Welch
+                            distribution shift tests, and Python anomaly root-cause summaries so every alert maps to
+                            a clear fix.
+                        </p>
+                    </article>
+
+                </div>
+
+            </section>
+
+
+            <!-- TRANSPARENCY NOTICE -->
+            <section class="roadmap-notice">
+                <div class="notice-icon">ⓘ</div>
+                <div>
+                    <strong>Prototype Baseline vs. Post-Assessment Engineering Plan</strong>
+                    <p>
+                        <strong>Phase 1</strong> is live across this site right now using browser-native APIs and
+                        <code>IndexedDB</code> to satisfy pure-frontend constraints. <strong>Phases 2&ndash;4</strong>
+                        document the post-assessment architecture cleanup replacing browser-sandboxed parts with
+                        <strong>Rust</strong>, <strong>C++</strong>, and <strong>Python</strong> services.
+                    </p>
+                </div>
+            </section>
+
+
+            <!-- FOOTER -->
+            <footer class="main-footer">
+                <div>
+                    <strong>NexusAI</strong>
+                    <span>High-Throughput Edge AI &amp; Telemetry Platform</span>
+                </div>
+                <p>Architecture Evolution · Rust, C++, Python &amp; Enterprise Observability Roadmap</p>
+            </footer>
+
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+</html>
