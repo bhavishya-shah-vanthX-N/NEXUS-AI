@@ -140,24 +140,12 @@
 
     async function inspectCapabilities() {
         const gpu = getWebGLGpuInfo();
-        let webGpuAdapterName = null;
-
-        if ("gpu" in navigator && navigator.gpu) {
-            try {
-                const adapter = await navigator.gpu.requestAdapter();
-                if (adapter) {
-                    const info = adapter.info || {};
-                    webGpuAdapterName =
-                        info.description ||
-                        info.device ||
-                        info.architecture ||
-                        info.vendor ||
-                        "WebGPU Adapter Ready";
-                }
-            } catch (err) {
-                webGpuAdapterName = null;
-            }
-        }
+        const hasWebGpuApi = Boolean("gpu" in navigator && navigator.gpu);
+        const webGpuAdapterName = !hasWebGpuApi
+            ? null
+            : window.isSecureContext
+                ? "WebGPU API Present (WebGL2 Active)"
+                : "WebGPU requires localhost/HTTPS";
 
         let batteryInfo = null;
         if (typeof navigator.getBattery === "function") {
@@ -190,7 +178,7 @@
             cores: navigator.hardwareConcurrency || null,
             deviceMemoryGB: navigator.deviceMemory || null,
             gpu,
-            hasWebGPU: Boolean("gpu" in navigator && navigator.gpu),
+            hasWebGPU: hasWebGpuApi,
             webGpuAdapterName,
             hasWebNN: Boolean("ml" in navigator),
             hasBattery: typeof navigator.getBattery === "function",

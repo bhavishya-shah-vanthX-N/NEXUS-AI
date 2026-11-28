@@ -1,0 +1,599 @@
+/* =========================================================
+   NEXUSAI — DEVELOPMENT ROADMAP STYLES
+   File: css/roadmap.css
+   Theme: Neutral Dark-Gray & Crisp White (via variables.css)
+   ========================================================= */
+
+/* ---------- HEADER & ACTIONS ---------- */
+
+.roadmap-page-header {
+    margin-bottom: 24px;
+}
+
+.page-header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+/* ---------- KPI OVERVIEW STRIP ---------- */
+
+.roadmap-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.roadmap-kpi-card {
+    padding: 18px 20px;
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.14));
+    border-radius: var(--radius-lg, 12px);
+    background: var(--bg-surface, #1e1e1e);
+    transition: border-color var(--transition-fast, 180ms ease), transform var(--transition-fast, 180ms ease);
+}
+
+.roadmap-kpi-card:hover {
+    border-color: var(--border-medium, rgba(255, 255, 255, 0.26));
+    transform: translateY(-2px);
+}
+
+.kpi-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.kpi-label {
+    color: var(--text-muted, #b8b8b8);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+}
+
+.kpi-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.14));
+    border-radius: 8px;
+    background: var(--bg-secondary, #191919);
+    color: var(--text-primary, #ffffff);
+    font-size: 14px;
+}
+
+.kpi-value {
+    color: var(--text-primary, #ffffff);
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.6px;
+    line-height: 1.2;
+}
+
+.kpi-meta {
+    margin-top: 6px;
+    color: var(--text-secondary, #f2f2f2);
+    font-size: 11px;
+    opacity: 0.78;
+}
+
+/* ---------- QUICK JUMP NAV ---------- */
+
+.roadmap-jump-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 24px;
+    padding: 12px 14px;
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.14));
+    border-radius: var(--radius-lg, 12px);
+    background: var(--bg-secondary, #191919);
+}
+
+.jump-link {
+    padding: 7px 12px;
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.14));
+    border-radius: var(--radius-sm, 6px);
+    background: var(--bg-surface, #1e1e1e);
+    color: var(--text-secondary, #f2f2f2);
+    font-size: 11px;
+    font-weight: 600;
+    transition: background var(--transition-fast, 180ms ease), border-color var(--transition-fast, 180ms ease), color var(--transition-fast, 180ms ease);
+}
+
+.jump-link:hover {
+    background: var(--bg-elevated, #2d2d2d);
+    border-color: var(--border-medium, rgba(255, 255, 255, 0.26));
+    color: var(--text-primary, #ffffff);
+}
+
+/* ---------- SHARED ROADMAP SECTIONS ---------- */
+
+.roadmap-section {
+    margin-bottom: 24px;
+    scroll-margin-top: 86px;
+}
+
+.section-header-inline {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.section-header-inline .eyebrow {
+    margin-bottom: 6px;
+}
+
+.section-header-inline h2 {
+    margin-bottom: 6px;
+    font-size: 20px;
+    color: var(--text-primary, #ffffff);
+}
+
+.section-header-inline p {
+    max-width: 780px;
+    font-size: 12px;
+    color: var(--text-muted, #b8b8b8);
+}
+
+.roadmap-section code,
+.roadmap-notice code {
+    padding: 2px 6px;
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.14));
+    border-radius: 5px;
+    background: var(--bg-secondary, #191919);
+    color: var(--text-primary, #ffffff);
+    font-family: var(--font-mono, "Consolas", monospace);
+    font-size: 11px;
+}
+
+/* ---------- SECTION 1: REPLACE VS KEEP AUDIT ---------- */
+
+.cleanup-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.cleanup-column {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 18px;
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.14));
+    border-radius: var(--radius-lg, 12px);
+    background: var(--bg-secondary, #191919);
+}
+
+.replace-col {
+    border-top: 2px solid var(--status-warning, #f59e0b);
+}
+
+.keep-col {
+    border-top: 2px solid var(--status-nominal, #22c55e);
+}
+
+.column-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.14));
+}
+
+.column-header h3 {
+    font-size: 15px;
+    color: var(--text-primary, #ffffff);
+}
+
+.phase-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 9px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.9px;
+}
+
+.phase-badge.replace {
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    color: #fbbf24;
+}
+
+.phase-badge.keep {
+    background: rgba(34, 197, 94, 0.12);
+    border: 1px solid rgba(34, 197, 94, 0.35);
+    color: #4ade80;
+}
+
+.cleanup-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.cleanup-item {
+    padding: 14px 15px;
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.14));
+    border-radius: 10px;
+    background: var(--bg-surface, #1e1e1e);
+}
+
+.cleanup-item-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.cleanup-item-top strong {
+    font-size: 13px;
+    color: var(--text-primary, #ffffff);
+}
+
+.engine-tag {
+    flex-shrink: 0;
+    padding: 3px 8px;
+    border: 1px solid var(--border-medium, rgba(255, 255, 255, 0.24));
+    border-radius: 5px;
+    background: var(--bg-surface-strong, #252525);
+    color: var(--text-secondary, #f2f2f2);
+    font-family: var(--font-mono, "Consolas", monospace);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+}
+
+.cleanup-item p {
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text-muted, #b8b8b8);
+}
+
+.cleanup-item .target-line {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border-subtle, rgba(255, 255, 255, 0.12));
+    color: var(--text-secondary, #f2f2f2);
+}
+
+/* ---------- SECTION 2: PHASED TIMELINE ---------- */
+
+.phases-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.phase-card {
+    display: flex;
+    flex-direction: column;
+    padding: 18px;
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.14));
+    border-radius: var(--radius-lg, 12px);
+    background: var(--bg-secondary, #191919);
+    transition: border-color var(--transition-fast, 180ms ease), background var(--transition-fast, 180ms ease);
+}
+
+.phase-card:hover {
+    border-color: var(--border-medium, rgba(255, 255, 255, 0.26));
+    background: var(--bg-surface-strong, #252525);
+}
+
+.phase-card.is-completed {
+    border-color: rgba(34, 197, 94, 0.32);
+}
+
+.phase-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.phase-number {
+    font-family: var(--font-mono, "Consolas", monospace);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted, #b8b8b8);
+    letter-spacing: 0.8px;
+}
+
+.phase-status {
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.7px;
+}
+
+.phase-status.completed {
+    background: rgba(34, 197, 94, 0.14);
+    border: 1px solid rgba(34, 197, 94, 0.35);
+    color: #4ade80;
+}
+
+.phase-status.next {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: #ffffff;
+}
+
+.phase-status.planned {
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: #fbbf24;
+}
+
+.phase-status.enterprise {
+    background: var(--bg-elevated, #2d2d2d);
+    border: 1px solid var(--border-medium, rgba(255, 255, 255, 0.24));
+    color: var(--text-secondary, #f2f2f2);
+}
+
+.phase-card h3 {
+    margin-bottom: 8px;
+    font-size: 15px;
+    color: var(--text-primary, #ffffff);
+}
+
+.phase-card p {
+    margin-bottom: 14px;
+    font-size: 12px;
+    line-height: 1.65;
+    color: var(--text-muted, #b8b8b8);
+}
+
+.milestone-checks {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.12));
+}
+
+.milestone-checks li {
+    position: relative;
+    padding-left: 16px;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--text-secondary, #f2f2f2);
+}
+
+.milestone-checks li::before {
+    content: "›";
+    position: absolute;
+    left: 2px;
+    top: -1px;
+    color: var(--text-primary, #ffffff);
+    font-weight: 700;
+}
+
+/* ---------- SECTION 3: COMPETITOR MATRIX TABLE ---------- */
+
+.roadmap-table th,
+.roadmap-table td {
+    white-space: normal;
+    vertical-align: top;
+    line-height: 1.6;
+    font-size: 12px;
+}
+
+.roadmap-table th {
+    color: var(--text-primary, #ffffff);
+    background: var(--bg-secondary, #191919);
+    letter-spacing: 0.4px;
+}
+
+.roadmap-table td {
+    min-width: 155px;
+    color: var(--text-muted, #b8b8b8);
+}
+
+.roadmap-table td:first-child {
+    min-width: 150px;
+    color: var(--text-primary, #ffffff);
+}
+
+.roadmap-table td:last-child {
+    min-width: 240px;
+    color: var(--text-secondary, #f2f2f2);
+}
+
+.roadmap-table tbody tr:hover td {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.tech-pill {
+    display: inline-block;
+    padding: 3px 8px;
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.16));
+    border-radius: 5px;
+    background: var(--bg-secondary, #191919);
+    color: var(--text-primary, #ffffff);
+    font-family: var(--font-mono, "Consolas", monospace);
+    font-size: 10px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* ---------- SECTION 4: TARGET STACK LAYERS ---------- */
+
+.stack-layers-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.stack-layer-card {
+    padding: 18px;
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.14));
+    border-radius: var(--radius-lg, 12px);
+    background: var(--bg-secondary, #191919);
+}
+
+.layer-badge {
+    display: inline-block;
+    margin-bottom: 10px;
+    padding: 4px 8px;
+    border: 1px solid var(--border-medium, rgba(255, 255, 255, 0.24));
+    border-radius: 5px;
+    background: var(--bg-elevated, #2d2d2d);
+    color: var(--text-primary, #ffffff);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.9px;
+}
+
+.stack-layer-card h3 {
+    margin-bottom: 12px;
+    font-size: 16px;
+    color: var(--text-primary, #ffffff);
+}
+
+.stack-layer-card ul {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.stack-layer-card li {
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text-muted, #b8b8b8);
+}
+
+.stack-layer-card li strong {
+    color: var(--text-primary, #ffffff);
+}
+
+/* ---------- SECTION 5: PRACTICAL UTILITY ---------- */
+
+.utility-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.utility-card {
+    padding: 18px;
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.14));
+    border-radius: var(--radius-lg, 12px);
+    background: var(--bg-secondary, #191919);
+}
+
+.utility-num {
+    display: inline-block;
+    margin-bottom: 10px;
+    font-family: var(--font-mono, "Consolas", monospace);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted, #b8b8b8);
+}
+
+.utility-card h3 {
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: var(--text-primary, #ffffff);
+}
+
+.utility-card p {
+    font-size: 12px;
+    line-height: 1.65;
+    color: var(--text-muted, #b8b8b8);
+}
+
+/* ---------- NOTICE BANNER ---------- */
+
+.roadmap-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 28px;
+    padding: 16px 20px;
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.16));
+    border-radius: var(--radius-lg, 12px);
+    background: var(--bg-surface, #1e1e1e);
+}
+
+.notice-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    border: 1px solid var(--border-medium, rgba(255, 255, 255, 0.24));
+    border-radius: 50%;
+    background: var(--bg-secondary, #191919);
+    color: var(--text-primary, #ffffff);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.roadmap-notice strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 13px;
+    color: var(--text-primary, #ffffff);
+}
+
+.roadmap-notice p {
+    font-size: 12px;
+    line-height: 1.65;
+    color: var(--text-muted, #b8b8b8);
+}
+
+/* ---------- RESPONSIVE BREAKPOINTS ---------- */
+
+@media (max-width: 1200px) {
+    .roadmap-kpi-grid,
+    .phases-grid,
+    .utility-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .stack-layers-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 850px) {
+    .cleanup-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cleanup-item-top {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 650px) {
+    .roadmap-kpi-grid,
+    .phases-grid,
+    .utility-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .roadmap-jump-bar {
+        flex-direction: column;
+    }
+
+    .jump-link {
+        text-align: center;
+    }
+}
