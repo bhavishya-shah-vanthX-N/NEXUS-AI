@@ -1,75 +1,79 @@
-
 /* =========================================================
    NEXUSAI — GLOBAL DESIGN TOKENS
    File: css/variables.css
-   Purpose: Centralized visual configuration
+   Purpose: Balanced neutral dark-gray & white configuration
    ========================================================= */
 
 :root {
 
     /* =========================================
-       1. BACKGROUND COLORS
+       1. BACKGROUND COLORS (NEUTRAL GRAY SCALE)
     ========================================= */
 
-    --bg-primary: #070b14;
-    --bg-secondary: #0b1220;
-    --bg-surface: #111c2e;
-    --bg-surface-strong: #17243a;
-    --bg-elevated: #1c2b42;
-    --bg-overlay: rgba(4, 9, 18, 0.85);
+    --bg-primary: #141414;
+    --bg-secondary: #191919;
+    --bg-surface: #1e1e1e;
+    --bg-surface-strong: #252525;
+    --bg-elevated: #2d2d2d;
+    --bg-card: #1e1e1e;
+    --surface-card: #1e1e1e;
+    --bg-input: #141414;
+    --bg-overlay: rgba(16, 16, 16, 0.88);
 
 
     /* =========================================
-       2. TEXT COLORS
+       2. TEXT COLORS (CRISP WHITE)
     ========================================= */
 
-    --text-primary: #f1f5f9;
-    --text-secondary: #a8b6ca;
-    --text-muted: #718096;
-    --text-disabled: #475569;
-    --text-inverse: #06111d;
+    --text-primary: #ffffff;
+    --text-secondary: #f2f2f2;
+    --text-muted: #b8b8b8;
+    --text-disabled: #737373;
+    --text-inverse: #141414;
 
 
     /* =========================================
-       3. BRAND AND ACCENT COLORS
+       3. BRAND AND ACCENT COLORS (MONOCHROME)
     ========================================= */
 
-    --accent-cyan: #22d3ee;
-    --accent-cyan-light: #67e8f9;
-    --accent-cyan-dark: #0891b2;
+    --accent-cyan: #ffffff;
+    --accent-cyan-light: #e5e5e5;
+    --accent-cyan-dark: #d4d4d4;
+    --accent-primary: #ffffff;
 
-    --accent-blue: #3b82f6;
-    --accent-blue-dark: #1d4ed8;
+    --accent-blue: #ffffff;
+    --accent-blue-dark: #d4d4d4;
 
-    --accent-purple: #a78bfa;
+    --accent-purple: #e5e5e5;
 
     --accent-gradient: linear-gradient(
         135deg,
-        #22d3ee,
-        #2563eb
+        #ffffff,
+        #d4d4d4
     );
 
 
     /* =========================================
-       4. SYSTEM STATUS COLORS
+       4. SYSTEM STATUS COLORS (MONOCHROME)
     ========================================= */
 
-    --status-nominal: #22c55e;
-    --status-warning: #f59e0b;
-    --status-critical: #ef4444;
-    --status-info: #38bdf8;
-    --status-offline: #64748b;
+    --status-nominal: #ffffff;
+    --status-warning: #ffffff;
+    --status-critical: #ffffff;
+    --status-info: #ffffff;
+    --status-offline: #a3a3a3;
 
 
     /* =========================================
        5. BORDERS
     ========================================= */
 
-    --border-subtle: rgba(148, 163, 184, 0.14);
-    --border-medium: rgba(148, 163, 184, 0.25);
-    --border-strong: rgba(148, 163, 184, 0.4);
+    --border-subtle: rgba(255, 255, 255, 0.14);
+    --border-medium: rgba(255, 255, 255, 0.26);
+    --border-strong: rgba(255, 255, 255, 0.45);
+    --border-color: rgba(255, 255, 255, 0.16);
 
-    --border-accent: rgba(34, 211, 238, 0.35);
+    --border-accent: rgba(255, 255, 255, 0.65);
 
 
     /* =========================================
@@ -125,16 +129,17 @@
        9. SHADOWS AND DEPTH
     ========================================= */
 
-    --shadow-sm: 0 3px 10px rgba(0, 0, 0, 0.18);
+    --shadow-sm: 0 3px 10px rgba(0, 0, 0, 0.28);
 
     --shadow-card:
-        0 12px 35px rgba(0, 0, 0, 0.3);
+        0 8px 24px rgba(0, 0, 0, 0.35);
 
     --shadow-elevated:
-        0 18px 45px rgba(0, 0, 0, 0.4);
+        0 18px 42px rgba(0, 0, 0, 0.55),
+        0 0 0 1px rgba(255, 255, 255, 0.14);
 
     --shadow-glow-cyan:
-        0 0 25px rgba(34, 211, 238, 0.15);
+        0 0 20px rgba(255, 255, 255, 0.12);
 
 
     /* =========================================
@@ -179,20 +184,20 @@
        13. CHART AND TELEMETRY COLORS
     ========================================= */
 
-    --chart-primary: #22d3ee;
-    --chart-secondary: #3b82f6;
-    --chart-tertiary: #a78bfa;
-    --chart-quaternary: #22c55e;
+    --chart-primary: #ffffff;
+    --chart-secondary: #d4d4d4;
+    --chart-tertiary: #a3a3a3;
+    --chart-quaternary: #ffffff;
 
-    --chart-grid: rgba(148, 163, 184, 0.12);
-    --chart-label: #94a3b8;
+    --chart-grid: rgba(255, 255, 255, 0.12);
+    --chart-label: #f2f2f2;
 
 
     /* =========================================
        14. INTERACTION AND ACCESSIBILITY
     ========================================= */
 
-    --focus-outline: 2px solid #22d3ee;
+    --focus-outline: 2px solid #ffffff;
     --focus-offset: 3px;
 
     --disabled-opacity: 0.45;
