@@ -1,6 +1,7 @@
 /**
- * NexusAI — Statistical AI Analytics & Anomaly Engine
+ * NexusAI — Statistical AI Analytics, Inference & Anomaly Engine
  * Computes rolling Z-score outliers, least-squares linear regression forecasts,
+ * Student-t 95% confidence & prediction intervals, slope & Welch shift p-values,
  * normalized health scores, and rule-based optimization recommendations
  * directly from local IndexedDB telemetry (no external APIs or trained ML).
  */
@@ -11,6 +12,17 @@
 
   const MIN_SAMPLES_FOR_STATS = 5;
   const MAX_CHART_POINTS = 80;
+
+  // Two-tailed Student's t critical values for 95% confidence (alpha = 0.05)
+  const T_CRIT_95_TABLE = [
+    NaN,
+    12.7062, 4.3027, 3.1824, 2.7764, 2.5706,
+    2.4469, 2.3646, 2.3060, 2.2622, 2.2281,
+    2.2010, 2.1788, 2.1604, 2.1448, 2.1314,
+    2.1199, 2.1098, 2.1009, 2.0930, 2.0860,
+    2.0796, 2.0739, 2.0687, 2.0639, 2.0595,
+    2.0555, 2.0518, 2.0484, 2.0452, 2.0423
+  ];
 
   const state = {
     sources: [],
@@ -118,6 +130,13 @@
     return val.toFixed(d);
   }
 
+  function formatPValue(p) {
+    if (!Number.isFinite(p)) return "--";
+    if (p < 0.0001) return "< 0.0001";
+    if (p < 0.01) return p.toFixed(4);
+    return p.toFixed(3);
+  }
+
   function formatTime(ts) {
     const d = new Date(ts);
     if (Number.isNaN(d.getTime())) return "--";
@@ -126,7 +145,7 @@
 
   function normalizeOrigin(reading) {
     const raw = String(
-      reading.inputMode || reading.origin || reading.sourceType || reading.mode || "simulated"
+      reading.inputMode || reading.origin || reading.sourceType || reading.mode || "SIMULATED"
     ).toUpperCase();
     if (raw.includes("DEVICE") || raw.includes("HOST") || raw.includes("SERIAL") || raw.includes("BLE") || raw.includes("WS")) {
       return "DEVICE";
@@ -161,13 +180,102 @@
   }
 
   /* ========================================================================
-     Core Statistical Algorithms (Pure Deterministic Math)
+     Statistical Inference Distributions (Student's t / Incomplete Beta)
+     ======================================================================== */
+
+  function gammaLn(z) {
+    const cof = [
+      76.18009172947146,
+      -86.50532032941677,
+      24.01409824083091,
+      -1.231739572450155,
+      0.001208650973866179,
+      -0.000005395239384953
+    ];
+    let x = z;
+    let y = z;
+    let tmp = x + 5.5;
+    tmp -= (x + 0.5) * Math.log(tmp);
+    let ser = 1.000000000190015;
+    for (let j = 0; j < 6; j++) {
+      y += 1;
+      ser += cof[j] / y;
+    }
+    return -tmp + Math.log((2.5066282746310005 * ser) / x);
+  }
+
+  function betaCf(a, b, x) {
+    const MAXIT = 120;
+    const EPS = 3e-7;
+    const FPMIN = 1e-30;
+    const qab = a + b;
+    const qap = a + 1;
+    const qam = a - 1;
+    let c = 1;
+    let d = 1 - (qab * x) / qap;
+    if (Math.abs(d) < FPMIN) d = FPMIN;
+    d = 1 / d;
+    let h = d;
+
+    for (let m = 1; m <= MAXIT; m++) {
+      const m2 = 2 * m;
+      let aa = (m * (b - m) * x) / ((qam + m2) * (a + m2));
+      d = 1 + aa * d;
+      if (Math.abs(d) < FPMIN) d = FPMIN;
+      c = 1 + aa / c;
+      if (Math.abs(c) < FPMIN) c = FPMIN;
+      d = 1 / d;
+      h *= d * c;
+
+      aa = (-(a + m) * (qab + m) * x) / ((a + m2) * (qap + m2));
+      d = 1 + aa * d;
+      if (Math.abs(d) < FPMIN) d = FPMIN;
+      c = 1 + aa / c;
+      if (Math.abs(c) < FPMIN) c = FPMIN;
+      d = 1 / d;
+      const del = d * c;
+      h *= del;
+      if (Math.abs(del - 1.0) < EPS) break;
+    }
+    return h;
+  }
+
+  function betainc(a, b, x) {
+    if (x <= 0) return 0;
+    if (x >= 1) return 1;
+    const bt = Math.exp(
+      gammaLn(a + b) - gammaLn(a) - gammaLn(b) + a * Math.log(x) + b * Math.log(1 - x)
+    );
+    if (x < (a + 1) / (a + b + 2)) {
+      return (bt * betaCf(a, b, x)) / a;
+    }
+    return 1 - (bt * betaCf(b, a, 1 - x)) / b;
+  }
+
+  function studentTTwoTailedPValue(tStat, df) {
+    if (!Number.isFinite(df) || df <= 0) return NaN;
+    if (!Number.isFinite(tStat)) return 0;
+    if (Math.abs(tStat) < 1e-12) return 1;
+    const x = df / (df + tStat * tStat);
+    const p = betainc(df / 2, 0.5, x);
+    return Math.max(0, Math.min(1, p));
+  }
+
+  function getTCritical95(df) {
+    if (!Number.isFinite(df) || df < 1) return 1.96;
+    const rounded = Math.round(df);
+    if (rounded >= 1 && rounded <= 30) return T_CRIT_95_TABLE[rounded];
+    return 1.95996 + 2.372 / df + 2.822 / (df * df);
+  }
+
+  /* ========================================================================
+     Core Statistical & Inference Algorithms (Pure Deterministic Math)
      ======================================================================== */
 
   function computeDescriptiveStats(values) {
     const n = values.length;
     if (n === 0) {
-      return { count: 0, mean: NaN, stdDev: NaN, min: NaN, max: NaN, cv: 0 };
+      return { count: 0, mean: NaN, stdDev: NaN, stdErr: NaN, min: NaN, max: NaN, cv: 0 };
     }
 
     let sum = 0;
@@ -190,9 +298,94 @@
 
     const variance = n > 1 ? sqDiffSum / (n - 1) : 0;
     const stdDev = Math.sqrt(variance);
+    const stdErr = n > 0 ? stdDev / Math.sqrt(n) : NaN;
     const cv = Math.abs(mean) > 1e-6 ? stdDev / Math.abs(mean) : 0;
 
-    return { count: n, mean, stdDev, min, max, cv };
+    return { count: n, mean, stdDev, stdErr, min, max, cv };
+  }
+
+  function computeMeanConfidenceInterval(stats) {
+    if (!stats || stats.count < 2 || !Number.isFinite(stats.mean)) {
+      return { valid: false, mean: NaN, margin: NaN, lower: NaN, upper: NaN, df: 0, tCrit: NaN };
+    }
+    const df = stats.count - 1;
+    const tCrit = getTCritical95(df);
+    const margin = tCrit * stats.stdErr;
+    return {
+      valid: true,
+      mean: stats.mean,
+      margin,
+      lower: stats.mean - margin,
+      upper: stats.mean + margin,
+      df,
+      tCrit
+    };
+  }
+
+  function computeWelchShiftTest(values) {
+    const n = values.length;
+    if (n < 10) {
+      return {
+        valid: false,
+        reason: "Need >= 10 samples to compare recent window vs earlier baseline",
+        n1: 0,
+        n2: 0,
+        meanBefore: NaN,
+        meanRecent: NaN,
+        diff: NaN,
+        tStat: NaN,
+        df: NaN,
+        pValue: NaN,
+        significant: false
+      };
+    }
+
+    const splitIdx = Math.floor(n / 2);
+    const beforeSlice = values.slice(0, splitIdx);
+    const recentSlice = values.slice(splitIdx);
+    const s1 = computeDescriptiveStats(beforeSlice);
+    const s2 = computeDescriptiveStats(recentSlice);
+
+    const diff = s2.mean - s1.mean;
+    const v1 = (s1.stdDev * s1.stdDev) / s1.count;
+    const v2 = (s2.stdDev * s2.stdDev) / s2.count;
+    const seSq = v1 + v2;
+
+    if (seSq < 1e-12) {
+      const zeroDiff = Math.abs(diff) < 1e-9;
+      return {
+        valid: true,
+        n1: s1.count,
+        n2: s2.count,
+        meanBefore: s1.mean,
+        meanRecent: s2.mean,
+        diff,
+        tStat: zeroDiff ? 0 : Math.sign(diff) * Infinity,
+        df: n - 2,
+        pValue: zeroDiff ? 1 : 0,
+        significant: !zeroDiff
+      };
+    }
+
+    const tStat = diff / Math.sqrt(seSq);
+    const denomDf =
+      (v1 * v1) / Math.max(1, s1.count - 1) +
+      (v2 * v2) / Math.max(1, s2.count - 1);
+    const df = denomDf > 1e-12 ? (seSq * seSq) / denomDf : n - 2;
+    const pValue = studentTTwoTailedPValue(tStat, df);
+
+    return {
+      valid: true,
+      n1: s1.count,
+      n2: s2.count,
+      meanBefore: s1.mean,
+      meanRecent: s2.mean,
+      diff,
+      tStat,
+      df,
+      pValue,
+      significant: Number.isFinite(pValue) && pValue < 0.05
+    };
   }
 
   function detectZScoreAnomalies(readings, metric, zThreshold) {
@@ -227,6 +420,7 @@
 
     for (let i = 0; i < n; i++) {
       const val = values[i];
+      // Use trailing baseline when enough history exists; otherwise overall window
       let baseSlice;
       if (i >= MIN_SAMPLES_FOR_STATS) {
         const start = Math.max(0, i - windowSize);
@@ -285,6 +479,12 @@
         slope: 0,
         intercept: NaN,
         rSquared: 0,
+        residualStdErr: NaN,
+        slopeStdErr: NaN,
+        slopeTStat: NaN,
+        slopePValue: NaN,
+        slopeSignificant: false,
+        df: 0,
         fitted: [],
         forecast: []
       };
@@ -302,10 +502,11 @@
       sumXX += i * i;
     }
 
-    const denom = n * sumXX - sumX * sumX;
-    const slope = Math.abs(denom) > 1e-9 ? (n * sumXY - sumX * sumY) / denom : 0;
-    const intercept = (sumY - slope * sumX) / n;
+    const meanX = sumX / n;
     const meanY = sumY / n;
+    const sxx = sumXX - n * meanX * meanX;
+    const slope = Math.abs(sxx) > 1e-9 ? (sumXY - n * meanX * meanY) / sxx : 0;
+    const intercept = meanY - slope * meanX;
 
     let ssRes = 0;
     let ssTot = 0;
@@ -319,14 +520,39 @@
     }
 
     const rSquared = ssTot > 1e-9 ? Math.max(0, Math.min(1, 1 - ssRes / ssTot)) : 1;
+    const df = n - 2;
+    const residualStdErr = df > 0 ? Math.sqrt(ssRes / df) : 0;
+    const slopeStdErr = sxx > 1e-9 ? residualStdErr / Math.sqrt(sxx) : 0;
+
+    let slopeTStat = 0;
+    let slopePValue = 1;
+    if (slopeStdErr >= 1e-12) {
+      slopeTStat = slope / slopeStdErr;
+      slopePValue = studentTTwoTailedPValue(slopeTStat, df);
+    } else if (Math.abs(slope) > 1e-9) {
+      slopeTStat = Math.sign(slope) * Infinity;
+      slopePValue = 0;
+    }
+    const slopeSignificant = Number.isFinite(slopePValue) && slopePValue < 0.05;
+    const tCrit = getTCritical95(df);
 
     const forecast = [];
     for (let step = 1; step <= forecastSteps; step++) {
       const idx = n - 1 + step;
+      const yHat = slope * idx + intercept;
+      const dx = idx - meanX;
+      const predSe =
+        sxx > 1e-9
+          ? residualStdErr * Math.sqrt(1 + 1 / n + (dx * dx) / sxx)
+          : residualStdErr;
+      const piMargin = tCrit * predSe;
       forecast.push({
         step,
         index: idx,
-        value: slope * idx + intercept
+        value: yHat,
+        piMargin,
+        piLower: yHat - piMargin,
+        piUpper: yHat + piMargin
       });
     }
 
@@ -335,6 +561,12 @@
       slope,
       intercept,
       rSquared,
+      residualStdErr,
+      slopeStdErr,
+      slopeTStat,
+      slopePValue,
+      slopeSignificant,
+      df,
       fitted,
       forecast
     };
@@ -419,7 +651,7 @@
     };
   }
 
-  function buildRecommendations(source, metric, analysis, regression, healthItem) {
+  function buildRecommendations(source, metric, analysis, regression, healthItem, meanCI, welchTest) {
     const recs = [];
     const n = analysis.points.length;
 
@@ -439,7 +671,7 @@
         level: "warning",
         tag: "LOW SAMPLE",
         title: `Need at least ${MIN_SAMPLES_FOR_STATS} readings for ${metric.name}`,
-        body: `Currently only ${n} sample(s) match your origin filter. Stream Live Telemetry or import CSV history before relying on Z-score or slope forecasts.`
+        body: `Currently only ${n} sample(s) match your origin filter. Stream Live Telemetry or import CSV history before relying on Z-score or statistical inference.`
       });
       return recs;
     }
@@ -456,26 +688,55 @@
       });
     }
 
+    // Formal Welch's t-test for mean shift
+    if (welchTest && welchTest.valid && welchTest.significant) {
+      const deltaSign = welchTest.diff > 0 ? "+" : "";
+      const adverseShift = lowerIsWorse ? welchTest.diff < 0 : welchTest.diff > 0;
+      recs.push({
+        level: adverseShift ? "warning" : "info",
+        tag: "T-TEST SHIFT",
+        title: `Statistically significant baseline shift detected (p=${formatPValue(welchTest.pValue)})`,
+        body: `Welch's t-test (t=${formatNumber(welchTest.tStat, 2)}, df=${Math.round(welchTest.df)}) shows recent mean (${formatNumber(welchTest.meanRecent)}) shifted by ${deltaSign}${formatNumber(welchTest.diff)} ${metric.unit || ""} vs earlier window (${formatNumber(welchTest.meanBefore)}).`
+      });
+    }
+
+    // Formal Slope hypothesis test (t-test on linear trend)
+    if (regression.valid) {
+      const adverseSlope = lowerIsWorse ? regression.slope < 0 : regression.slope > 0;
+      if (regression.slopeSignificant && Math.abs(regression.slope) > 0.01) {
+        recs.push({
+          level: adverseSlope ? "warning" : "info",
+          tag: "SLOPE P<0.05",
+          title: `${adverseSlope ? "Statistically significant adverse drift" : "Significant trend"} (${regression.slope > 0 ? "+" : ""}${formatNumber(regression.slope, 3)} ${metric.unit || ""}/step)`,
+          body: `Slope t-test confirms trend significance (t=${formatNumber(regression.slopeTStat, 2)}, p=${formatPValue(regression.slopePValue)}, R²=${regression.rSquared.toFixed(2)}). Estimated breach ETA: ${estimateThresholdEta(regression, latest.value, metric)}.`
+        });
+      } else if (!regression.slopeSignificant) {
+        recs.push({
+          level: "info",
+          tag: "NOISE CHECK",
+          title: `Trend slope is not statistically significant (p=${formatPValue(regression.slopePValue)})`,
+          body: `Observed slope (${regression.slope > 0 ? "+" : ""}${formatNumber(regression.slope, 3)} ${metric.unit || ""}/step, R²=${regression.rSquared.toFixed(2)}) is within normal random sampling variance (p ≥ 0.05).`
+        });
+      }
+    }
+
     if (analysis.outliers.length > 0) {
       const pct = ((analysis.outliers.length / n) * 100).toFixed(1);
       recs.push({
         level: analysis.outliers.length >= 3 ? "warning" : "info",
         tag: "SPIKE RATE",
         title: `${analysis.outliers.length} Z-score outlier(s) detected (${pct}% of window)`,
-        body: `Outliers exceeded ±${state.zThreshold.toFixed(1)}σ from the trailing rolling baseline (μ=${formatNumber(analysis.stats.mean)}, σ=${formatNumber(analysis.stats.stdDev)}). Review Alert Feed or save outliers to IndexedDB.`
+        body: `Outliers exceeded ±${state.zThreshold.toFixed(1)}σ from the trailing rolling baseline (μ=${formatNumber(analysis.stats.mean)}, σ=${formatNumber(analysis.stats.stdDev)}). Review Alert Feed in Live Telemetry or save outliers to IndexedDB.`
       });
     }
 
-    if (regression.valid && Math.abs(regression.slope) > 0.02) {
-      const adverse = lowerIsWorse ? regression.slope < 0 : regression.slope > 0;
-      if (adverse) {
-        recs.push({
-          level: "warning",
-          tag: "DRIFT",
-          title: `Adverse linear trend (${regression.slope > 0 ? "+" : ""}${formatNumber(regression.slope, 3)} ${metric.unit || ""}/step)`,
-          body: `Linear regression (R²=${regression.rSquared.toFixed(2)}) projects drift toward operational limits. Estimated time to breach: ${estimateThresholdEta(regression, latest.value, metric)}.`
-        });
-      }
+    if (meanCI && meanCI.valid) {
+      recs.push({
+        level: "info",
+        tag: "95% CONF. INT.",
+        title: `True population mean estimated at ${formatNumber(meanCI.mean)} ± ${formatNumber(meanCI.margin)} ${metric.unit || ""}`,
+        body: `95% Student's t confidence interval [${formatNumber(meanCI.lower)}, ${formatNumber(meanCI.upper)}] computed across n=${n} samples (df=${meanCI.df}, t*=${meanCI.tCrit.toFixed(2)}).`
+      });
     }
 
     const originSet = new Set(analysis.points.map((p) => p.origin));
@@ -488,12 +749,12 @@
       });
     }
 
-    if (recs.length === 0 || (healthItem && healthItem.score >= 85 && analysis.outliers.length === 0)) {
+    if (healthItem && healthItem.score >= 85 && analysis.outliers.length === 0) {
       recs.unshift({
         level: "optimal",
         tag: "OPTIMAL",
         title: `${metric.name} operating within stable statistical bounds`,
-        body: `Health score is ${healthItem ? healthItem.score : 100}/100 with low variance (σ=${formatNumber(analysis.stats.stdDev)} ${metric.unit || ""}) and zero outliers above ±${state.zThreshold.toFixed(1)}σ.`
+        body: `Health score is ${healthItem.score}/100 with low variance (σ=${formatNumber(analysis.stats.stdDev)} ${metric.unit || ""}) and zero outliers above ±${state.zThreshold.toFixed(1)}σ.`
       });
     }
 
@@ -501,7 +762,7 @@
   }
 
   /* ========================================================================
-     Canvas Rendering (Regression + Z-Score Band + Hover Tooltip)
+     Canvas Rendering (Regression + Z-Score Band + 95% PI Cone + Tooltip)
      ======================================================================== */
 
   function drawAnalyticsChart(analysis, regression, metric) {
@@ -545,7 +806,12 @@
         allVals.push(p.mean - state.zThreshold * p.stdDev);
       }
     });
-    forecast.forEach((f) => allVals.push(f.value));
+    forecast.forEach((f) => {
+      allVals.push(f.value);
+      if (Number.isFinite(f.piUpper) && Number.isFinite(f.piLower)) {
+        allVals.push(f.piUpper, f.piLower);
+      }
+    });
 
     let minY = Math.min(...allVals);
     let maxY = Math.max(...allVals);
@@ -566,7 +832,7 @@
     ctx.strokeStyle = "rgba(148, 163, 184, 0.12)";
     ctx.lineWidth = 1;
     ctx.fillStyle = "#94a3b8";
-    ctx.font = "11px Consolas, monospace";
+    ctx.font = "11px ui-monospace, SFMono-Regular, Menlo, monospace";
     ctx.textAlign = "right";
     ctx.textBaseline = "middle";
 
@@ -581,11 +847,31 @@
       ctx.fillText(formatNumber(val, 1), pad.left - 8, y);
     }
 
-    // Forecast Zone Shade
+    // Forecast Zone Shade + 95% Prediction Interval Cone
     if (forecast.length > 0 && visibleHistory.length > 0) {
-      const splitX = xForIndex(visibleHistory.length - 1);
-      ctx.fillStyle = "rgba(167, 139, 250, 0.06)";
+      const lastHistIdx = visibleHistory.length - 1;
+      const splitX = xForIndex(lastHistIdx);
+      ctx.fillStyle = "rgba(167, 139, 250, 0.05)";
       ctx.fillRect(splitX, pad.top, width - pad.right - splitX, plotH);
+
+      // 95% Prediction Interval shaded band
+      const offset = analysis.points.length - visibleHistory.length;
+      const anchorY = regression.valid ? regression.fitted[offset + lastHistIdx] : visibleHistory[lastHistIdx].value;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(splitX, yForVal(anchorY));
+      forecast.forEach((f, idx) => {
+        ctx.lineTo(xForIndex(visibleHistory.length + idx), yForVal(f.piUpper));
+      });
+      for (let idx = forecast.length - 1; idx >= 0; idx--) {
+        ctx.lineTo(xForIndex(visibleHistory.length + idx), yForVal(forecast[idx].piLower));
+      }
+      ctx.lineTo(splitX, yForVal(anchorY));
+      ctx.closePath();
+      ctx.fillStyle = "rgba(167, 139, 250, 0.12)";
+      ctx.fill();
+      ctx.restore();
 
       ctx.save();
       ctx.strokeStyle = "rgba(167, 139, 250, 0.35)";
@@ -614,10 +900,11 @@
         ctx.lineTo(xForIndex(i), yForVal(lower));
       }
       ctx.closePath();
-      ctx.fillStyle = "rgba(34, 211, 238, 0.08)";
+      ctx.fillStyle = "rgba(56, 189, 248, 0.08)";
       ctx.fill();
       ctx.restore();
 
+      // Overall mean horizontal dashed line
       if (Number.isFinite(analysis.stats.mean)) {
         const meanY = yForVal(analysis.stats.mean);
         ctx.save();
@@ -660,7 +947,7 @@
 
     // Actual values line
     ctx.save();
-    ctx.strokeStyle = "#22d3ee";
+    ctx.strokeStyle = "#38bdf8";
     ctx.lineWidth = 2.2;
     ctx.beginPath();
     visibleHistory.forEach((p, i) => {
@@ -672,6 +959,7 @@
     ctx.stroke();
     ctx.restore();
 
+    // Interactive Point Cache & Markers
     const interactive = [];
 
     visibleHistory.forEach((p, i) => {
@@ -702,7 +990,7 @@
       } else {
         ctx.beginPath();
         ctx.arc(x, y, 2.6, 0, Math.PI * 2);
-        ctx.fillStyle = "#22d3ee";
+        ctx.fillStyle = "#38bdf8";
         ctx.fill();
       }
     });
@@ -716,6 +1004,8 @@
         kind: "forecast",
         label: `+${f.step} step forecast`,
         value: f.value,
+        piLower: f.piLower,
+        piUpper: f.piUpper,
         zScore: null,
         origin: "LINEAR FIT",
         isOutlier: false,
@@ -730,8 +1020,9 @@
 
     state.chartPoints = interactive;
 
-    ctx.fillStyle = "#94a3b8";
-    ctx.font = "11px Segoe UI, Arial, sans-serif";
+    // X-axis caption
+    ctx.fillStyle = "#64748b";
+    ctx.font = "11px system-ui, -apple-system, sans-serif";
     ctx.textAlign = "left";
     ctx.fillText(
       `Showing last ${visibleHistory.length} samples (${analysis.points.length} total)`,
@@ -742,7 +1033,7 @@
     if (forecast.length > 0) {
       ctx.textAlign = "right";
       ctx.fillStyle = "#a78bfa";
-      ctx.fillText(`+${forecast.length} step linear projection`, width - pad.right, height - 10);
+      ctx.fillText(`+${forecast.length} step forecast (95% PI shaded)`, width - pad.right, height - 10);
     }
   }
 
@@ -777,20 +1068,22 @@
         return;
       }
 
-      const zPart =
+      const extraLine =
         closest.kind === "actual" && Number.isFinite(closest.zScore)
           ? `<br>Z-Score: <strong>${closest.zScore >= 0 ? "+" : ""}${closest.zScore.toFixed(2)}σ</strong>`
+          : closest.kind === "forecast" && Number.isFinite(closest.piLower)
+          ? `<br>95% PI: <strong>[${formatNumber(closest.piLower)}, ${formatNumber(closest.piUpper)}]</strong>`
           : "";
 
       tooltip.innerHTML = `
         <strong>${escapeHtml(closest.label)}</strong> (${escapeHtml(closest.origin)})<br>
         Value: <strong>${formatNumber(closest.value)} ${escapeHtml(closest.unit)}</strong>
-        ${zPart}
+        ${extraLine}
         ${closest.isOutlier ? '<br><span style="color:#f87171;">Z-Score Outlier</span>' : ""}
       `;
 
       tooltip.hidden = false;
-      const leftPos = Math.min(rect.width - 175, Math.max(8, closest.x + 12));
+      const leftPos = Math.min(rect.width - 195, Math.max(8, closest.x + 12));
       const topPos = Math.max(8, closest.y - 54);
       tooltip.style.left = `${leftPos}px`;
       tooltip.style.top = `${topPos}px`;
@@ -851,6 +1144,7 @@
       return;
     }
 
+    // Prefer source with most readings if none selected
     if (!state.sources.some((s) => s.id === state.selectedSourceId)) {
       const counts = {};
       state.readings.forEach((r) => {
@@ -973,6 +1267,7 @@
     const metrics = source && Array.isArray(source.metrics) ? source.metrics : [];
     const metric = metrics.find((m) => m.id === state.selectedMetricId) || null;
 
+    // Sample coverage KPI
     if (els["kpi-sample-coverage"]) {
       els["kpi-sample-coverage"].textContent = String(state.readings.length);
     }
@@ -994,6 +1289,7 @@
       return;
     }
 
+    // Health breakdown across all metrics of the active source
     const healthItems = metrics.map((m) => {
       const mReadings = getFilteredReadings(source.id, m.id);
       return computeMetricHealth(mReadings, m, state.zThreshold);
@@ -1028,12 +1324,16 @@
       els["kpi-health-sub"].textContent = `Source: ${source.name} (${scoredItems.length}/${metrics.length} active metrics)`;
     }
 
+    // Selected metric deep analysis + formal statistical inference
     const filtered = getFilteredReadings(source.id, metric.id);
     const analysis = detectZScoreAnomalies(filtered, metric, state.zThreshold);
     const values = analysis.points.map((p) => p.value);
     const regression = computeLinearRegression(values, state.forecastSteps);
+    const meanCI = computeMeanConfidenceInterval(analysis.stats);
+    const welchTest = computeWelchShiftTest(values);
     const activeHealth = healthItems.find((h) => h.metric.id === metric.id);
 
+    // Anomaly KPI
     if (els["kpi-zscore-anomalies"]) {
       els["kpi-zscore-anomalies"].textContent = String(analysis.outliers.length);
     }
@@ -1041,6 +1341,7 @@
       els["kpi-anomalies-sub"].textContent = `${state.storedAnomalies.length} saved in IndexedDB alerts`;
     }
 
+    // Trend + Slope Inference KPI
     const slopeEl = els["kpi-trend-direction"];
     const trendBadge = els["kpi-trend-badge"];
     const trendSub = els["kpi-trend-sub"];
@@ -1048,19 +1349,19 @@
       const sign = regression.slope > 0 ? "+" : "";
       if (slopeEl) slopeEl.textContent = `${sign}${formatNumber(regression.slope, 3)}`;
       if (trendBadge) {
-        if (Math.abs(regression.slope) < 0.01) {
-          trendBadge.textContent = "FLAT";
+        if (!regression.slopeSignificant || Math.abs(regression.slope) < 0.01) {
+          trendBadge.textContent = regression.slopeSignificant ? "FLAT" : "NOISE (p≥.05)";
           trendBadge.className = "trend-pill trend-flat";
         } else if (regression.slope > 0) {
-          trendBadge.textContent = "RISING";
+          trendBadge.textContent = "RISING (SIG)";
           trendBadge.className = "trend-pill trend-up";
         } else {
-          trendBadge.textContent = "FALLING";
+          trendBadge.textContent = "FALLING (SIG)";
           trendBadge.className = "trend-pill trend-down";
         }
       }
       if (trendSub) {
-        trendSub.textContent = `${metric.unit || "units"}/interval · R² = ${regression.rSquared.toFixed(2)}`;
+        trendSub.textContent = `${metric.unit || "units"}/step · R²=${regression.rSquared.toFixed(2)} · p=${formatPValue(regression.slopePValue)}`;
       }
     } else {
       if (slopeEl) slopeEl.textContent = "--";
@@ -1073,12 +1374,15 @@
       }
     }
 
+    // Chart headers & inference stats bar
     if (els["chart-title"]) {
       els["chart-title"].textContent = `${metric.name} — Regression & ±${state.zThreshold.toFixed(1)}σ Band`;
     }
     if (els["stat-mean"]) {
       els["stat-mean"].textContent = Number.isFinite(analysis.stats.mean)
-        ? `${formatNumber(analysis.stats.mean)} ${metric.unit || ""}`
+        ? meanCI.valid
+          ? `${formatNumber(analysis.stats.mean)} ± ${formatNumber(meanCI.margin)} ${metric.unit || ""}`
+          : `${formatNumber(analysis.stats.mean)} ${metric.unit || ""}`
         : "--";
     }
     if (els["stat-stddev"]) {
@@ -1087,12 +1391,14 @@
         : "--";
     }
     if (els["stat-r2"]) {
-      els["stat-r2"].textContent = regression.valid ? regression.rSquared.toFixed(3) : "--";
+      els["stat-r2"].textContent = regression.valid
+        ? `${regression.rSquared.toFixed(3)} (p=${formatPValue(regression.slopePValue)})`
+        : "--";
     }
     if (els["stat-forecast-next"]) {
       els["stat-forecast-next"].textContent =
         regression.valid && regression.forecast.length > 0
-          ? `${formatNumber(regression.forecast[0].value)} ${metric.unit || ""}`
+          ? `${formatNumber(regression.forecast[0].value)} ± ${formatNumber(regression.forecast[0].piMargin)} ${metric.unit || ""}`
           : "--";
     }
     if (els["stat-eta-breach"]) {
@@ -1102,6 +1408,7 @@
 
     drawAnalyticsChart(analysis, regression, metric);
 
+    // Health Breakdown List
     const healthList = els["health-breakdown-list"];
     if (healthList) {
       healthList.innerHTML = healthItems
@@ -1113,7 +1420,7 @@
               : item.status === "warn"
               ? "#f59e0b"
               : item.status === "good"
-              ? "#22c55e"
+              ? "#10b981"
               : "#64748b";
           return `
             <div class="health-item">
@@ -1136,8 +1443,9 @@
         .join("");
     }
 
+    // Anomalies Table
     if (els["outlier-count-pill"]) {
-      els["outlier-count-pill"].textContent = `${analysis.outliers.length} Outlier${analysis.outliers.length === 1 ? "" : "s"}`;
+      els["outlier-count-pill"].textContent = `${analysis.outliers.length} outlier(s)`;
     }
 
     const tbody = els["anomalies-table-body"];
@@ -1178,7 +1486,8 @@
       }
     }
 
-    const recs = buildRecommendations(source, metric, analysis, regression, activeHealth);
+    // Recommendations (now includes statistical inference t-tests & 95% CI)
+    const recs = buildRecommendations(source, metric, analysis, regression, activeHealth, meanCI, welchTest);
     if (els["recommendations-list"]) {
       els["recommendations-list"].innerHTML = recs
         .map(
@@ -1195,11 +1504,12 @@
         .join("");
     }
 
+    // What-If Simulator
     updateSimulatorPreview(metric, filtered);
 
     state.lastReport = {
       generatedAt: new Date().toISOString(),
-      methodology: "Statistical (Rolling Z-Score, Least-Squares Linear Regression, Rule-Based Health Scoring)",
+      methodology: "Statistical Inference (Rolling Z-Score, OLS Linear Regression, Student-t 95% CI & PI, Slope t-test, Welch Two-Sample Shift t-test)",
       source: { id: source.id, name: source.name, type: source.type },
       metric: { id: metric.id, name: metric.name, unit: metric.unit },
       parameters: {
@@ -1209,11 +1519,26 @@
       },
       overallSourceHealth: overallHealth,
       descriptiveStats: analysis.stats,
+      statisticalInference: {
+        meanConfidenceInterval95: meanCI,
+        slopeHypothesisTest: regression.valid
+          ? {
+              slope: regression.slope,
+              stdError: regression.slopeStdErr,
+              tStatistic: regression.slopeTStat,
+              df: regression.df,
+              pValue: regression.slopePValue,
+              significantAtAlpha05: regression.slopeSignificant
+            }
+          : { valid: false },
+        baselineShiftWelchTest: welchTest
+      },
       linearRegression: {
         valid: regression.valid,
         slope: regression.slope,
         intercept: regression.intercept,
         rSquared: regression.rSquared,
+        residualStdErr: regression.residualStdErr,
         forecast: regression.forecast
       },
       outliers: analysis.outliers.map((o) => ({
@@ -1263,10 +1588,13 @@
       const payload = {
         id: `anom_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
         sourceId: source.id,
+        sourceName: source.name,
         metricId: metric.id,
         metric: metric.name,
+        metricName: metric.name,
         readingId: o.reading.id || null,
         value: o.value,
+        unit: metric.unit || "",
         zScore: Number(o.zScore.toFixed(3)),
         severity: o.severity === "critical" ? "critical" : "warning",
         detectionMethod: "z-score",
@@ -1312,7 +1640,7 @@
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
-    showToast("Exported statistical analytics report JSON.", "success");
+    showToast("Exported statistical inference analytics report JSON.", "success");
   }
 
   function bindEvents() {
@@ -1380,7 +1708,7 @@
         await loadAllData();
         populateSelectors();
         renderAnalytics();
-        showToast("Statistical Z-score & regression scan completed.", "success");
+        showToast("Statistical inference & Z-score scan completed.", "success");
       });
     }
 
@@ -1433,6 +1761,9 @@
   NexusAI.AIEngine = {
     init,
     computeDescriptiveStats,
+    computeMeanConfidenceInterval,
+    computeWelchShiftTest,
+    studentTTwoTailedPValue,
     detectZScoreAnomalies,
     computeLinearRegression,
     computeMetricHealth,
@@ -1443,9 +1774,5 @@
     }
   };
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    init();
-  }
+  document.addEventListener("DOMContentLoaded", init);
 })(window, document);
